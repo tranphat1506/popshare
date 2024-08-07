@@ -1,60 +1,49 @@
-import { Text, type TextProps, StyleSheet } from 'react-native';
+import { Text, type TextProps } from 'react-native';
 
 import { useThemeColor } from '@/hooks/useThemeColor';
 
 export type ThemedTextProps = TextProps & {
-  lightColor?: string;
-  darkColor?: string;
-  type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link';
+    lightColor?: string;
+    darkColor?: string;
+    type?: 'default' | 'title' | 'iconText' | 'link';
 };
 
-export function ThemedText({
-  style,
-  lightColor,
-  darkColor,
-  type = 'default',
-  ...rest
-}: ThemedTextProps) {
-  const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
+export function ThemedText({ style, lightColor, darkColor, type = 'default', ...rest }: ThemedTextProps) {
+    const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
 
-  return (
-    <Text
-      style={[
-        { color },
-        type === 'default' ? styles.default : undefined,
-        type === 'title' ? styles.title : undefined,
-        type === 'defaultSemiBold' ? styles.defaultSemiBold : undefined,
-        type === 'subtitle' ? styles.subtitle : undefined,
-        type === 'link' ? styles.link : undefined,
-        style,
-      ]}
-      {...rest}
-    />
-  );
+    return <Text className={styles[type].className ?? ''} style={[{ color }, styles[type].styles, style]} {...rest} />;
 }
 
-const styles = StyleSheet.create({
-  default: {
-    fontSize: 16,
-    lineHeight: 24,
-  },
-  defaultSemiBold: {
-    fontSize: 16,
-    lineHeight: 24,
-    fontWeight: '600',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    lineHeight: 32,
-  },
-  subtitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  link: {
-    lineHeight: 30,
-    fontSize: 16,
-    color: '#0a7ea4',
-  },
-});
+interface CustomTextProps {
+    className?: string;
+    styles?: object;
+}
+
+const styles: { [key: string]: CustomTextProps } = {
+    default: {
+        className: 'text-lg',
+        styles: {
+            fontFamily: 'System-Regular',
+        },
+    },
+    iconText: {
+        className: 'text-xs',
+        styles: {
+            fontFamily: 'System-Regular',
+        },
+    },
+    title: {
+        className: 'uppercase leading-none',
+        styles: {
+            fontFamily: 'System-Black',
+            fontSize: 30,
+        },
+    },
+    link: {
+        className: 'text-md underline',
+        styles: {
+            fontFamily: 'System-Regular',
+            color: '#1C9EF6',
+        },
+    },
+};
