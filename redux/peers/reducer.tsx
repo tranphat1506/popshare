@@ -1,43 +1,60 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Platform } from 'react-native';
 
-type PeerId = string;
+export type PeerId = string;
+interface IOnlineState {
+    lastOnline: number;
+    isOnline: boolean;
+}
 export type Peer = {
     id: PeerId;
-    OS: typeof Platform.OS;
+    userBgColorCode: string;
     username: string;
-    deviceName: string;
+    displayName: string;
+    suffixName: string;
     avatar: string;
+    onlineState?: IOnlineState;
+    uriAvatar?: string;
+    pinSlot?: number;
 };
 // peer structure
-
-export type Peers = Peer[];
-
-interface PeersState {
+export type Peers = {
+    [key: PeerId]: Peer;
+};
+export interface PeersPinSlots {
+    [key: PeerId]: number;
+}
+interface IPeerHistoryActionProps {
+    peerId: PeerId;
+    lastActionTime: number;
+}
+type PeerHistoryNode = IPeerHistoryActionProps;
+type PeerHistoryQueue = PeerHistoryNode[];
+export interface PeersState {
     count: number;
     peers: Peers;
-    friends: { [key: PeerId]: number };
+    recentHistory: PeerHistoryQueue;
 }
 export const initState: PeersState = {
     count: 0,
-    peers: [],
-    friends: {},
+    peers: {},
+    recentHistory: [],
 };
 const peersReducer = {
-    addPeer: (state: PeersState, action: PayloadAction<Peer>) => {
-        state.peers = [...state.peers, action.payload];
-        state.count = state.count + 1;
+    addPeers: (state: PeersState, action: PayloadAction<Peer[]>) => {
+        action.payload.forEach((peer) => {
+            state.peers[peer.id] = peer;
+            state.count = state.count + 1;
+        });
     },
-    removePeer: (state: PeersState) => {
-        state.count = state.count - 1;
-        state.peers.splice(0, 1);
+    addPeer: (state: PeersState, action: PayloadAction<Peer>) => {
+        const existPeer = state.peers[action.payload.id];
+        if (!existPeer) state.count = state.count + 1;
+        state.peers[action.payload.id] = { ...existPeer, ...action.payload };
     },
     removePeerByPeerId: (state: PeersState, action: PayloadAction<PeerId>) => {
-        const id = action.payload;
-        // find room detail
-        const index = state.peers.findIndex((p) => p.id === id);
-        if (index !== -1) {
-            state.peers.splice(index, 1);
+        const peerDetail = state.peers[action.payload];
+        if (!peerDetail) {
+            delete state.peers[action.payload];
             state.count = state.count - 1;
         }
     },
@@ -48,5 +65,5 @@ const peersSlice = createSlice({
     reducers: peersReducer,
 });
 
-export const { addPeer, removePeer, removePeerByPeerId } = peersSlice.actions;
+export const { addPeer, removePeerByPeerId, addPeers } = peersSlice.actions;
 export default peersSlice.reducer;

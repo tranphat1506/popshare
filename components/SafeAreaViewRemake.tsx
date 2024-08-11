@@ -1,15 +1,23 @@
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { useAppSelector } from '@/redux/hooks/hooks';
 import React from 'react';
-import { Platform, SafeAreaView, StatusBar, StyleSheet } from 'react-native';
+import { Platform, SafeAreaView, StatusBar, StyleSheet, ViewProps } from 'react-native';
 
-const SafeAreaViewRemake: React.FC<any> = (props) => {
+const SafeAreaViewRemake: React.FC<{ preventStatusBar?: boolean } & ViewProps> = ({
+    preventStatusBar = true,
+    ...props
+}) => {
     const backgroundColor = useThemeColor({}, 'background');
+    const borderColor = useThemeColor({ light: '#ffffff00', dark: '#222' });
+
     return (
         <SafeAreaView
             style={[
-                styles.SafeAreaDetect,
+                ...[preventStatusBar ? styles.SafeAreaDetect : {}],
                 {
                     backgroundColor,
+                    borderColor: borderColor,
+                    borderTopWidth: 1,
                 },
             ]}
         >

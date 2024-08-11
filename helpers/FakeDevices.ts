@@ -1,143 +1,42 @@
-import { Peer } from '@/redux/peers/reducer';
-import { fakerVI } from '@faker-js/faker';
-import { Platform } from 'react-native';
+import { Peer, PeerId } from '@/redux/peers/reducer';
+import { faker, fakerVI } from '@faker-js/faker';
 import uuid from 'react-native-uuid';
-export const DumpDevices = [
-    'iPhone 15',
-    'MacBook Air',
-    'Pixel 3XL',
-    'Oppo F9',
-    'Samsung Galaxy S21',
-    'Dell XPS 13',
-    'Huawei P40',
-    'Lenovo ThinkPad X1',
-    'Asus ROG Phone 5',
-    'Microsoft Surface Pro 7',
-    'iPhone 14',
-    'MacBook Pro',
-    'Pixel 4A',
-    'Oppo Reno 5',
-    'Samsung Galaxy Note 20',
-    'Dell Inspiron 15',
-    'Huawei Mate 40',
-    'Lenovo Yoga 7i',
-    'Asus ZenBook 14',
-    'Microsoft Surface Laptop 4',
-    'iPhone 13',
-    'MacBook 12',
-    'Pixel 5',
-    'Oppo A93',
-    'Samsung Galaxy Z Fold 3',
-    'Dell Latitude 7400',
-    'Huawei P30',
-    'Lenovo Legion 5',
-    'Asus TUF Gaming A15',
-    'Microsoft Surface Go 2',
-    'iPhone 12',
-    'MacBook Air M1',
-    'Pixel 3',
-    'Oppo Find X2',
-    'Samsung Galaxy A52',
-    'Dell XPS 15',
-    'Huawei Nova 7',
-    'Lenovo ThinkPad T14',
-    'Asus ROG Zephyrus G14',
-    'Microsoft Surface Book 3',
-    'iPhone 11',
-    'MacBook Pro 16',
-    'Pixel 2 XL',
-    'Oppo F11 Pro',
-    'Samsung Galaxy S20',
-    'Dell G5 15',
-    'Huawei Mate Xs',
-    'Lenovo IdeaPad 5',
-    'Asus VivoBook S15',
-    'Microsoft Surface Duo',
-    'iPhone XR',
-    'MacBook Pro 13',
-    'Pixel 4',
-    'Oppo A9',
-    'Samsung Galaxy M31',
-    'Dell Precision 5550',
-    'Huawei Y9s',
-    'Lenovo Flex 5',
-    'Asus ZenBook Flip 14',
-    'Microsoft Surface Pro X',
-    'iPhone XS',
-    'MacBook Retina',
-    'Pixel 3a',
-    'Oppo K3',
-    'Samsung Galaxy J7',
-    'Dell XPS 17',
-    'Huawei P20 Pro',
-    'Lenovo ThinkPad X13',
-    'Asus ROG Strix G15',
-    'Microsoft Surface Neo',
-    'iPhone X',
-    'MacBook Pro 15',
-    'Pixel 2',
-    'Oppo F7',
-    'Samsung Galaxy A71',
-    'Dell Inspiron 13',
-    'Huawei Mate 20 Pro',
-    'Lenovo Legion Y740',
-    'Asus ZenBook Duo',
-    'Microsoft Surface Laptop 3',
-    'iPhone 8',
-    'MacBook Air 2019',
-    'Pixel XL',
-    'Oppo Find X',
-    'Samsung Galaxy S10',
-    'Dell G3 15',
-    'Huawei P Smart',
-    'Lenovo ThinkPad E14',
-    'Asus ROG Flow X13',
-    'Microsoft Surface 2',
-    'iPhone 7',
-    'MacBook Pro 2020',
-    'Pixel',
-    'Oppo R17',
-    'Samsung Galaxy Note 10',
-    'Dell XPS 13 2-in-1',
-    'Huawei P40 Lite',
-    'Lenovo Yoga C740',
-    'Asus ZenBook Pro 15',
-    'Microsoft Surface Laptop 2',
-    'iPhone 6',
-    'MacBook Pro 2019',
-    'Pixel C',
-    'Oppo F5',
-    'Samsung Galaxy M21',
-    'Dell Alienware m15',
-    'Huawei MatePad Pro',
-    'Lenovo ThinkPad P53',
-    'Asus VivoBook 15',
-    'Microsoft Surface Pro 6',
-    'iPhone SE',
-    'MacBook 2017',
-    'Pixel Slate',
-    'Oppo A5',
-    'Samsung Galaxy A50',
-    'Dell Precision 7540',
-    'Huawei Y7p',
-    'Lenovo Legion Y540',
-    'Asus Chromebook Flip C434',
-    'Microsoft Surface RT',
-];
+import { getAllFirstLetterOfString, stringToColorCode } from './string';
+import { FetchUserAvatarByUrl } from './fetching';
 
 export const OS = ['android', 'ios', 'macos', 'windows', 'web'];
 
 export const genRandomPeer = (): Peer => {
+    const peerId = uuid.v4().toString();
+    const displayName = fakerVI.person.fullName();
     return {
-        id: uuid.v4().toString(),
-        OS: OS[Math.floor(Math.random() * OS.length)] as typeof Platform.OS,
-        deviceName: DumpDevices[Math.floor(Math.random() * DumpDevices.length)],
-        username: fakerVI.person.fullName(),
-        avatar: fakerVI.image.avatar(),
+        id: peerId,
+        displayName,
+        username: fakerVI.person.zodiacSign(),
+        avatar: fakerVI.image.avatarGitHub(),
+        suffixName: getAllFirstLetterOfString(displayName),
+        userBgColorCode: stringToColorCode(peerId),
     };
 };
+
+export const genRandomPeerId = (): PeerId => {
+    return uuid.v4().toString();
+};
+
+export const genRandomNumberBtwMaxAndMin = (max: number, min: number): PeerId => {
+    return Math.round(Math.random() * (max - min) + min).toString();
+};
+
 export const genRandomPeers = (n: number): Peer[] => {
     return fakerVI.helpers.multiple(genRandomPeer, {
+        count: n ?? 0,
+    });
+};
+export const getRandomImageUrl = () => {
+    return fakerVI.image.url();
+};
+export const genRandomPeersId = (n: number): PeerId[] => {
+    return fakerVI.helpers.multiple(genRandomPeerId, {
         count: n ?? 0,
     });
 };

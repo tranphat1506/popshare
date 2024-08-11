@@ -1,7 +1,7 @@
-import React, { memo, useEffect, useState } from 'react';
-import { View, ViewProps, ViewStyle } from 'react-native';
+import React, { memo } from 'react';
+import { View, ViewProps } from 'react-native';
 import { Avatar, Flex } from 'native-base';
-import { Feather, Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { Entypo, Feather, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import ButtonIconWithBadge from './ButtonIconWithBadge';
 import { NavigationProp, ParamListBase, useNavigation } from '@react-navigation/native';
 import { useAppSelector } from '@/redux/hooks/hooks';
@@ -13,7 +13,7 @@ const TopToolBar: React.FC<TopToolBarProps> = (props) => {
     const navigationToOtherRoute = (routeName: string, routeParams?: any) => () => {
         navigation.navigate(routeName, routeParams);
     };
-    const peerLength = useAppSelector((state) => state.peers).count;
+    const peerLength = useAppSelector((state) => state.peers.count);
     return (
         <View
             style={{
@@ -70,10 +70,25 @@ const TopToolBar: React.FC<TopToolBarProps> = (props) => {
                         }}
                         btnProps={{
                             _icon: {
-                                as: MaterialIcons,
-                                name: 'devices-other',
+                                as: Feather,
+                                name: 'users',
                             },
-                            onPress: navigationToOtherRoute('devices'),
+                            onPress: navigationToOtherRoute('friends'),
+                        }}
+                    />
+                    <ButtonIconWithBadge
+                        marginLeft={4}
+                        badgeProps={{
+                            value: 100,
+                            min: 1,
+                            max: 99,
+                        }}
+                        btnProps={{
+                            _icon: {
+                                as: Entypo,
+                                name: 'message',
+                            },
+                            onPress: navigationToOtherRoute('messages'),
                         }}
                     />
                 </Flex>

@@ -1,11 +1,11 @@
 {
-    "DEVICES_TITLE": "Devices",
+    "FRIENDS_TITLE": "Friends List",
     "NOTIFICATION_TITLE": "Notifications",
     "CANNOT_FIND_PAGE": "Cannot find this page",
     "RETURN": "Return",
     "HOME_PAGE": "Homepage",
     "NOTIFICATION_NO_NOTI_TITLE": "No notifications yet",
     "NOTIFICATION_NO_NOTI_DESC": "You have no notifications this time.\nCome back later",
-    "DEVICES_NO_DEVICE_TITLE": "No devices detected",
-    "DEVICES_NO_DEVICE_DESC": "No devices available right now.\nPlease scan again or come back later"
+    "FRIENDS_NO_DEVICE_TITLE": "No friends found",
+    "FRIENDS_NO_DEVICE_DESC": "You currently have no friends. Connect with others to add friends!"
 }

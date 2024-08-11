@@ -1,11 +1,11 @@
 {
-    "DEVICES_TITLE": "Thiết bị",
+    "FRIENDS_TITLE": "Danh sách bạn bè",
     "NOTIFICATION_TITLE": "Thông báo",
     "CANNOT_FIND_PAGE": "Không tìm thấy trang",
     "RETURN": "Quay về",
     "HOME_PAGE": "Trang chủ",
     "NOTIFICATION_NO_NOTI_TITLE": "Không có thông báo",
     "NOTIFICATION_NO_NOTI_DESC": "Bạn chưa có thông báo nào hết.\nHãy quay lại sau",
-    "DEVICES_NO_DEVICE_TITLE": "Không tìm thấy thiết bị",
-    "DEVICES_NO_DEVICE_DESC": "Không tìm thấy bất kì thiết bị nào.\nHãy quét lại hoặc quay lại sau"
+    "FRIENDS_NO_DEVICE_TITLE": "Danh sách bạn bè trống",
+    "FRIENDS_NO_DEVICE_DESC": "Hiện tại, bạn chưa có bạn bè nào. Hãy kết nối với mọi người để thêm bạn bè!"
 }

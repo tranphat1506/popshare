@@ -3,14 +3,19 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export type SettingState = {
     language: LanguageType;
+    theme: 'light' | 'dark' | 'device';
 };
 export const initState: SettingState = {
     language: 'default',
+    theme: 'device',
 };
 
 const settingReducer = {
     changeLanguage: (state: SettingState, action: PayloadAction<LanguageType>) => {
         state.language = action.payload;
+    },
+    changeTheme: (state: SettingState, action: PayloadAction<'light' | 'dark' | 'device'>) => {
+        state.theme = action.payload;
     },
 };
 

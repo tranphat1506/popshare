@@ -1,4 +1,5 @@
 import { BLUE_MAIN_COLOR } from '@/constants/Colors';
+import { useThemeColor } from '@/hooks/useThemeColor';
 import { Badge, IconButton, IIconButtonProps, VStack } from 'native-base';
 import { InterfaceBadgeProps } from 'native-base/lib/typescript/components/composites/Badge/types';
 import React from 'react';
@@ -35,8 +36,7 @@ const ButtonIconWithBadge: React.FC<ButtonIconWithBadgeProps> = ({ badgeProps = 
             : minV === undefined
             ? badgeProps.value
             : badgeProps.value >= minV;
-    const theme = useColorScheme();
-    const IconBtnStyleDefault = generateIconBtnStyleDefault(theme);
+    const IconBtnStyleDefault = generateIconBtnStyleDefault();
     return (
         <VStack {...props}>
             {showBadge && (
@@ -56,13 +56,13 @@ const ButtonIconWithBadge: React.FC<ButtonIconWithBadgeProps> = ({ badgeProps = 
     );
 };
 
-const generateIconBtnStyleDefault = (theme: ColorSchemeName): { badge: BadgeProps; btn: IIconButtonProps } => {
-    const bgButtonColor = theme === 'light' ? '#fff' : '#000';
-    const iconColor = theme === 'light' ? BLUE_MAIN_COLOR : '#fff';
-    const buttonShadow = theme === 'light' ? '3' : '0';
+const generateIconBtnStyleDefault = (): { badge: BadgeProps; btn: IIconButtonProps } => {
+    const bgButtonColor = useThemeColor({ light: '#fff', dark: '#000' });
+    const iconColor = useThemeColor({ light: BLUE_MAIN_COLOR, dark: '#fff' });
+    const buttonShadow = useThemeColor({ light: '3', dark: '0' });
     const borderButton = {
-        borderWidth: theme === 'dark' ? 1 : 0,
-        borderColor: theme === 'dark' ? '#ffffff30' : '',
+        borderWidth: useThemeColor({ light: '0', dark: '1' }),
+        borderColor: useThemeColor({ light: '', dark: '#ffffff30' }),
     };
     return {
         badge: {

@@ -1,120 +1,289 @@
-import { Avatar, Flex } from 'native-base';
-import React, { memo, useLayoutEffect, useState } from 'react';
-import { DimensionValue, Pressable, StyleProp, useColorScheme, View, ViewStyle } from 'react-native';
+import { Avatar, Flex, Icon, Skeleton } from 'native-base';
+import React, { memo, useEffect, useState } from 'react';
+import { Pressable, StyleProp, Text, View, ViewStyle } from 'react-native';
 import { ThemedText } from '../ThemedText';
-import { BLUE_MAIN_COLOR } from '@/constants/Colors';
 import { SIZES } from '@/constants/Sizes';
 import { MotiView } from 'moti';
-import { Easing } from 'react-native-reanimated';
-import { Peer } from '@/redux/peers/reducer';
-import { getAllFirstLetterOfString, stringToColorCode } from '@/helpers/string';
-import { FetchUserAvatarByUrl } from '@/helpers/fetching';
+import { addPeer, Peer } from '@/redux/peers/reducer';
+import { getAllFirstLetterOfString, StringOnlineStateHelper, stringToColorCode } from '@/helpers/string';
+import { FetchUserAvatarByUrl, FetchUserProfileById } from '@/helpers/fetching';
+import { AntDesign } from '@expo/vector-icons';
+import { ThemedView } from '../ThemedView';
+import { useAppDispatch } from '@/redux/hooks/hooks';
+import { genRandomPeer, getRandomImageUrl } from '@/helpers/FakeDevices';
 export type PeerDeviceProps = {
     width?: number;
     height?: number;
     style?: StyleProp<ViewStyle>;
     className?: string;
-    delay?: number;
-} & Peer;
+    isSetPin?: boolean;
+    peerId: string;
+    existPeer?: Peer;
+};
 
 const PeerDevice: React.FC<PeerDeviceProps> = ({
     style,
     className = '',
-    delay = 0,
     width = SIZES.PEER_DEVICE_WIDTH,
     height = SIZES.PEER_DEVICE_HEIGHT,
-    ...props
+    isSetPin = false,
+    peerId,
+    existPeer,
 }) => {
-    const [uriAvatar, setUriAvatar] = useState<string | undefined>(undefined);
-    useLayoutEffect(() => {
-        const r = FetchUserAvatarByUrl(props.avatar);
-        r.then((uri) => {
-            setUriAvatar(uri);
-        }).catch((error) => {
-            console.log(error);
-        });
+    const dispatch = useAppDispatch();
+    const [peerProfile, setPeerProfile] = useState<Peer | undefined>(existPeer);
+    // Fetch peer profile
+    useEffect(() => {
+        // console.log(existPeer?.displayName);
+        if (!peerProfile)
+            FetchUserProfileById('3')
+                .then(async ({ isError, payload }) => {
+                    if (!isError) {
+                        const avatar = getRandomImageUrl();
+                        const uriAvt = await FetchUserAvatarByUrl(avatar);
+                        const peer: Peer = {
+                            id: peerId,
+                            username: payload.username,
+                            avatar: avatar,
+                            displayName: payload.fullName,
+                            uriAvatar: uriAvt,
+                            userBgColorCode: stringToColorCode(peerId),
+                            suffixName: getAllFirstLetterOfString(payload.fullName),
+                            onlineState: {
+                                lastOnline: Date.now(),
+                                isOnline: true,
+                            },
+                        };
+                        dispatch(addPeer(peer));
+                        setPeerProfile(peer);
+                    }
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        else if (!peerProfile.uriAvatar) {
+            FetchUserAvatarByUrl(peerProfile.avatar)
+                .then((uri) => {
+                    const peer: Peer = { ...peerProfile, uriAvatar: uri };
+                    dispatch(addPeer(peer));
+                    setPeerProfile(peer);
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+        } else setPeerProfile(existPeer);
     }, []);
-    const USERNAME_FOR_BROKEN_AVATAR = getAllFirstLetterOfString(props.username);
     return (
-        <MotiView
-            from={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{
-                type: 'timing',
-                duration: 300,
-                delay: 50 * delay,
-                easing: Easing.linear,
-            }}
-        >
+        <View>
             <View
                 style={[style, { flexBasis: width, paddingVertical: 5 }]}
-                className={''.concat('flex justify-center items-center', className)}
+                className={''.concat('flex justify-center items-center relative', className)}
             >
-                <Pressable
-                    onPress={() => {
-                        console.log(props.id);
-                    }}
-                    onLongPress={() => {
-                        console.log('Show detail', props.id);
-                    }}
-                >
-                    <Avatar
-                        source={{ uri: uriAvatar }}
+                {peerProfile === undefined ? (
+                    <>
+                        <Skeleton w={'48px'} h={'48px'} rounded={'full'}></Skeleton>
+                        <Flex direction="column" justifyContent={'center'} alignItems={'center'} paddingTop={1}>
+                            <Skeleton h={'12px'} w={width - 20} paddingY={'1.5px'} rounded={'lg'} />
+                            <View
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    width: width - 10,
+                                }}
+                            >
+                                <ThemedText
+                                    numberOfLines={1}
+                                    ellipsizeMode="tail"
+                                    style={{
+                                        fontFamily: 'System-Regular',
+                                        fontSize: 12,
+                                        lineHeight: 12,
+                                        paddingRight: 2,
+                                    }}
+                                    darkColor={'#999'}
+                                    lightColor={'#777'}
+                                >
+                                    @
+                                </ThemedText>
+                                <Skeleton h={'10px'} w={'2/3'} paddingY={'1px'} rounded={'lg'} />
+                            </View>
+                        </Flex>
+                    </>
+                ) : (
+                    <>
+                        {isSetPin && (
+                            <View
+                                style={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    // borderWidth: 1,
+                                    // borderColor: '#fff',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                }}
+                            >
+                                <Icon
+                                    size={4}
+                                    color={peerProfile.userBgColorCode ?? 'yellow.400'}
+                                    name="pushpin"
+                                    as={AntDesign}
+                                />
+                            </View>
+                        )}
+                        <Pressable
+                            onPress={() => {
+                                dispatch(addPeer(genRandomPeer()));
+                            }}
+                            onLongPress={() => {
+                                console.log('Show detail', peerProfile.id);
+                            }}
+                        >
+                            <Avatar
+                                source={{ uri: peerProfile.uriAvatar }}
+                                style={{
+                                    backgroundColor: peerProfile.userBgColorCode,
+                                }}
+                            >
+                                <ThemedText
+                                    numberOfLines={1}
+                                    ellipsizeMode="tail"
+                                    style={{
+                                        fontSize: 16,
+                                        textAlign: 'center',
+                                    }}
+                                    lightColor="#fff"
+                                    darkColor="#fff"
+                                >
+                                    {peerProfile.suffixName}
+                                </ThemedText>
+                            </Avatar>
+                            {peerProfile.onlineState && (
+                                <ThemedView
+                                    style={{
+                                        position: 'absolute',
+                                        bottom: -5,
+                                        right: -5,
+                                        padding: 3,
+                                        borderRadius: 100,
+                                    }}
+                                >
+                                    <View
+                                        style={{
+                                            backgroundColor: peerProfile.onlineState.isOnline ? '#22c55e' : '#737373',
+                                            minWidth: 15,
+                                            height: 15,
+                                            borderRadius: 100,
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        <Text
+                                            style={{
+                                                fontSize: 12,
+                                                paddingHorizontal: 4,
+                                                fontFamily: 'System-Regular',
+                                                color: '#fff',
+                                            }}
+                                        >
+                                            {peerProfile.onlineState.isOnline ??
+                                                StringOnlineStateHelper.toLastOnlineTime(
+                                                    peerProfile.onlineState.lastOnline,
+                                                )}
+                                        </Text>
+                                    </View>
+                                </ThemedView>
+                            )}
+                        </Pressable>
+                        <Flex direction="column" justifyContent={'center'} alignItems={'center'} paddingTop={1}>
+                            <ThemedText
+                                numberOfLines={1}
+                                ellipsizeMode="tail"
+                                style={{
+                                    fontFamily: 'System-Medium',
+                                    fontSize: 12,
+                                    textAlign: 'center',
+                                    lineHeight: 15,
+                                    width: width - 10,
+                                }}
+                                darkColor={'#fff'}
+                                lightColor={'#333'}
+                            >
+                                {peerProfile.displayName}
+                            </ThemedText>
+                            <ThemedText
+                                numberOfLines={1}
+                                ellipsizeMode="tail"
+                                style={{
+                                    fontFamily: 'System-Regular',
+                                    fontSize: 10,
+                                    lineHeight: 12,
+                                    textAlign: 'center',
+                                    textTransform: 'capitalize',
+                                    width: width - 10,
+                                }}
+                                darkColor={'#999'}
+                                lightColor={'#777'}
+                            >
+                                @{peerProfile.username}
+                            </ThemedText>
+                        </Flex>
+                    </>
+                )}
+            </View>
+        </View>
+    );
+};
+
+export const PeerDeviceSkeleton: React.FC<{
+    width?: number;
+    style?: StyleProp<ViewStyle>;
+    className?: string;
+}> = ({ style, className = '', width = SIZES.PEER_DEVICE_WIDTH }) => {
+    return (
+        <MotiView>
+            <View
+                style={[style, { flexBasis: width, paddingVertical: 5 }]}
+                className={''.concat('flex justify-center items-center relative', className)}
+            >
+                <Skeleton w={'48px'} h={'48px'} rounded={'full'}></Skeleton>
+                <Flex direction="column" justifyContent={'center'} alignItems={'center'} paddingTop={1}>
+                    <Skeleton h={'12px'} w={width - 20} paddingY={'1.5px'} rounded={'lg'} />
+                    <View
                         style={{
-                            backgroundColor: stringToColorCode(USERNAME_FOR_BROKEN_AVATAR),
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: width - 10,
                         }}
                     >
                         <ThemedText
                             numberOfLines={1}
                             ellipsizeMode="tail"
                             style={{
-                                fontSize: 16,
-                                textAlign: 'center',
+                                fontFamily: 'System-Regular',
+                                fontSize: 12,
+                                lineHeight: 12,
+                                paddingRight: 2,
                             }}
-                            lightColor="#fff"
-                            darkColor="#fff"
+                            darkColor={'#999'}
+                            lightColor={'#777'}
                         >
-                            {USERNAME_FOR_BROKEN_AVATAR}
+                            @
                         </ThemedText>
-                    </Avatar>
-                </Pressable>
-                <Flex direction="column" justifyContent={'center'} alignItems={'center'} paddingTop={1}>
-                    <ThemedText
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                        style={{
-                            fontFamily: 'System-Medium',
-                            fontSize: 12,
-                            textAlign: 'center',
-                            lineHeight: 15,
-                            width: width - 10,
-                        }}
-                        darkColor={BLUE_MAIN_COLOR}
-                        lightColor={'#333'}
-                    >
-                        {props.username}
-                    </ThemedText>
-                    {/* <View className="w-1 h-1 bg-[#555] mx-1 dark:bg-white rounded-full" /> */}
-                    <ThemedText
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                        style={{
-                            fontFamily: 'System-Regular',
-                            fontSize: 10,
-                            lineHeight: 12,
-                            textAlign: 'center',
-                            textTransform: 'capitalize',
-                            width: width - 10,
-                        }}
-                        darkColor={'#999'}
-                        lightColor={'#777'}
-                    >
-                        {props.deviceName}
-                    </ThemedText>
+                        <Skeleton h={'10px'} w={'2/3'} paddingY={'1px'} rounded={'lg'} />
+                    </View>
                 </Flex>
             </View>
         </MotiView>
     );
 };
 
-export default memo(PeerDevice);
+export default memo(PeerDevice, (prevState, nextState) => {
+    return prevState.peerId === nextState.peerId;
+});

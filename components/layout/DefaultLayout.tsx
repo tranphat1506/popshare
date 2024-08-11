@@ -3,9 +3,9 @@ import { View } from 'native-base';
 import SafeAreaViewRemake from '../SafeAreaViewRemake';
 import { ViewProps } from 'react-native';
 
-const DefaultLayout = ({ ...props }: ViewProps) => {
+const DefaultLayout = ({ preventStatusBar, ...props }: ViewProps & React.ComponentProps<typeof SafeAreaViewRemake>) => {
     return (
-        <SafeAreaViewRemake>
+        <SafeAreaViewRemake preventStatusBar={preventStatusBar}>
             <View
                 {...props}
                 style={[
