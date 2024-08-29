@@ -4,7 +4,7 @@ import { Image, LayoutChangeEvent, Platform, Pressable, StyleSheet, useColorSche
 import tw from 'twrnc';
 import { ThemedView } from './ThemedView';
 import { SIZES } from '@/constants/Sizes';
-import { ActivePeerDeviceGroup } from './PeerDeviceGroup__not_support_now';
+import { ActivePeerDeviceGroup } from './oldVer/PeerDeviceGroup__not_support_now';
 import ScanAnimation from './ScanAnimation';
 
 const BUTTON_SIZE = SIZES.SCAN_BUTTON_SIZE;

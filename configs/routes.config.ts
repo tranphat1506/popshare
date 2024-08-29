@@ -20,4 +20,7 @@ export type RootStackParamList = {
         filterNav?: string;
     };
     notifications: {};
+    signIn: {};
+    signOut: {};
+    signUp: {};
 };

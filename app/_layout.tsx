@@ -11,18 +11,18 @@ import 'react-native-gesture-handler';
 import { Provider } from 'react-redux';
 import { store } from '@/redux/store';
 import BottomNavBar from '@/components/BottomNavBar';
+import AuthLayout from '@/app/Auth/_layout';
 import { View } from 'react-native';
+import { useAppSelector } from '@/redux/hooks/hooks';
 const Tab = createBottomTabNavigator<RootStackParamList>();
 export default function Layout() {
     // Loading list
     const [loadedFonts] = useGlobalFonts();
     const loadingList = useMemo(() => [loadedFonts], [loadedFonts]);
-
     // Loading status
     const loaded = useMemo(() => {
         return loadingList.every((status) => status === true);
     }, [loadingList]);
-
     // return component
     if (!loaded)
         return (
@@ -33,17 +33,26 @@ export default function Layout() {
     return (
         <Provider store={store}>
             <NativeBaseProvider>
-                <NavigationContainer
-                    // linking={DEFAULT_LINKING}
-                    independent={true}
-                    fallback={<SplashScreen onlyIcon={!loadedFonts} />}
-                >
-                    <Tab.Navigator initialRouteName="/" tabBar={(props) => <BottomNavBar {...props} />}>
-                        <Tab.Screen name="/" component={HomePage} options={{ headerShown: false }} />
-                        <Tab.Screen name="archive" component={NotFoundPage} />
-                    </Tab.Navigator>
-                </NavigationContainer>
+                <AppComponent />
             </NativeBaseProvider>
         </Provider>
     );
 }
+const AppComponent = () => {
+    const authState = useAppSelector((state) => state.auth);
+    return (
+        <NavigationContainer
+            // linking={DEFAULT_LINKING}
+            independent={true}
+        >
+            {authState.isLogging ? (
+                <Tab.Navigator initialRouteName="/" tabBar={(props) => <BottomNavBar {...props} />}>
+                    <Tab.Screen name="/" component={HomePage} options={{ headerShown: false }} />
+                    <Tab.Screen name="archive" component={NotFoundPage} />
+                </Tab.Navigator>
+            ) : (
+                <AuthLayout />
+            )}
+        </NavigationContainer>
+    );
+};
