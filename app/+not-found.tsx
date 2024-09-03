@@ -17,7 +17,7 @@ export default function NotFoundScreen() {
         <>
             <ThemedView style={styles.container}>
                 <View className="flex justify-center items-center gap-y-3">
-                    <Image source={require('@/assets/images/radar.png')} className="w-32 h-32" />
+                    <Image source={require('@/assets/images/icon-512x512.png')} className="w-32 h-32" />
                     <ThemedText type="title">{notFoundText}</ThemedText>
                 </View>
                 <Link to={'/'} style={styles.link}>

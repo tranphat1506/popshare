@@ -5,8 +5,8 @@
 
 const tintColorLight = '#000';
 const tintColorDark = '#fff';
-export const BLUE_MAIN_COLOR = '#1c9ef6';
-export const BLUE_ICON_COLOR = '#1cd0fc';
+export const BLUE_MAIN_COLOR = '#3BCD8E';
+export const BLUE_ICON_COLOR = '#24FDAD';
 export const SUCCESS_COLOR = '#22c55e';
 
 export const Colors = {

@@ -9,23 +9,19 @@
         "userInterfaceStyle": "automatic",
         "splash": {
             "image": "./assets/images/splash.png",
-            "resizeMode": "contain",
+            "resizeMode": "cover",
             "backgroundColor": "#ffffff"
         },
         "ios": {
-            "supportsTablet": true
+            "supportsTablet": true,
+            "adaptiveIcon": {
+                "foregroundImage": "./assets/images/icon.png"
+            }
         },
         "android": {
             "adaptiveIcon": {
-                "foregroundImage": "./assets/images/adaptive-icon.png",
-                "backgroundColor": "#ffffff"
-            },
-            "package": "com.anonymous.popshare"
-        },
-        "web": {
-            "bundler": "metro",
-            "output": "static",
-            "favicon": "./assets/images/favicon.png"
+                "foregroundImage": "./assets/images/icon.png"
+            }
         },
         "plugins": ["expo-router"],
         "experiments": {
@@ -34,9 +30,6 @@
         "extra": {
             "router": {
                 "origin": false
-            },
-            "eas": {
-                "projectId": "d8b11406-3f77-4e23-8344-5bd80b6c1b8d"
             }
         }
     }
