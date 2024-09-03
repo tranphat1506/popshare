@@ -1,7 +1,7 @@
-import { useFonts } from 'expo-font';
+import { loadAsync, useFonts } from 'expo-font';
 
-const useGlobalFonts = (): [boolean, Error | null] => {
-    const [loaded, error] = useFonts({
+const useGlobalFonts = async () => {
+    await loadAsync({
         'System-Black': require('../assets/fonts/Lexend-Black.ttf'),
         'System-ExtraBold': require('../assets/fonts/Lexend-ExtraBold.ttf'),
         'System-Bold': require('../assets/fonts/Lexend-Bold.ttf'),
@@ -12,7 +12,6 @@ const useGlobalFonts = (): [boolean, Error | null] => {
         'System-Light': require('../assets/fonts/Lexend-Light.ttf'),
         'System-ExtraLight': require('../assets/fonts/Lexend-ExtraLight.ttf'),
     });
-    return [loaded, error];
+    return true;
 };
-
 export default useGlobalFonts;

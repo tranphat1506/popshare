@@ -1,8 +1,7 @@
 import { Peer, PeerId } from '@/redux/peers/reducer';
-import { faker, fakerVI } from '@faker-js/faker';
+import { fakerVI } from '@faker-js/faker';
 import uuid from 'react-native-uuid';
 import { getAllFirstLetterOfString, stringToColorCode } from './string';
-import { FetchUserAvatarByUrl } from './fetching';
 
 export const OS = ['android', 'ios', 'macos', 'windows', 'web'];
 

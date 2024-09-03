@@ -1,10 +1,19 @@
 import { ThemedText } from '@/components/ThemedText';
+import useLanguage from '@/languages/hooks/useLanguage';
 import { Link } from '@react-navigation/native';
 import { Button, Flex } from 'native-base';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Image, View } from 'react-native';
 
 const MoreOptions = () => {
+    const lang = useLanguage();
+    const textLanguage = useMemo(() => {
+        return {
+            SIGN_IN_WITH_OAUTH: lang.SIGN_IN_WITH_OAUTH,
+            QUESTION_FORGOT_PASSWORD: lang.FORGOT_PASSWORD + '?',
+            RESET_PASSWORD_LINK: lang.RESET_PASSWORD,
+        };
+    }, [lang]);
     return (
         <>
             <View style={{ paddingVertical: 10 }}>
@@ -17,8 +26,16 @@ const MoreOptions = () => {
                             backgroundColor: '#8e8e8e',
                         }}
                     />
-                    <ThemedText style={{ marginHorizontal: 10, lineHeight: 16, fontSize: 16, color: '#8e8e8e' }}>
-                        Or
+                    <ThemedText
+                        style={{
+                            marginHorizontal: 10,
+                            lineHeight: 16,
+                            fontSize: 16,
+                            color: '#8e8e8e',
+                            textTransform: 'capitalize',
+                        }}
+                    >
+                        {textLanguage.SIGN_IN_WITH_OAUTH}
                     </ThemedText>
                     <View
                         style={{
@@ -70,7 +87,7 @@ const MoreOptions = () => {
                                 alignItems: 'center',
                             }}
                         >
-                            <Image source={require('@/assets/images/radar.png')} className="w-6 h-6 mr-2" />
+                            <Image source={require('@/assets/images/icon-64x64.png')} className="w-6 h-6 mr-2" />
                             <ThemedText>PopPam</ThemedText>
                         </View>
                     </Button>
@@ -79,9 +96,9 @@ const MoreOptions = () => {
 
             <View className="pb-6 justify-center items-center mt-4">
                 <ThemedText style={{ fontSize: 16, lineHeight: 20, fontFamily: 'System-Regular' }}>
-                    Forgot password?{' '}
+                    {textLanguage.QUESTION_FORGOT_PASSWORD}{' '}
                     <Link to={'/forgotPassword'}>
-                        <ThemedText type="link">Reset password!</ThemedText>
+                        <ThemedText type="link">{textLanguage.RESET_PASSWORD_LINK}</ThemedText>
                     </Link>
                 </ThemedText>
             </View>

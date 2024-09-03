@@ -1,5 +1,4 @@
 import { useThemeColor } from '@/hooks/useThemeColor';
-import { useAppSelector } from '@/redux/hooks/hooks';
 import React from 'react';
 import { Platform, SafeAreaView, StatusBar, StyleSheet, ViewProps } from 'react-native';
 

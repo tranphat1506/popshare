@@ -1,19 +1,24 @@
 import { Emoji } from '@/constants/EmojiConstants';
-import React, { useEffect, useState } from 'react';
-import { View, TextInput, FlatList, Image, TouchableOpacity, StyleSheet, Text } from 'react-native';
+import React, { useState } from 'react';
+import { View, FlatList, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { ThemedView } from '../ThemedView';
+import { ThemedText } from '../ThemedText';
+import { StyleProps } from 'react-native-reanimated';
+import { Icon, Input } from 'native-base';
+import { BLUE_MAIN_COLOR } from '@/constants/Colors';
+import { Feather } from '@expo/vector-icons';
 export type EmojiKey = keyof typeof Emoji;
 
 export interface EmojiPickerProps {
     handleSetEmoji: (item: EmojiKey) => void;
-    handleOpenPicker: (open: boolean) => void;
-    isPickerOpen: boolean;
+    visible?: boolean;
+    style?: StyleProps;
+    className?: string;
 }
-const EmojiPicker: React.FC<EmojiPickerProps> = ({ handleSetEmoji, handleOpenPicker, isPickerOpen }) => {
+const EmojiPicker: React.FC<EmojiPickerProps> = ({ handleSetEmoji, style, className, visible }) => {
     const [searchText, setSearchText] = useState<string>('');
     const handleSelectEmoji = (item: EmojiKey) => () => {
         handleSetEmoji(item);
-        handleOpenPicker(false);
     };
     // Lọc emoji theo text tìm kiếm
     const filteredEmoji = Object.keys(Emoji).filter((emojiName) =>
@@ -21,56 +26,65 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({ handleSetEmoji, handleOpenPic
     );
 
     return (
-        <ThemedView style={[styles.container, { display: isPickerOpen ? 'flex' : 'none' }]}>
-            <View>
-                <TextInput
-                    style={styles.searchBar}
-                    placeholder="Tìm kiếm emoji..."
-                    value={searchText}
+        <ThemedView style={[styles.container, style, { display: visible ? 'flex' : 'none' }]} className={className}>
+            <View style={{ marginBottom: 20 }}>
+                <ThemedText style={{ fontSize: 16, lineHeight: 20 }}>Search emoji:</ThemedText>
+                <Input
+                    focusOutlineColor={BLUE_MAIN_COLOR}
+                    _focus={{
+                        backgroundColor: '#ffffff00',
+                    }}
                     onChangeText={setSearchText}
-                />
-
-                <FlatList
-                    data={filteredEmoji}
-                    numColumns={6} // Số cột trong ma trận
-                    keyExtractor={(item) => item}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity onPress={handleSelectEmoji(item as EmojiKey)}>
-                            <Image source={Emoji[item as EmojiKey]} style={styles.emojiIcon} />
+                    value={searchText}
+                    type={'text'}
+                    fontFamily={'System-Regular'}
+                    paddingX={20}
+                    fontSize={16}
+                    lineHeight={20}
+                    borderRadius={'full'}
+                    className="bg-white text-black dark:text-white dark:bg-black"
+                    InputLeftElement={
+                        <TouchableOpacity style={{ marginLeft: 10 }}>
+                            <Icon
+                                className="bg-white text-black dark:text-white dark:bg-black"
+                                as={Feather}
+                                name="search"
+                            />
                         </TouchableOpacity>
-                    )}
-                    contentContainerStyle={styles.emojiList}
+                    }
                 />
             </View>
+            <FlatList
+                data={filteredEmoji}
+                numColumns={6} // Số cột trong ma trận
+                keyExtractor={(item) => item}
+                renderItem={({ item }) => (
+                    <TouchableOpacity onPress={handleSelectEmoji(item as EmojiKey)}>
+                        <Image source={Emoji[item as EmojiKey]} style={styles.emojiIcon} />
+                    </TouchableOpacity>
+                )}
+                contentContainerStyle={styles.emojiList}
+                columnWrapperStyle={{ gap: 10 }}
+                key={searchText}
+            />
         </ThemedView>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
-        position: 'absolute',
         flex: 1,
         padding: 20,
-        zIndex: 10,
-        height: '100%',
-        width: '100%',
-        top: 0,
-    },
-    searchBar: {
-        height: 40,
-        borderColor: '#ddd',
-        borderWidth: 1,
-        borderRadius: 5,
-        paddingLeft: 10,
-        marginBottom: 20,
+        justifyContent: 'center',
     },
     emojiList: {
         justifyContent: 'center',
+        alignItems: 'center',
+        rowGap: 10,
     },
     emojiIcon: {
         width: 50,
         height: 50,
-        margin: 5,
     },
     selectedEmojiContainer: {
         alignItems: 'center',

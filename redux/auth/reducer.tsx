@@ -1,69 +1,54 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-export type PeerId = string;
-interface IOnlineState {
-    lastOnline: number;
-    isOnline: boolean;
+import { ISessionToken, LoginSessionManager } from '@/storage/loginSession.storage';
+export interface INotificationSettings {
+    messages: boolean;
+    addFriends: boolean;
 }
-export type Peer = {
-    id: PeerId;
-    userBgColorCode: string;
+export interface IPrivacySettings {
+    allowStrangerSendMessages: AllowStrangerSendMessageTypes;
+}
+type AllowStrangerSendMessageTypes = 'invite' | 'allow' | 'none';
+export const AllowStrangerSendMessageEnum: AllowStrangerSendMessageTypes[] = ['allow', 'invite', 'none'];
+export interface ICurrentUserDetail {
+    userId: string;
+    authId: string;
     username: string;
+    email: string;
+    createdAt: string;
+    profilePicture: string | undefined;
+    isVerify: boolean;
     displayName: string;
-    suffixName: string;
-    avatar: string;
-    onlineState?: IOnlineState;
-    uriAvatar?: string;
-    pinSlot?: number;
-};
-// peer structure
-export type Peers = {
-    [key: PeerId]: Peer;
-};
-export interface PeersPinSlots {
-    [key: PeerId]: number;
+    avatarEmoji: string;
+    avatarColor: string;
+    privacies: IPrivacySettings;
+    notifications: INotificationSettings;
+    token: string;
 }
-interface IPeerHistoryActionProps {
-    peerId: PeerId;
-    lastActionTime: number;
+
+export interface IAuthState {
+    isLogging?: boolean;
+    user?: ICurrentUserDetail;
 }
-type PeerHistoryNode = IPeerHistoryActionProps;
-type PeerHistoryQueue = PeerHistoryNode[];
-export interface PeersState {
-    count: number;
-    peers: Peers;
-    recentHistory: PeerHistoryQueue;
-}
-export const initState: PeersState = {
-    count: 0,
-    peers: {},
-    recentHistory: [],
+export const initState: IAuthState = {
+    isLogging: false,
+    user: undefined,
 };
-const peersReducer = {
-    addPeers: (state: PeersState, action: PayloadAction<Peer[]>) => {
-        action.payload.forEach((peer) => {
-            state.peers[peer.id] = peer;
-            state.count = state.count + 1;
-        });
+const authReducer = {
+    login: (state: IAuthState, action: PayloadAction<ICurrentUserDetail | undefined>) => {
+        state.isLogging = true;
+        state.user = action.payload;
     },
-    addPeer: (state: PeersState, action: PayloadAction<Peer>) => {
-        const existPeer = state.peers[action.payload.id];
-        if (!existPeer) state.count = state.count + 1;
-        state.peers[action.payload.id] = { ...existPeer, ...action.payload };
-    },
-    removePeerByPeerId: (state: PeersState, action: PayloadAction<PeerId>) => {
-        const peerDetail = state.peers[action.payload];
-        if (!peerDetail) {
-            delete state.peers[action.payload];
-            state.count = state.count - 1;
-        }
+    logout: (state: IAuthState) => {
+        state.isLogging = false;
+        state.user = undefined;
     },
 };
-const peersSlice = createSlice({
-    name: 'peers',
+
+const authSlice = createSlice({
+    name: 'auth',
     initialState: initState,
-    reducers: peersReducer,
+    reducers: authReducer,
 });
 
-export const { addPeer, removePeerByPeerId, addPeers } = peersSlice.actions;
-export default peersSlice.reducer;
+export const { login, logout } = authSlice.actions;
+export default authSlice.reducer;

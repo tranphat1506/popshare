@@ -1,0 +1,126 @@
+import { ThemedText } from '@/components/ThemedText';
+import useLanguage from '@/languages/hooks/useLanguage';
+import { ISessionToken, LoginSessionManager } from '@/storage/loginSession.storage';
+import { MaterialIcons } from '@expo/vector-icons';
+import { Icon } from 'native-base';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { FlatList, Image, ListRenderItem, ScrollView, View, TouchableOpacity } from 'react-native';
+import UserSessionItem from './UserSessionItem';
+import { useDispatch } from 'react-redux';
+import { login } from '@/redux/auth/reducer';
+import { refreshTokenAndFetchingData } from '@/helpers/fetching';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+interface SignInWithSavedLoginProps {
+    setOpenSavedLogin: (state: boolean) => void;
+    savedLoginArray?: ISessionToken[];
+}
+const SignInWithSavedLogin: React.FC<SignInWithSavedLoginProps> = ({ setOpenSavedLogin, savedLoginArray = [] }) => {
+    const dispatch = useDispatch();
+    const lang = useLanguage();
+    const textLanguage = useMemo(() => {
+        return {
+            TITLE_SIGN_IN: lang.SIGN_IN_TITLE,
+            SIGN_IN_SUBMESSAGE: lang.SIGN_IN_SUBMESSAGE,
+            MESSAGE_EMPTY_SAVED_SESSION_LIST: lang.MESSAGE_EMPTY_SAVED_SESSION_LIST,
+        };
+    }, [lang]);
+
+    const [onLogin, setOnLogin] = useState<boolean>(false);
+    const handleRefreshTokenAndFetchingData = async (rtoken?: string) => {
+        if (onLogin) return null;
+        const fetch = await refreshTokenAndFetchingData(rtoken);
+        if (fetch) {
+            await LoginSessionManager.setSessionToSessionSaved(
+                {
+                    authId: fetch.user.authId,
+                    rtoken: rtoken,
+                    userId: fetch.user.userId,
+                    avatarColor: fetch.user.avatarColor,
+                    avatarEmoji: fetch.user.avatarEmoji,
+                    username: fetch.user.username,
+                    profilePicture: fetch.user.profilePicture,
+                    displayName: fetch.user.displayName,
+                    token: fetch.user.token,
+                },
+                true,
+            );
+            dispatch(login({ ...fetch.user, userId: fetch.user.userId, token: fetch.user.token }));
+        }
+        setOnLogin(false);
+    };
+    const renderSessionItem: ListRenderItem<ISessionToken> = useCallback(({ item }) => {
+        return <UserSessionItem handleRefreshToken={handleRefreshTokenAndFetchingData} item={item} />;
+    }, []);
+    return (
+        <ScrollView>
+            {/* Header */}
+            <View className="flex flex-row items-center justify-end px-4 h-14">
+                <TouchableOpacity onPress={() => {}}>
+                    <Icon
+                        className="text-[#000000bd] dark:text-[#fffffff7]"
+                        as={MaterialIcons}
+                        name="settings"
+                        size={'xl'}
+                    />
+                </TouchableOpacity>
+            </View>
+            <View className="flex flex-col justify-center items-center">
+                <View className="flex flex-row py-4 justify-center items-center">
+                    <Image source={require('@/assets/images/icon-64x64.png')} className="w-6 h-6 mr-2" />
+                    <ThemedText style={{ fontSize: 20, lineHeight: 24, fontFamily: 'System-Medium' }}>
+                        PopShare
+                    </ThemedText>
+                </View>
+                <ThemedText
+                    style={{
+                        fontSize: 40,
+                        lineHeight: 50,
+                        fontFamily: 'System-Black',
+                        textTransform: 'capitalize',
+                    }}
+                >
+                    {textLanguage.TITLE_SIGN_IN}
+                </ThemedText>
+            </View>
+            <View className="p-2 flex justify-center items-center my-4">
+                <ThemedText
+                    style={{
+                        fontSize: 24,
+                        lineHeight: 24,
+                        fontFamily: 'System-Regular',
+                        textTransform: 'capitalize',
+                    }}
+                >
+                    {textLanguage.SIGN_IN_SUBMESSAGE}
+                </ThemedText>
+            </View>
+            <View className="flex items-center mt-4 gap-y-4">
+                <View
+                    style={{
+                        paddingHorizontal: 20,
+                        display: savedLoginArray?.length === 0 ? 'flex' : 'none',
+                    }}
+                >
+                    <ThemedText style={{ fontSize: 16, lineHeight: 20 }}>
+                        {textLanguage.MESSAGE_EMPTY_SAVED_SESSION_LIST}
+                    </ThemedText>
+                </View>
+                <FlatList
+                    horizontal={false}
+                    scrollEnabled={false}
+                    renderItem={renderSessionItem}
+                    data={savedLoginArray}
+                    keyExtractor={(item) => item.authId}
+                    contentContainerStyle={{
+                        display: 'flex',
+                        width: '100%',
+                        rowGap: 10,
+                    }}
+                />
+            </View>
+        </ScrollView>
+    );
+};
+
+export default SignInWithSavedLogin;

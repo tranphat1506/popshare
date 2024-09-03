@@ -5,6 +5,15 @@ interface IOnlineState {
     lastOnline: number;
     isOnline: boolean;
 }
+export interface IUserPublicDetail {
+    _id: string;
+    username: string;
+    avatarEmoji: string;
+    displayName: string;
+    profilePicture?: string;
+    avatarColor: string;
+    createdAt: Date;
+}
 export type Peer = {
     id: PeerId;
     userBgColorCode: string;

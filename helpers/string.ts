@@ -1,4 +1,5 @@
 import languages from '@/languages';
+import { ILanguageProps, KeyDataLanguageType, LanguageType } from '@/languages/@types';
 
 export const stringToColorCode = function (str: string) {
     var hash = 0;
@@ -42,3 +43,36 @@ export class StringOnlineStateHelper {
         return Math.round(this.miliToMin(btwTime) / 60 / 24) + 'd';
     }
 }
+
+// const CommonErrorMessageCode = {
+// required: 'ERROR_REQUIRED',
+// base: 'ERROR_DIFF_TYPE',
+// min: 'ERROR_MIN',
+// max: 'ERROR_MAX',
+// empty: 'ERROR_EMPTY',
+// email: 'ERROR_INVALID_EMAIL',
+// }
+/**
+ * error string structure
+ * example: "username" ERROR_MIN 64
+ *  */
+export const translateErrorMessageWithStructure = (error: string, language: LanguageType) => {
+    const splitData = error.split(' ');
+    const useLang = languages.LanguageService.data(language);
+    try {
+        const splitTitle = splitData[0].split('"')[1] || undefined;
+        if (!splitTitle) {
+            const subMessage = splitData[1];
+            const message = useLang[splitData[0].toUpperCase() as KeyDataLanguageType] ?? 'UNDEFINED';
+            if (!subMessage) return `${message}`;
+            return `${message} ${subMessage}`;
+        }
+        const title = useLang[splitTitle.toUpperCase() as KeyDataLanguageType] ?? 'UNDEFINED';
+        const subMessage = splitData[2];
+        const message = useLang[splitData[1].toUpperCase() as KeyDataLanguageType] ?? 'UNDEFINED';
+        if (!subMessage) return `${title} ${message.toLowerCase()}`;
+        return `${title} ${message.toLowerCase()} ${subMessage}`;
+    } catch (err) {
+        console.log(err);
+    }
+};

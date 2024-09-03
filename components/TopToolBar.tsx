@@ -6,6 +6,8 @@ import ButtonIconWithBadge from './ButtonIconWithBadge';
 import { NavigationProp, ParamListBase, useNavigation } from '@react-navigation/native';
 import { useAppSelector } from '@/redux/hooks/hooks';
 import { SIZES } from '@/constants/Sizes';
+import PopshareAvatar from './common/PopshareAvatar';
+import { EmojiKey } from './common/EmojiPicker';
 // import tw from 'twrnc';
 type TopToolBarProps = ViewProps;
 const TopToolBar: React.FC<TopToolBarProps> = (props) => {
@@ -14,6 +16,7 @@ const TopToolBar: React.FC<TopToolBarProps> = (props) => {
         navigation.navigate(routeName, routeParams);
     };
     const peerLength = useAppSelector((state) => state.peers.count);
+    const userData = useAppSelector((state) => state.auth.user);
     return (
         <View
             style={{
@@ -30,12 +33,12 @@ const TopToolBar: React.FC<TopToolBarProps> = (props) => {
                 alignItems={'flex-end'}
                 justifyItems={'flex-end'}
             >
-                <ButtonIconWithBadge
-                    btnProps={{
-                        icon: <Avatar source={require('@/assets/images/avatar.png')} />,
-                        borderRadius: 'full',
-                        padding: '0',
-                    }}
+                <PopshareAvatar
+                    key={userData!.authId}
+                    size={50}
+                    avatarColor={userData!.avatarColor}
+                    avatarEmoji={userData!.avatarEmoji as EmojiKey}
+                    profilePicture={userData!.profilePicture}
                 />
                 <Flex flexDirection={'row'} justifyContent={'flex-end'} alignItems={'flex-end'}>
                     <ButtonIconWithBadge
