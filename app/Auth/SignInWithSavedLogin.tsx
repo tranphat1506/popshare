@@ -9,6 +9,7 @@ import UserSessionItem from './UserSessionItem';
 import { useDispatch } from 'react-redux';
 import { login } from '@/redux/auth/reducer';
 import { refreshTokenAndFetchingData } from '@/helpers/fetching';
+import _ from 'lodash';
 
 interface SignInWithSavedLoginProps {
     setOpenSavedLogin: (state: boolean) => void;
@@ -27,29 +28,37 @@ const SignInWithSavedLogin: React.FC<SignInWithSavedLoginProps> = ({ setOpenSave
 
     const [onLogin, setOnLogin] = useState<boolean>(false);
     const handleRefreshTokenAndFetchingData = async (rtoken?: string) => {
-        if (onLogin) return null;
-        const fetch = await refreshTokenAndFetchingData(rtoken);
-        if (fetch) {
-            await LoginSessionManager.setSessionToSessionSaved(
-                {
-                    authId: fetch.user.authId,
-                    rtoken: rtoken,
-                    userId: fetch.user.userId,
-                    avatarColor: fetch.user.avatarColor,
-                    avatarEmoji: fetch.user.avatarEmoji,
-                    username: fetch.user.username,
-                    profilePicture: fetch.user.profilePicture,
-                    displayName: fetch.user.displayName,
-                    token: fetch.user.token,
-                },
-                true,
-            );
-            dispatch(login({ ...fetch.user, userId: fetch.user.userId, token: fetch.user.token }));
+        try {
+            if (onLogin) return null;
+            const fetch = await refreshTokenAndFetchingData(rtoken);
+            if (fetch) {
+                await LoginSessionManager.setSessionToSessionSaved(
+                    {
+                        authId: fetch.user.authId,
+                        rtoken: rtoken,
+                        userId: fetch.user.userId,
+                        avatarColor: fetch.user.avatarColor,
+                        avatarEmoji: fetch.user.avatarEmoji,
+                        username: fetch.user.username,
+                        profilePicture: fetch.user.profilePicture,
+                        displayName: fetch.user.displayName,
+                        token: fetch.user.token,
+                    },
+                    true,
+                );
+                dispatch(login({ ...fetch.user, userId: fetch.user.userId, token: fetch.user.token }));
+            }
+            setOnLogin(false);
+        } catch (error) {
+            console.error(error);
         }
-        setOnLogin(false);
     };
+    const handleLoginWithSavedSession = _.debounce(handleRefreshTokenAndFetchingData, 3000, {
+        leading: true,
+        trailing: false,
+    });
     const renderSessionItem: ListRenderItem<ISessionToken> = useCallback(({ item }) => {
-        return <UserSessionItem handleRefreshToken={handleRefreshTokenAndFetchingData} item={item} />;
+        return <UserSessionItem handleRefreshToken={handleLoginWithSavedSession} item={item} />;
     }, []);
     return (
         <ScrollView>
