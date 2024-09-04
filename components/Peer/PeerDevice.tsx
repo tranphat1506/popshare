@@ -10,7 +10,8 @@ import { FetchUserAvatarByUrl, FetchUserProfileById } from '@/helpers/fetching';
 import { AntDesign } from '@expo/vector-icons';
 import { ThemedView } from '../ThemedView';
 import { useAppDispatch } from '@/redux/hooks/hooks';
-import { genRandomPeer, getRandomImageUrl } from '@/helpers/FakeDevices';
+import PopshareAvatar from '../common/PopshareAvatar';
+import { EmojiKey } from '../common/EmojiPicker';
 export type PeerDeviceProps = {
     width?: number;
     height?: number;
@@ -32,46 +33,37 @@ const PeerDevice: React.FC<PeerDeviceProps> = ({
 }) => {
     const dispatch = useAppDispatch();
     const [peerProfile, setPeerProfile] = useState<Peer | undefined>(existPeer);
+    const handleFetchingPeer = async () => {
+        try {
+            // console.log(existPeer?.displayName);
+            if (!peerProfile) {
+                const data = await FetchUserProfileById(peerId);
+                if (!data) throw Error('Cannot Fetching');
+                const uriData = data.user.profilePicture
+                    ? await FetchUserAvatarByUrl(data.user.profilePicture)
+                    : undefined;
+                const peer: Peer = {
+                    ...data.user,
+                    uriAvatar: uriData,
+                    suffixName: getAllFirstLetterOfString(data.user.displayName),
+                };
+                dispatch(addPeer(peer));
+                setPeerProfile(peer);
+            } else if (!peerProfile.uriAvatar) {
+                const uriData = peerProfile.profilePicture
+                    ? await FetchUserAvatarByUrl(peerProfile.profilePicture)
+                    : undefined;
+                const peer: Peer = { ...peerProfile, uriAvatar: uriData };
+                dispatch(addPeer(peer));
+                setPeerProfile(peer);
+            } else setPeerProfile(existPeer);
+        } catch (error) {
+            console.error(error);
+        }
+    };
     // Fetch peer profile
     useEffect(() => {
-        // console.log(existPeer?.displayName);
-        if (!peerProfile)
-            FetchUserProfileById('3')
-                .then(async ({ isError, payload }) => {
-                    if (!isError) {
-                        const avatar = getRandomImageUrl();
-                        const uriAvt = await FetchUserAvatarByUrl(avatar);
-                        const peer: Peer = {
-                            id: peerId,
-                            username: payload.username,
-                            avatar: avatar,
-                            displayName: payload.fullName,
-                            uriAvatar: uriAvt,
-                            userBgColorCode: stringToColorCode(peerId),
-                            suffixName: getAllFirstLetterOfString(payload.fullName),
-                            onlineState: {
-                                lastOnline: Date.now(),
-                                isOnline: true,
-                            },
-                        };
-                        dispatch(addPeer(peer));
-                        setPeerProfile(peer);
-                    }
-                })
-                .catch((error) => {
-                    console.log(error);
-                });
-        else if (!peerProfile.uriAvatar) {
-            FetchUserAvatarByUrl(peerProfile.avatar)
-                .then((uri) => {
-                    const peer: Peer = { ...peerProfile, uriAvatar: uri };
-                    dispatch(addPeer(peer));
-                    setPeerProfile(peer);
-                })
-                .catch((err) => {
-                    console.log(err);
-                });
-        } else setPeerProfile(existPeer);
+        handleFetchingPeer();
     }, []);
     return (
         <View>
@@ -128,25 +120,21 @@ const PeerDevice: React.FC<PeerDeviceProps> = ({
                             >
                                 <Icon
                                     size={4}
-                                    color={peerProfile.userBgColorCode ?? 'yellow.400'}
+                                    color={peerProfile.avatarColor ?? 'yellow.400'}
                                     name="pushpin"
                                     as={AntDesign}
                                 />
                             </View>
                         )}
                         <Pressable
-                            onPress={() => {
-                                dispatch(addPeer(genRandomPeer()));
-                            }}
                             onLongPress={() => {
-                                console.log('Show detail', peerProfile.id);
+                                console.log('Show detail', peerProfile.userId);
                             }}
                         >
-                            <Avatar
-                                source={{ uri: peerProfile.uriAvatar }}
-                                style={{
-                                    backgroundColor: peerProfile.userBgColorCode,
-                                }}
+                            <PopshareAvatar
+                                avatarColor={peerProfile.avatarColor}
+                                avatarEmoji={peerProfile.avatarEmoji as EmojiKey}
+                                profilePicture={peerProfile.profilePicture}
                             >
                                 <ThemedText
                                     numberOfLines={1}
@@ -160,7 +148,7 @@ const PeerDevice: React.FC<PeerDeviceProps> = ({
                                 >
                                     {peerProfile.suffixName}
                                 </ThemedText>
-                            </Avatar>
+                            </PopshareAvatar>
                             {peerProfile.onlineState && (
                                 <ThemedView
                                     style={{
@@ -192,7 +180,7 @@ const PeerDevice: React.FC<PeerDeviceProps> = ({
                                         >
                                             {peerProfile.onlineState.isOnline ??
                                                 StringOnlineStateHelper.toLastOnlineTime(
-                                                    peerProfile.onlineState.lastOnline,
+                                                    peerProfile.onlineState.lastTimeActive,
                                                 )}
                                         </Text>
                                     </View>
