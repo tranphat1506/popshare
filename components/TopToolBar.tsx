@@ -1,22 +1,30 @@
 import React, { memo } from 'react';
-import { View, ViewProps } from 'react-native';
-import { Avatar, Flex } from 'native-base';
-import { Entypo, Feather, Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { Pressable, View, ViewProps } from 'react-native';
+import { Flex } from 'native-base';
+import { Entypo, Feather, Ionicons } from '@expo/vector-icons';
 import ButtonIconWithBadge from './ButtonIconWithBadge';
 import { NavigationProp, ParamListBase, useNavigation } from '@react-navigation/native';
 import { useAppSelector } from '@/redux/hooks/hooks';
 import { SIZES } from '@/constants/Sizes';
 import PopshareAvatar from './common/PopshareAvatar';
 import { EmojiKey } from './common/EmojiPicker';
+import { LoginSessionManager } from '@/storage/loginSession.storage';
+import { useDispatch } from 'react-redux';
+import { logout } from '@/redux/auth/reducer';
 // import tw from 'twrnc';
 type TopToolBarProps = ViewProps;
 const TopToolBar: React.FC<TopToolBarProps> = (props) => {
+    const dispatch = useDispatch();
     const navigation: NavigationProp<ParamListBase> = useNavigation();
     const navigationToOtherRoute = (routeName: string, routeParams?: any) => () => {
         navigation.navigate(routeName, routeParams);
     };
     const peerLength = useAppSelector((state) => state.peers.count);
     const userData = useAppSelector((state) => state.auth.user);
+    const handleLogout = async () => {
+        await LoginSessionManager.logoutSession(false);
+        dispatch(logout());
+    };
     return (
         <View
             style={{
@@ -33,13 +41,15 @@ const TopToolBar: React.FC<TopToolBarProps> = (props) => {
                 alignItems={'flex-end'}
                 justifyItems={'flex-end'}
             >
-                <PopshareAvatar
-                    key={userData!.authId}
-                    size={50}
-                    avatarColor={userData!.avatarColor}
-                    avatarEmoji={userData!.avatarEmoji as EmojiKey}
-                    profilePicture={userData!.profilePicture}
-                />
+                <Pressable onPress={handleLogout}>
+                    <PopshareAvatar
+                        key={userData!.authId}
+                        size={50}
+                        avatarColor={userData!.avatarColor}
+                        avatarEmoji={userData!.avatarEmoji as EmojiKey}
+                        profilePicture={userData!.profilePicture}
+                    />
+                </Pressable>
                 <Flex flexDirection={'row'} justifyContent={'flex-end'} alignItems={'flex-end'}>
                     <ButtonIconWithBadge
                         marginLeft={4}
