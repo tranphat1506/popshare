@@ -19,7 +19,8 @@ import { login } from '@/redux/auth/reducer';
 import * as Splash from 'expo-splash-screen';
 import { View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { fetchMyData } from '@/helpers/fetching';
+import { fetchMyData, FetchUserProfileById } from '@/helpers/fetching';
+import { addPeers } from '@/redux/peers/reducer';
 Splash.preventAutoHideAsync();
 const Tab = createBottomTabNavigator<RootStackParamList>();
 export default function Layout() {
@@ -35,12 +36,17 @@ const AppComponent = () => {
     const authState = useAppSelector((state) => state.auth);
     const [appIsReady, setAppIsReady] = useState<boolean>(false);
     const dispatch = useDispatch();
+    const handleFetchAllFriends = async (friends: string[]) => {
+        const friendsData = await Promise.all(friends.map((userId) => FetchUserProfileById(userId)));
+        return friendsData.map((data) => data?.user).filter((data) => !!data);
+    };
     const handleGetCurrentSession = async () => {
         const session = await LoginSessionManager.getCurrentSession();
         if (session) {
             const userData = await fetchMyData(session.token);
             if (userData) {
-                console.log('USER', userData);
+                const friends = await handleFetchAllFriends(userData.friends.friendList);
+                dispatch(addPeers(friends));
                 dispatch(login(userData.user));
             }
         }
