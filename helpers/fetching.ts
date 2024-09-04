@@ -1,6 +1,6 @@
 import { BE_API_URL, BE_URL } from '@/constants/Constants';
 import { ICurrentUserDetail } from '@/redux/auth/reducer';
-import { PeerId } from '@/redux/peers/reducer';
+import { IOnlineState, PeerId } from '@/redux/peers/reducer';
 import { LoginSessionManager } from '@/storage/loginSession.storage';
 const base64ImageRegx = /^data:image\/(?:gif|png|jpeg|bmp|webp)(?:;charset=utf-8)?;base64,(?:[A-Za-z0-9]|[+/])+={0,2}/g;
 export const FetchUserAvatarByUrl = (url: string): Promise<string | undefined> => {
@@ -24,35 +24,34 @@ export const FetchUserAvatarByUrl = (url: string): Promise<string | undefined> =
         }
     });
 };
-interface IResponseFetch<Payload> {
-    httpCode: string | number;
-    isError: boolean;
-    payload: Payload;
-}
 
-export const FetchUserProfileById = (id: PeerId): Promise<IResponseFetch<any>> => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const response = await fetch(BE_URL + '' + id, {
-                method: 'GET',
-            });
-            resolve({
-                httpCode: response.status,
-                payload: await response.json(),
-                isError: response.status !== 200,
-            });
-        } catch (error) {
-            reject(error);
+export const FetchUserProfileById = async (id: PeerId): Promise<IFetchingUserData | null> => {
+    try {
+        const response = await fetch(BE_URL + '' + id, {
+            method: 'GET',
+        });
+        if (response.ok) {
+            const data = (await response.json()) as IFetchingUserData;
+            data.user.userId = data.user._id;
+            return data;
         }
-    });
+        return null;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
 };
+interface IFetchingUserData {
+    message: string;
+    user: ICurrentUserDetail & { _id: string; onlineState?: IOnlineState };
+}
 interface IFetchingDataResponse {
     friends: {
         count: number;
         friendList: string[];
     };
     message: string;
-    user: ICurrentUserDetail & { _id: string };
+    user: ICurrentUserDetail & { _id: string; onlineState?: IOnlineState };
 }
 export const refreshTokenAndFetchingData = async (rtoken?: string) => {
     try {
@@ -96,6 +95,7 @@ export const fetchMyData = async (token: string) => {
             return null;
         }
         const userData = (await fetchUserData.json()) as IFetchingDataResponse;
+        if (userData.user._id) userData.user.userId = userData.user._id;
         userData.user.token = token;
         userData.user.profilePicture =
             userData.user.profilePicture == 'undefined' ? undefined : userData.user.profilePicture;

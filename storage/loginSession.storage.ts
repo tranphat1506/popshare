@@ -1,4 +1,5 @@
 import { SECRET_KEY_ASYNC_STORAGE } from '@/constants/Constants';
+import { logout } from '@/redux/auth/reducer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CryptoJS from 'crypto-js';
 // Interface representing a session token for a user
@@ -81,7 +82,7 @@ export class LoginSessionManager {
         try {
             if (!session.rtoken) return false;
             const savedList = await LoginSessionManager.getLoginSessionSaved();
-            savedList.sessions[session.authId] = { ...session }; // Use authId as the key
+            savedList.sessions[session.userId] = { ...session }; // Use userId as the key
             if (setCurrent) savedList.current = { ...session };
             await LoginSessionManager.saveLoginSessionSaved(savedList);
             return true;
@@ -92,15 +93,15 @@ export class LoginSessionManager {
     }
 
     /*
-     * Retrieves a session by its authId.
+     * Retrieves a session by its userId.
      * Returns the session if found, otherwise returns null.
      */
-    public static async getSessionByAuthId(authId: string): Promise<ISessionToken | null> {
+    public static async getSessionByUserId(userId: string): Promise<ISessionToken | null> {
         try {
             const savedList = await LoginSessionManager.getLoginSessionSaved();
-            return savedList.sessions[authId] || null;
+            return savedList.sessions[userId] || null;
         } catch (error) {
-            console.error('Error getting session by authId:', error);
+            console.error('Error getting session by userId:', error);
             return null;
         }
     }
@@ -116,15 +117,24 @@ export class LoginSessionManager {
         }
     }
 
-    public static async setCurrentSession(session: ISessionToken): Promise<void> {
+    public static async setCurrentSession(session?: ISessionToken): Promise<void> {
         try {
             const savedList = await LoginSessionManager.getLoginSessionSaved();
-            if (session) {
-                savedList.current = { ...session };
-                await LoginSessionManager.saveLoginSessionSaved(savedList);
-            }
+            savedList.current = session;
+            await LoginSessionManager.saveLoginSessionSaved(savedList);
         } catch (error) {
             console.error('Error setting current session:', error);
+        }
+    }
+
+    public static async logoutSession(removeSaved?: boolean) {
+        try {
+            const savedList = await LoginSessionManager.getLoginSessionSaved();
+            if (removeSaved && savedList.current) delete savedList.sessions[savedList.current.userId];
+            savedList.current = undefined;
+            await LoginSessionManager.saveLoginSessionSaved(savedList);
+        } catch (error) {
+            console.error('Error logout current session:', error);
         }
     }
 }
