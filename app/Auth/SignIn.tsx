@@ -3,11 +3,11 @@ import { RootStackParamList } from '@/configs/routes.config';
 import { BLUE_MAIN_COLOR } from '@/constants/Colors';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { Button, Checkbox, FormControl, Icon, Input, Pressable, Spinner, Text, WarningOutlineIcon } from 'native-base';
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import { Dimensions, FlatList, Image, ListRenderItem, ScrollView, View } from 'react-native';
+import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { Dimensions, Image, ScrollView, View } from 'react-native';
 import MoreOptions from './MoreOptions';
 import useLanguage from '@/languages/hooks/useLanguage';
-import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
 import { useAppSelector } from '@/redux/hooks/hooks';
 import { translateErrorMessageWithStructure } from '@/helpers/string';
 import _ from 'lodash';
@@ -168,9 +168,17 @@ const SignIn = () => {
     const handleCloseSavedLogin = () => {
         setOpenSavedLogin(false);
     };
-    useEffect(() => {
+    useLayoutEffect(() => {
         handleSetSessionsLogin(false);
     }, []);
+
+    // useEffect(() => {
+    //     // AsyncStorage.clear();
+    //     const a = async () => (await LoginSessionManager.getLoginSessionSaved()).sessions;
+    //     a().then((t) => {
+    //         console.log(t);
+    //     });
+    // }, []);
     // --------------------------------------------------------------------------
     return (
         <DefaultLayout>

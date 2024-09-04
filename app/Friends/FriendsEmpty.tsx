@@ -8,7 +8,16 @@ export const FriendsEmpty = () => {
     const noFriendTitle = lang.FRIENDS_NO_DEVICE_TITLE;
     const noFriendDesc = lang.FRIENDS_NO_DEVICE_DESC;
     return (
-        <ThemedView style={{ display: 'flex', alignItems: 'center', flexDirection: 'column', gap: 10 }}>
+        <ThemedView
+            style={{
+                display: 'flex',
+                alignItems: 'center',
+                flexDirection: 'column',
+                gap: 10,
+                paddingHorizontal: 20,
+                height: '100%',
+            }}
+        >
             <Image
                 source={require('@/assets/images/add-friend.png')}
                 style={{

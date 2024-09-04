@@ -9,7 +9,6 @@ import UserSessionItem from './UserSessionItem';
 import { useDispatch } from 'react-redux';
 import { login } from '@/redux/auth/reducer';
 import { refreshTokenAndFetchingData } from '@/helpers/fetching';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface SignInWithSavedLoginProps {
     setOpenSavedLogin: (state: boolean) => void;
