@@ -58,7 +58,7 @@ const SignInWithSavedLogin: React.FC<SignInWithSavedLoginProps> = ({ setOpenSave
         trailing: false,
     });
     const renderSessionItem: ListRenderItem<ISessionToken> = useCallback(({ item }) => {
-        return <UserSessionItem handleRefreshToken={handleLoginWithSavedSession} item={item} />;
+        return <UserSessionItem key={item.userId} handleRefreshToken={handleLoginWithSavedSession} item={item} />;
     }, []);
     return (
         <ScrollView>
@@ -119,7 +119,7 @@ const SignInWithSavedLogin: React.FC<SignInWithSavedLoginProps> = ({ setOpenSave
                     scrollEnabled={false}
                     renderItem={renderSessionItem}
                     data={savedLoginArray}
-                    keyExtractor={(item) => item.authId}
+                    keyExtractor={(item) => item.userId}
                     contentContainerStyle={{
                         display: 'flex',
                         width: '100%',

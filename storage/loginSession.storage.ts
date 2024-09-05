@@ -82,8 +82,10 @@ export class LoginSessionManager {
         try {
             if (!session.rtoken) return false;
             const savedList = await LoginSessionManager.getLoginSessionSaved();
-            savedList.sessions[session.userId] = { ...session }; // Use userId as the key
-            if (setCurrent) savedList.current = { ...session };
+            savedList.sessions[session.userId] = session; // Use userId as the key
+            if (setCurrent) savedList.current = session;
+            console.log(savedList);
+
             await LoginSessionManager.saveLoginSessionSaved(savedList);
             return true;
         } catch (error) {
@@ -130,6 +132,8 @@ export class LoginSessionManager {
     public static async logoutSession(removeSaved?: boolean) {
         try {
             const savedList = await LoginSessionManager.getLoginSessionSaved();
+            console.log(savedList);
+
             if (removeSaved && savedList.current) delete savedList.sessions[savedList.current.userId];
             savedList.current = undefined;
             await LoginSessionManager.saveLoginSessionSaved(savedList);

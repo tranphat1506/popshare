@@ -19,7 +19,6 @@ import { useDispatch } from 'react-redux';
 import DefaultLayout from '@/components/layout/DefaultLayout';
 import { login } from '@/redux/auth/reducer';
 import { ISessionToken, LoginSessionManager } from '@/storage/loginSession.storage';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import SignInWithSavedLogin from './SignInWithSavedLogin';
 const wWindow = Dimensions.get('window').width;
 interface ISignInData {
@@ -94,7 +93,6 @@ const SignIn = () => {
                 }),
             });
             if (response.ok) {
-                AsyncStorage.clear();
                 const success = (await response.json()) as ISignInSuccessResponse;
                 const session = {
                     authId: success.user.authId,
@@ -172,13 +170,13 @@ const SignIn = () => {
         handleSetSessionsLogin(false);
     }, []);
 
-    // useEffect(() => {
-    //     // AsyncStorage.clear();
-    //     const a = async () => (await LoginSessionManager.getLoginSessionSaved()).sessions;
-    //     a().then((t) => {
-    //         console.log(t);
-    //     });
-    // }, []);
+    useEffect(() => {
+        // AsyncStorage.clear();
+        const a = async () => (await LoginSessionManager.getLoginSessionSaved()).sessions;
+        a().then((t) => {
+            console.log(t);
+        });
+    }, []);
     // --------------------------------------------------------------------------
     return (
         <DefaultLayout>
