@@ -4,7 +4,7 @@ export enum SocketEvent {
     sendMessage = 'SendMessage',
     sendNotification = 'NotiSent',
     broadcastNotification = 'Broadcast',
-    onSetupChatRoom = 'SetupChatRoom',
+    SetupChatRoom = 'SetupChatRoom',
     sendSocketRequestError = 'SocketRequestError',
 }
 export interface SocketInterface {
