@@ -4,7 +4,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import NotificationsStackScreen from '../Notifications';
 import FriendsStackScreen from '../Friends';
 import NotFound from '../+not-found';
-import useInitSocket from '@/hooks/socket.io/useInitSocket';
 const Stack = createNativeStackNavigator();
 const Layout = () => {
     return (

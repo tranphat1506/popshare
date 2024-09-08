@@ -1,5 +1,6 @@
 import { BE_API_URL, BE_URL } from '@/constants/Constants';
 import { ICurrentUserDetail } from '@/redux/auth/reducer';
+import { IRoomDetail } from '@/redux/chatRoom/room.interface';
 import { IOnlineState, PeerId } from '@/redux/peers/reducer';
 import { LoginSessionManager } from '@/storage/loginSession.storage';
 const base64ImageRegx = /^data:image\/(?:gif|png|jpeg|bmp|webp)(?:;charset=utf-8)?;base64,(?:[A-Za-z0-9]|[+/])+={0,2}/g;
@@ -28,20 +29,66 @@ interface IAuthProps {
     token?: string | null;
     rtoken?: string | null;
 }
+interface IFetchingResponse {
+    message: string;
+}
+type FetchingUserData = {
+    user: ICurrentUserDetail & { _id: string; onlineState?: IOnlineState };
+} & IFetchingResponse;
+type FetchingCurrentUserPayload = {
+    friends: {
+        count: number;
+        friendList: string[];
+    };
+    user: ICurrentUserDetail & { _id: string; onlineState?: IOnlineState };
+} & IFetchingResponse;
 
+type FetchingCurrentUserRoomPayload = IFetchingResponse & {
+    roomIdList: string[];
+    rooms: IRoomDetail[];
+};
 export const checkingValidAuthSession = async (auth: IAuthProps) => {
     try {
         if (!auth.rtoken && !auth.token) throw Error('Invalid auth.');
         if (!auth.token && auth.rtoken) {
-            auth.token = await refreshToken(auth.rtoken);
+            auth.token = (await refreshToken(auth.rtoken)) as string;
+            const session = await LoginSessionManager.getCurrentSession();
+            if (session) {
+                session.token = auth.token;
+                await LoginSessionManager.setSessionToSessionSaved(session, true);
+            }
             return auth;
         }
         return auth;
     } catch (error) {
-        throw Error('Invalid auth.');
+        throw Error(error as string);
     }
 };
-export const FetchUserProfileById = async (id: PeerId, auth: IAuthProps): Promise<IFetchingUserData | null> => {
+export const FetchChatRoomCurrentUser = async (auth: IAuthProps): Promise<FetchingCurrentUserRoomPayload | null> => {
+    try {
+        auth = await checkingValidAuthSession(auth);
+        const response = await fetch(BE_API_URL + '/room/myChatRoom', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${auth.token}`,
+            },
+        });
+        if (response.status === 401 && auth.rtoken) {
+            auth.token = await refreshToken(auth.rtoken);
+            return await FetchChatRoomCurrentUser(auth);
+        }
+        if (response.ok) {
+            const data = (await response.json()) as FetchingCurrentUserRoomPayload;
+            return data;
+        }
+        return null;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+};
+export const FetchUserProfileById = async (id: PeerId, auth: IAuthProps): Promise<FetchingUserData | null> => {
     try {
         auth = await checkingValidAuthSession(auth);
         const response = await fetch(BE_API_URL + '/user/' + id, {
@@ -56,7 +103,7 @@ export const FetchUserProfileById = async (id: PeerId, auth: IAuthProps): Promis
             return await FetchUserProfileById(id, auth);
         }
         if (response.ok) {
-            const data = (await response.json()) as IFetchingUserData;
+            const data = (await response.json()) as FetchingUserData;
             data.user.userId = data.user._id;
             return data;
         }
@@ -66,18 +113,7 @@ export const FetchUserProfileById = async (id: PeerId, auth: IAuthProps): Promis
         return null;
     }
 };
-interface IFetchingUserData {
-    message: string;
-    user: ICurrentUserDetail & { _id: string; onlineState?: IOnlineState };
-}
-interface IFetchingDataResponse {
-    friends: {
-        count: number;
-        friendList: string[];
-    };
-    message: string;
-    user: ICurrentUserDetail & { _id: string; onlineState?: IOnlineState };
-}
+
 export const refreshToken = async (rtoken: string) => {
     try {
         const response = await fetch(BE_API_URL + '/refresh', {
@@ -115,7 +151,7 @@ export const refreshTokenAndFetchingData = async (auth: IAuthProps) => {
     }
 };
 
-export const fetchMyData = async (auth: IAuthProps): Promise<IFetchingDataResponse | null> => {
+export const fetchMyData = async (auth: IAuthProps): Promise<FetchingCurrentUserPayload | null> => {
     try {
         auth = await checkingValidAuthSession(auth);
         const fetchUserData = await fetch(BE_API_URL + '/user/me', {
@@ -134,7 +170,7 @@ export const fetchMyData = async (auth: IAuthProps): Promise<IFetchingDataRespon
             // other error code
             return null;
         }
-        const userData = (await fetchUserData.json()) as IFetchingDataResponse;
+        const userData = (await fetchUserData.json()) as FetchingCurrentUserPayload;
         if (userData.user._id) userData.user.userId = userData.user._id;
         userData.user.token = auth.token!;
         userData.user.profilePicture =

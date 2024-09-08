@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo, useEffect, useMemo } from 'react';
 import { Pressable, View, ViewProps } from 'react-native';
 import { Flex } from 'native-base';
 import { Entypo, Feather, Ionicons } from '@expo/vector-icons';
@@ -22,6 +22,13 @@ const TopToolBar: React.FC<TopToolBarProps> = (props) => {
     };
     const peerLength = useAppSelector((state) => state.peers.count);
     const userData = useAppSelector((state) => state.auth.user);
+    const chatRoomState = useAppSelector((state) => state.chatRoom);
+    const messageNotRead = useMemo(() => {
+        return Object.keys(chatRoomState.rooms).filter((r) => !!chatRoomState.rooms[r]?.notRead === true).length;
+    }, [chatRoomState]);
+    const notificationNotRead = useMemo(() => {
+        return 0;
+    }, []);
     const handleLogout = async () => {
         await LoginSessionManager.logoutSession(false);
         dispatch(clear());
@@ -65,7 +72,7 @@ const TopToolBar: React.FC<TopToolBarProps> = (props) => {
                     <ButtonIconWithBadge
                         marginLeft={4}
                         badgeProps={{
-                            value: 100,
+                            value: notificationNotRead,
                             min: 1,
                             max: 99,
                         }}
@@ -94,7 +101,7 @@ const TopToolBar: React.FC<TopToolBarProps> = (props) => {
                     <ButtonIconWithBadge
                         marginLeft={4}
                         badgeProps={{
-                            value: 100,
+                            value: messageNotRead,
                             min: 1,
                             max: 99,
                         }}

@@ -16,9 +16,10 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { LoginSessionManager } from '@/storage/loginSession.storage';
 import { login } from '@/redux/auth/reducer';
 import * as Splash from 'expo-splash-screen';
-import { fetchMyData } from '@/helpers/fetching';
+import { FetchChatRoomCurrentUser, fetchMyData } from '@/helpers/fetching';
 import { addPeers, Peers } from '@/redux/peers/reducer';
 import useInitSocket from '@/hooks/socket.io/useInitSocket';
+import { addRooms } from '@/redux/chatRoom/reducer';
 Splash.preventAutoHideAsync();
 const Tab = createBottomTabNavigator<RootStackParamList>();
 export default function Layout() {
@@ -39,12 +40,13 @@ const AppComponent = () => {
         const session = await LoginSessionManager.getCurrentSession();
         if (session) {
             const userData = await fetchMyData({ token: session.token, rtoken: session.rtoken });
-            if (userData) {
+            const chatRoomData = await FetchChatRoomCurrentUser({ token: session.token, rtoken: session.rtoken });
+            if (userData && chatRoomData) {
                 const friends: Peers = {};
                 userData.friends.friendList.forEach((userId) => {
                     friends[userId] = undefined;
                 });
-                console.log('dispatch');
+                dispatch(addRooms(chatRoomData.rooms));
                 dispatch(addPeers(friends));
                 dispatch(login(userData.user));
             }

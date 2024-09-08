@@ -2,8 +2,10 @@ import { configureStore } from '@reduxjs/toolkit';
 import setting from './setting/reducer';
 import peers from './peers/reducer';
 import auth from './auth/reducer';
+import chatRoom from './chatRoom/reducer';
+
 export const store = configureStore({
-    reducer: { setting, peers, auth },
+    reducer: { setting, peers, auth, chatRoom },
     middleware(getDefaultMiddleware) {
         return getDefaultMiddleware().concat([]);
     },
