@@ -3,14 +3,13 @@ import useLanguage from '@/languages/hooks/useLanguage';
 import { ISessionToken, LoginSessionManager } from '@/storage/loginSession.storage';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Icon } from 'native-base';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { FlatList, Image, ListRenderItem, ScrollView, View, TouchableOpacity } from 'react-native';
 import UserSessionItem from './UserSessionItem';
 import { useDispatch } from 'react-redux';
 import { login } from '@/redux/auth/reducer';
 import { refreshTokenAndFetchingData } from '@/helpers/fetching';
 import _ from 'lodash';
-import { useAppSelector } from '@/redux/hooks/hooks';
 
 interface SignInWithSavedLoginProps {
     setOpenSavedLogin: (state: boolean) => void;

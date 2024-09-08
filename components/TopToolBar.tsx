@@ -20,10 +20,6 @@ const TopToolBar: React.FC<TopToolBarProps> = (props) => {
     const navigationToOtherRoute = (routeName: string, routeParams?: any) => () => {
         navigation.navigate(routeName, routeParams);
     };
-    const peersState = useAppSelector((state) => state.peers);
-    useEffect(() => {
-        console.log(peersState);
-    }, [peersState]);
     const peerLength = useAppSelector((state) => state.peers.count);
     const userData = useAppSelector((state) => state.auth.user);
     const handleLogout = async () => {
