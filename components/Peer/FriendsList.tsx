@@ -29,9 +29,9 @@ const handleFilterData = ({ peersState, ...filter }: HandleFilterDataProps): Pee
     const pinData: PeerDeviceProps[] = [];
     const withoutPinData: PeerDeviceProps[] = [];
     Object.keys(peersState.peers).forEach((id) => {
-        const existPeer: Peer = peersState.peers[id];
+        const existPeer: Peer | undefined = peersState.peers[id];
         const peerDeviceProps: PeerDeviceProps = { peerId: id, existPeer: existPeer };
-        const pinSlot = existPeer.pinSlot ?? -1;
+        const pinSlot = existPeer?.pinSlot ?? -1;
         if (pinSlot === -1 && !filter.showOnlyPinned) withoutPinData.push(peerDeviceProps);
         else pinData[pinSlot] = { ...peerDeviceProps, isSetPin: true };
     });

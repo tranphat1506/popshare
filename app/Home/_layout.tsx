@@ -7,7 +7,6 @@ import NotFound from '../+not-found';
 import useInitSocket from '@/hooks/socket.io/useInitSocket';
 const Stack = createNativeStackNavigator();
 const Layout = () => {
-    const initSocket = useInitSocket();
     return (
         <Stack.Navigator initialRouteName="home">
             <Stack.Screen name="home" component={HomeScreen} options={{ headerShown: false, title: 'Home' }} />

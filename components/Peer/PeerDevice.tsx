@@ -1,11 +1,11 @@
-import { Avatar, Flex, Icon, Skeleton } from 'native-base';
+import { Flex, Icon, Skeleton } from 'native-base';
 import React, { memo, useEffect, useState } from 'react';
 import { Pressable, StyleProp, Text, View, ViewStyle } from 'react-native';
 import { ThemedText } from '../ThemedText';
 import { SIZES } from '@/constants/Sizes';
 import { MotiView } from 'moti';
 import { addPeer, Peer } from '@/redux/peers/reducer';
-import { getAllFirstLetterOfString, StringOnlineStateHelper, stringToColorCode } from '@/helpers/string';
+import { getAllFirstLetterOfString, StringOnlineStateHelper } from '@/helpers/string';
 import { FetchUserAvatarByUrl, FetchUserProfileById } from '@/helpers/fetching';
 import { AntDesign } from '@expo/vector-icons';
 import { ThemedView } from '../ThemedView';

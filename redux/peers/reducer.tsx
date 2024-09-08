@@ -22,7 +22,7 @@ export type Peer = IUserPublicDetail & {
 };
 // peer structure
 export type Peers = {
-    [key: PeerId]: Peer;
+    [key: PeerId]: Peer | undefined;
 };
 export interface PeersPinSlots {
     [key: PeerId]: number;
@@ -44,23 +44,23 @@ export const initState: PeersState = {
     recentHistory: [],
 };
 const peersReducer = {
-    addPeers: (state: PeersState, action: PayloadAction<Peer[]>) => {
-        action.payload.forEach((peer) => {
-            state.peers[peer.userId] = peer;
-            state.count = state.count + 1;
+    addPeers: (state: PeersState, action: PayloadAction<Peers>) => {
+        Object.keys(action.payload).forEach((peerId) => {
+            const peer = action.payload[peerId];
+            state.peers[peerId] = peer;
         });
+        state.count = Object.keys(state.peers).length;
     },
     addPeer: (state: PeersState, action: PayloadAction<Peer>) => {
-        const existPeer = state.peers[action.payload.userId];
-        if (!existPeer) state.count = state.count + 1;
-        state.peers[action.payload.userId] = { ...existPeer, ...action.payload };
+        state.peers[action.payload.userId] = { ...action.payload };
+        state.count = Object.keys(state.peers).length;
     },
     removePeerByPeerId: (state: PeersState, action: PayloadAction<PeerId>) => {
         const peerDetail = state.peers[action.payload];
         if (!peerDetail) {
             delete state.peers[action.payload];
-            state.count = state.count - 1;
         }
+        state.count = Object.keys(state.peers).length;
     },
     clear: (state: PeersState) => {
         state.count = 0;

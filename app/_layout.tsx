@@ -13,11 +13,12 @@ import BottomNavBar from '@/components/BottomNavBar';
 import AuthLayout from '@/app/Auth/_layout';
 import { useAppSelector } from '@/redux/hooks/hooks';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { ISessionToken, LoginSessionManager } from '@/storage/loginSession.storage';
+import { LoginSessionManager } from '@/storage/loginSession.storage';
 import { login } from '@/redux/auth/reducer';
 import * as Splash from 'expo-splash-screen';
-import { fetchMyData, FetchUserProfileById } from '@/helpers/fetching';
-import { addPeers } from '@/redux/peers/reducer';
+import { fetchMyData } from '@/helpers/fetching';
+import { addPeers, Peers } from '@/redux/peers/reducer';
+import useInitSocket from '@/hooks/socket.io/useInitSocket';
 Splash.preventAutoHideAsync();
 const Tab = createBottomTabNavigator<RootStackParamList>();
 export default function Layout() {
@@ -31,33 +32,52 @@ export default function Layout() {
 }
 const AppComponent = () => {
     const authState = useAppSelector((state) => state.auth);
-
+    const dispatch = useDispatch();
     const [appIsReady, setAppIsReady] = useState<boolean>(false);
-    useEffect(() => {
-        const loaded = async () => {
-            try {
-                await useGlobalFonts();
-            } catch (error) {
-                console.warn(error);
-            } finally {
-                setAppIsReady(true);
+
+    const handleFetchCurrentSession = useCallback(async () => {
+        const session = await LoginSessionManager.getCurrentSession();
+        if (session) {
+            const userData = await fetchMyData({ token: session.token, rtoken: session.rtoken });
+            if (userData) {
+                const friends: Peers = {};
+                userData.friends.friendList.forEach((userId) => {
+                    friends[userId] = undefined;
+                });
+                console.log('dispatch');
+                dispatch(addPeers(friends));
+                dispatch(login(userData.user));
             }
-        };
-        loaded();
-    }, []);
+        }
+    }, [dispatch]);
+    // Hàm để load session và fonts
+    const loadApp = useCallback(async () => {
+        try {
+            await useGlobalFonts();
+            await handleFetchCurrentSession();
+        } catch (error) {
+            console.warn(error);
+        } finally {
+            setAppIsReady(true);
+        }
+    }, [dispatch]);
+
+    // Fetch session khi component mount và khi authState thay đổi
+    useEffect(() => {
+        loadApp();
+    }, [authState.isLogging]); // Theo dõi authState.isLogging để fetch lại session khi logout
+    // Hàm xử lý khi layout hoàn tất
     const onLayoutRootView = useCallback(async () => {
         if (appIsReady) {
             await Splash.hideAsync();
         }
     }, [appIsReady]);
-    // return component
+    // Nếu ứng dụng chưa sẵn sàng thì không render
     if (!appIsReady) return null;
+
     return (
         <GestureHandlerRootView onLayout={onLayoutRootView}>
-            <NavigationContainer
-                // linking={DEFAULT_LINKING}
-                independent={true}
-            >
+            <NavigationContainer independent={true}>
                 {authState.isLogging ? <MainComponent /> : <AuthLayout />}
             </NavigationContainer>
         </GestureHandlerRootView>
@@ -65,29 +85,7 @@ const AppComponent = () => {
 };
 
 const MainComponent = () => {
-    const dispatch = useDispatch();
-    const handleFetchAllFriends = async (friends: string[], session: ISessionToken) => {
-        const friendsData = await Promise.all(
-            friends.map((userId) => FetchUserProfileById(userId, { token: session.token, rtoken: session.rtoken })),
-        );
-        return friendsData.map((data) => data?.user).filter((data) => !!data);
-    };
-    const handleFetchCurrentSession = async () => {
-        const session = await LoginSessionManager.getCurrentSession();
-        if (session) {
-            const userData = await fetchMyData({ token: session.token, rtoken: session.rtoken });
-
-            if (userData) {
-                const friends = await handleFetchAllFriends(userData.friends.friendList, session);
-                dispatch(addPeers(friends));
-                dispatch(login(userData.user));
-            }
-        }
-        return session;
-    };
-    useLayoutEffect(() => {
-        handleFetchCurrentSession();
-    }, []);
+    const initSocket = useInitSocket();
     return (
         <Tab.Navigator initialRouteName="/" tabBar={(props) => <BottomNavBar {...props} />}>
             <Tab.Screen name="/" component={HomePage} options={{ headerShown: false }} />

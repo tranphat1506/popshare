@@ -8,12 +8,11 @@ import { useAppSelector } from '@/redux/hooks/hooks';
 const useInitSocket = () => {
     const socket = useSocketIO();
     const dispatch = useDispatch();
-    const peers = useAppSelector((state) => state.peers);
     const handleConnectSocket = () => {
         socket.on('connect', () => {
             console.info('Connect with socketId =', socket.id);
-            const friendIdList = Object.keys(peers.peers);
-            socket.emit(SocketEvent.SetupChatRoom, friendIdList);
+            const roomIdList: string[] = [];
+            socket.emit(SocketEvent.SetupChatRoom, roomIdList);
             dispatch(connectionEstablished({ socketId: socket.id }));
         });
         socket.on('disconnect', (e) => {
