@@ -111,7 +111,6 @@ const SignIn = () => {
                 dispatch(login({ ...success.user, userId: success.user._id, token: success.token }));
             } else {
                 const json = (await response.json()) as IErrorResponse;
-                console.log(json);
                 // Not acceptable (mean user not verify)
                 if (json.statusCode === 406) {
                     setUserIsNeedVerifyOtp(true);
@@ -170,13 +169,13 @@ const SignIn = () => {
         handleSetSessionsLogin(false);
     }, []);
 
-    useEffect(() => {
-        // AsyncStorage.clear();
-        const a = async () => (await LoginSessionManager.getLoginSessionSaved()).sessions;
-        a().then((t) => {
-            console.log(t);
-        });
-    }, []);
+    // useEffect(() => {
+    //     // AsyncStorage.clear();
+    //     const a = async () => (await LoginSessionManager.getLoginSessionSaved()).sessions;
+    //     a().then((t) => {
+    //         console.log(t);
+    //     });
+    // }, []);
     // --------------------------------------------------------------------------
     return (
         <DefaultLayout>

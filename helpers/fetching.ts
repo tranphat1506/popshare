@@ -45,7 +45,7 @@ export const FetchUserProfileById = async (id: PeerId, auth: IAuthProps): Promis
     try {
         auth = await checkingValidAuthSession(auth);
         const response = await fetch(BE_API_URL + '/user/' + id, {
-            method: 'GET',
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${auth.token}`,

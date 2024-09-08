@@ -1,4 +1,4 @@
-export const BE_URL = 'http://192.168.1.12:3001';
+export const BE_URL = 'http://10.0.23.142:3001';
 export const BE_API_URL = BE_URL + '/api/v1';
 export const CommonRegex = {
     email: /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/,

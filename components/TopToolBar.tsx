@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 import { Pressable, View, ViewProps } from 'react-native';
 import { Flex } from 'native-base';
 import { Entypo, Feather, Ionicons } from '@expo/vector-icons';
@@ -11,6 +11,7 @@ import { EmojiKey } from './common/EmojiPicker';
 import { LoginSessionManager } from '@/storage/loginSession.storage';
 import { useDispatch } from 'react-redux';
 import { logout } from '@/redux/auth/reducer';
+import { clear } from '@/redux/peers/reducer';
 // import tw from 'twrnc';
 type TopToolBarProps = ViewProps;
 const TopToolBar: React.FC<TopToolBarProps> = (props) => {
@@ -19,10 +20,15 @@ const TopToolBar: React.FC<TopToolBarProps> = (props) => {
     const navigationToOtherRoute = (routeName: string, routeParams?: any) => () => {
         navigation.navigate(routeName, routeParams);
     };
+    const peersState = useAppSelector((state) => state.peers);
+    useEffect(() => {
+        console.log(peersState);
+    }, [peersState]);
     const peerLength = useAppSelector((state) => state.peers.count);
     const userData = useAppSelector((state) => state.auth.user);
     const handleLogout = async () => {
         await LoginSessionManager.logoutSession(false);
+        dispatch(clear());
         dispatch(logout());
     };
     return (
@@ -43,11 +49,11 @@ const TopToolBar: React.FC<TopToolBarProps> = (props) => {
             >
                 <Pressable onPress={handleLogout}>
                     <PopshareAvatar
-                        key={userData!.authId}
+                        key={userData?.authId}
                         size={50}
-                        avatarColor={userData!.avatarColor}
-                        avatarEmoji={userData!.avatarEmoji as EmojiKey}
-                        profilePicture={userData!.profilePicture}
+                        avatarColor={userData?.avatarColor || ''}
+                        avatarEmoji={(userData?.avatarEmoji as EmojiKey) || ''}
+                        profilePicture={userData?.profilePicture}
                     />
                 </Pressable>
                 <Flex flexDirection={'row'} justifyContent={'flex-end'} alignItems={'flex-end'}>

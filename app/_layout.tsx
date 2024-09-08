@@ -14,7 +14,7 @@ import BottomNavBar from '@/components/BottomNavBar';
 import AuthLayout from '@/app/Auth/_layout';
 import { useAppSelector } from '@/redux/hooks/hooks';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { LoginSessionManager } from '@/storage/loginSession.storage';
+import { ISessionToken, LoginSessionManager } from '@/storage/loginSession.storage';
 import { login } from '@/redux/auth/reducer';
 import * as Splash from 'expo-splash-screen';
 import { View } from 'react-native';
@@ -34,20 +34,25 @@ export default function Layout() {
 }
 const AppComponent = () => {
     const authState = useAppSelector((state) => state.auth);
+
     const [appIsReady, setAppIsReady] = useState<boolean>(false);
     const dispatch = useDispatch();
-    const handleFetchAllFriends = async (friends: string[]) => {
-        const friendsData = await Promise.all(friends.map((userId) => FetchUserProfileById(userId)));
+    const handleFetchAllFriends = async (friends: string[], session: ISessionToken) => {
+        const friendsData = await Promise.all(
+            friends.map((userId) => FetchUserProfileById(userId, { token: session.token, rtoken: session.rtoken })),
+        );
         return friendsData.map((data) => data?.user).filter((data) => !!data);
     };
     const handleGetCurrentSession = async () => {
         const session = await LoginSessionManager.getCurrentSession();
         if (session) {
-            const userData = await fetchMyData(session.token);
+            const userData = await fetchMyData({ token: session.token, rtoken: session.rtoken });
+
             if (userData) {
-                const friends = await handleFetchAllFriends(userData.friends.friendList);
+                const friends = await handleFetchAllFriends(userData.friends.friendList, session);
                 dispatch(addPeers(friends));
                 dispatch(login(userData.user));
+                setAppIsReady(false);
             }
         }
         return session;

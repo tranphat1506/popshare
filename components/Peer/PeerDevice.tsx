@@ -12,6 +12,7 @@ import { ThemedView } from '../ThemedView';
 import { useAppDispatch } from '@/redux/hooks/hooks';
 import PopshareAvatar from '../common/PopshareAvatar';
 import { EmojiKey } from '../common/EmojiPicker';
+import { LoginSessionManager } from '@/storage/loginSession.storage';
 export type PeerDeviceProps = {
     width?: number;
     height?: number;
@@ -33,11 +34,13 @@ const PeerDevice: React.FC<PeerDeviceProps> = ({
 }) => {
     const dispatch = useAppDispatch();
     const [peerProfile, setPeerProfile] = useState<Peer | undefined>(existPeer);
+
     const handleFetchingPeer = async () => {
+        const session = await LoginSessionManager.getCurrentSession();
         try {
             // console.log(existPeer?.displayName);
             if (!peerProfile) {
-                const data = await FetchUserProfileById(peerId);
+                const data = await FetchUserProfileById(peerId, { token: session?.token, rtoken: session?.rtoken });
                 if (!data) throw Error('Cannot Fetching');
                 const uriData = data.user.profilePicture
                     ? await FetchUserAvatarByUrl(data.user.profilePicture)
@@ -135,20 +138,8 @@ const PeerDevice: React.FC<PeerDeviceProps> = ({
                                 avatarColor={peerProfile.avatarColor}
                                 avatarEmoji={peerProfile.avatarEmoji as EmojiKey}
                                 profilePicture={peerProfile.profilePicture}
-                            >
-                                <ThemedText
-                                    numberOfLines={1}
-                                    ellipsizeMode="tail"
-                                    style={{
-                                        fontSize: 16,
-                                        textAlign: 'center',
-                                    }}
-                                    lightColor="#fff"
-                                    darkColor="#fff"
-                                >
-                                    {peerProfile.suffixName}
-                                </ThemedText>
-                            </PopshareAvatar>
+                                size={48}
+                            ></PopshareAvatar>
                             {peerProfile.onlineState && (
                                 <ThemedView
                                     style={{

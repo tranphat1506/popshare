@@ -62,6 +62,11 @@ const peersReducer = {
             state.count = state.count - 1;
         }
     },
+    clear: (state: PeersState) => {
+        state.count = 0;
+        state.peers = {};
+        state.recentHistory = [];
+    },
 };
 const peersSlice = createSlice({
     name: 'peers',
@@ -69,5 +74,5 @@ const peersSlice = createSlice({
     reducers: peersReducer,
 });
 
-export const { addPeer, removePeerByPeerId, addPeers } = peersSlice.actions;
+export const { addPeer, removePeerByPeerId, addPeers, clear } = peersSlice.actions;
 export default peersSlice.reducer;

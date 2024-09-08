@@ -10,6 +10,7 @@ import { useDispatch } from 'react-redux';
 import { login } from '@/redux/auth/reducer';
 import { refreshTokenAndFetchingData } from '@/helpers/fetching';
 import _ from 'lodash';
+import { useAppSelector } from '@/redux/hooks/hooks';
 
 interface SignInWithSavedLoginProps {
     setOpenSavedLogin: (state: boolean) => void;
@@ -30,7 +31,7 @@ const SignInWithSavedLogin: React.FC<SignInWithSavedLoginProps> = ({ setOpenSave
     const handleRefreshTokenAndFetchingData = async (rtoken?: string) => {
         try {
             if (onLogin) return null;
-            const fetch = await refreshTokenAndFetchingData(rtoken);
+            const fetch = await refreshTokenAndFetchingData({ rtoken });
             if (fetch) {
                 await LoginSessionManager.setSessionToSessionSaved(
                     {
