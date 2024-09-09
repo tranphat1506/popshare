@@ -20,6 +20,7 @@ import { FetchChatRoomCurrentUser, fetchMyData } from '@/helpers/fetching';
 import { addPeers, Peers } from '@/redux/peers/reducer';
 import useInitSocket from '@/hooks/socket.io/useInitSocket';
 import { addRooms } from '@/redux/chatRoom/reducer';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 Splash.preventAutoHideAsync();
 const Tab = createBottomTabNavigator<RootStackParamList>();
 export default function Layout() {

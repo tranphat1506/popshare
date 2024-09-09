@@ -7,13 +7,17 @@ interface ISocketErrorResponse<Payload> {
     payload?: Payload;
     message: string;
 }
-const useOnSocketError = <IPayload>(catchEvent: string) => {
+const useOnSocketError = <IPayload>(
+    catchEvent: string,
+): [
+    ISocketErrorResponse<IPayload> | null,
+    React.Dispatch<React.SetStateAction<ISocketErrorResponse<IPayload> | null>>,
+] => {
     const socket = useSocketIO();
     const [error, setError] = useState<ISocketErrorResponse<IPayload> | null>(null);
     useEffect(() => {
         socket.on('SocketRequestError', (error: ISocketErrorResponse<IPayload>) => {
             if (catchEvent === error.event) {
-                console.error(error);
                 setError(error);
             }
         });
