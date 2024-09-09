@@ -36,9 +36,8 @@ const PeerDevice: React.FC<PeerDeviceProps> = ({
     const [peerProfile, setPeerProfile] = useState<Peer | undefined>(existPeer);
 
     const handleFetchingPeer = async () => {
-        const session = await LoginSessionManager.getCurrentSession();
         try {
-            // console.log(existPeer?.displayName);
+            const session = await LoginSessionManager.getCurrentSession();
             if (!peerProfile) {
                 const data = await FetchUserProfileById(peerId, { token: session?.token, rtoken: session?.rtoken });
                 if (!data) throw Error('Cannot Fetching');
@@ -67,7 +66,7 @@ const PeerDevice: React.FC<PeerDeviceProps> = ({
     // Fetch peer profile
     useEffect(() => {
         handleFetchingPeer();
-    }, []);
+    }, [dispatch]);
     return (
         <View>
             <View

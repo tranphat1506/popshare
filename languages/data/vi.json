@@ -1,5 +1,5 @@
 {
-    "FRIENDS_TITLE": "Danh sách bạn bè",
+    "FRIENDS_TITLE": "Bạn bè",
     "NOTIFICATION_TITLE": "Thông báo",
     "CANNOT_FIND_PAGE": "Không tìm thấy trang",
     "RETURN": "Quay về",
@@ -50,5 +50,7 @@
     "BACK": "Quay lại",
     "MESSAGE_EMPTY_SAVED_SESSION_LIST": "Bạn chưa lưu bất kỳ tài khoản nào.",
     "MESSAGE_SIGN_UP_NOW": "Đăng ký ngay",
-    "LOGIN_SESSION_LIST": "Danh sách tài khoản đã lưu"
+    "LOGIN_SESSION_LIST": "Danh sách tài khoản đã lưu",
+    "MESSAGES_TITLE": "Tin nhắn",
+    "MESSAGES_REQUEST": "Tin nhắn đang chờ"
 }

@@ -17,8 +17,8 @@ interface AvatarSettingModalProps {
 }
 export interface IAvatarState {
     profilePicture?: string;
-    avatarEmoji: EmojiKey;
-    avatarColor: string;
+    avatarEmoji?: EmojiKey;
+    avatarColor?: string;
 }
 const AvatarSettingModal: React.FC<AvatarSettingModalProps> = ({
     handleOpenSetting,

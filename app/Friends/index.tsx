@@ -35,6 +35,10 @@ function FriendsScreen() {
     // Custom title
     useCustomScreenOptions({
         title: friendTitleText,
+        headerTitleStyle: {
+            fontSize: 18,
+            fontFamily: 'System-Medium',
+        },
     });
     const navigation = useNavigation<NavigationProp<RootStackParamList, 'friends'>>();
     const { params: routeParams } = useRoute<RouteProp<RootStackParamList, 'friends'>>();

@@ -1,5 +1,5 @@
 {
-    "FRIENDS_TITLE": "Friends List",
+    "FRIENDS_TITLE": "Friends",
     "NOTIFICATION_TITLE": "Notifications",
     "CANNOT_FIND_PAGE": "Cannot find this page",
     "RETURN": "Return",
@@ -50,5 +50,7 @@
     "BACK": "Back",
     "MESSAGE_EMPTY_SAVED_SESSION_LIST": "You don't have any saved account.",
     "MESSAGE_SIGN_UP_NOW": "Sign up now",
-    "LOGIN_SESSION_LIST": "Saved accounts"
+    "LOGIN_SESSION_LIST": "Saved accounts",
+    "MESSAGES_TITLE": "Messages",
+    "MESSAGES_REQUEST": "Requests"
 }

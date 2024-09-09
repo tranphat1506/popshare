@@ -13,6 +13,10 @@ function NotificationsScreen() {
 
     useCustomScreenOptions({
         title: `${notificationsText} (${notiList.length})`,
+        headerTitleStyle: {
+            fontSize: 18,
+            fontFamily: 'System-Medium',
+        },
     });
     return (
         <>

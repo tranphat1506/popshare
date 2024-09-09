@@ -52,7 +52,7 @@ const peersReducer = {
         state.count = Object.keys(state.peers).length;
     },
     addPeer: (state: PeersState, action: PayloadAction<Peer>) => {
-        state.peers[action.payload.userId] = { ...action.payload };
+        state.peers[action.payload.userId] = action.payload;
         state.count = Object.keys(state.peers).length;
     },
     removePeerByPeerId: (state: PeersState, action: PayloadAction<PeerId>) => {

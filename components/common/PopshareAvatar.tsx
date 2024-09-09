@@ -1,13 +1,29 @@
 import { IAvatarState } from '@/app/Auth/AvatarSettingModal';
 import { Emoji } from '@/constants/EmojiConstants';
+import { Skeleton } from 'native-base';
 import { Image, View } from 'react-native';
 
 const PopshareAvatar: React.FC<
     IAvatarState & {
         size?: number;
         children?: React.ReactNode;
+        skeleton?: boolean;
     }
 > = ({ size = 128, ...props }) => {
+    if (props.skeleton) {
+        return (
+            <Skeleton
+                style={{
+                    backgroundColor: props.avatarColor,
+                    borderRadius: 9999,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: size,
+                    height: size,
+                }}
+            />
+        );
+    }
     return (
         <View
             style={{
@@ -19,7 +35,7 @@ const PopshareAvatar: React.FC<
                 height: size,
             }}
         >
-            {!props.profilePicture && (
+            {!props.profilePicture && props.avatarEmoji && (
                 <Image
                     style={{
                         borderRadius: 10,
@@ -41,8 +57,7 @@ const PopshareAvatar: React.FC<
                     key={props.profilePicture}
                 />
             )}
-
-            {props.children}
+            {!props.profilePicture && !props.avatarEmoji && props.children}
         </View>
     );
 };

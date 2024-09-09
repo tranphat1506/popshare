@@ -1,6 +1,8 @@
 import languages from '@/languages';
 import { ILanguageProps, KeyDataLanguageType, LanguageType } from '@/languages/@types';
 
+export const reverseUnicodeString = (str: string) => Array.from(str.normalize('NFC')).reverse().join('');
+
 export const stringToColorCode = function (str: string) {
     var hash = 0;
     for (var i = 0; i < str.length; i++) {

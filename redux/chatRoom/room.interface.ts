@@ -22,16 +22,9 @@ interface IMessageSettings {
     allowMemberMessage: boolean;
     allowAutoJoin: boolean;
 }
-export interface IRoomData {
-    _id: string; // room id
-    roomName?: string;
-    createdBy: string;
-    createdAt: number;
-    messageSettings: IMessageSettings;
-    roomType: RoomTypeTypes;
-}
 export interface IRoomDetail {
     _id: string; // room id
+    roomAvatar?: string;
     roomName?: string;
     roomBannedList: IMembersList; // MembersList chứa danh sách cấm
     roomMembers: IMembersList; // MembersList chứa danh sách thành viên
