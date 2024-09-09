@@ -3,7 +3,6 @@ import useSocketIO from './useSocketIO';
 import { useDispatch } from 'react-redux';
 import { connectionEstablished, connectionLost } from '@/redux/socket/reducer';
 import { SocketEvent } from '@/lib/SocketFactory';
-import { useAppSelector } from '@/redux/hooks/hooks';
 import useOnSocketError from './useOnSocketError';
 import { refreshToken } from '@/helpers/fetching';
 import { LoginSessionManager } from '@/storage/loginSession.storage';

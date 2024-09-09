@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Socket } from 'socket.io-client';
 import useSocketIO from './useSocketIO';
 
 interface ISocketErrorResponse<Payload> {
