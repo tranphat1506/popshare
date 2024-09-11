@@ -16,16 +16,17 @@ export interface MessageChatBoxProps {
     room: IP2PMessageRoom | ICloudMessageRoom | IGroupMessageRoom;
     roomType: RoomTypeTypes;
 }
-const MessageChatBox: React.FC<MessageChatBoxProps> = ({ room, roomType }) => {
-    useCustomScreenOptions({
-        headerShown: false,
-    });
+const MessageChatBox: React.FC<
+    MessageChatBoxProps & {
+        handleExit?: () => void;
+    }
+> = ({ room, roomType, handleExit }) => {
     return (
         <DefaultLayout>
             {/* Header */}
-            <View className="flex flex-row items-center justify-between px-4 h-14 border-b border-[#0000005a] dark:border-[#222]">
+            <View className="flex flex-row items-center justify-between px-4 h-14">
                 <View className="flex flex-row items-center justify-between" style={{ columnGap: 20 }}>
-                    <TouchableOpacity onPress={() => {}}>
+                    <TouchableOpacity onPress={handleExit}>
                         <Icon as={Ionicons} name="arrow-back" size={'lg'} className="text-black dark:text-white" />
                     </TouchableOpacity>
                 </View>
@@ -46,6 +47,8 @@ const MessageChatBox: React.FC<MessageChatBoxProps> = ({ room, roomType }) => {
                         {/* For p2p room. Display nickname of member or realname of user */}
                         {(roomType === 'p2p' && (room as IP2PMessageRoom).member.displayName) ||
                             (room as IP2PMessageRoom).user.displayName}
+                        {roomType === 'cloud' && (room as ICloudMessageRoom).user.displayName}
+                        {roomType === 'group' && (room as IGroupMessageRoom).room.detail.roomName}
                     </ThemedText>
                 </View>
                 <TouchableOpacity onPress={() => {}}>
@@ -53,13 +56,38 @@ const MessageChatBox: React.FC<MessageChatBoxProps> = ({ room, roomType }) => {
                     <View>
                         {roomType === 'p2p' && (
                             <PopshareAvatar
-                                size={35}
+                                size={42}
                                 profilePicture={(room as IP2PMessageRoom).user.profilePicture}
                                 avatarColor={(room as IP2PMessageRoom).user.avatarColor}
                                 avatarEmoji={(room as IP2PMessageRoom).user.avatarEmoji as EmojiKey}
                                 displayOnlineState={true}
                                 onlineState={(room as IP2PMessageRoom).user.onlineState}
                             />
+                        )}
+                        {roomType === 'cloud' && (
+                            <PopshareAvatar
+                                size={42}
+                                profilePicture={(room as ICloudMessageRoom).user.profilePicture}
+                                avatarColor={(room as ICloudMessageRoom).user.avatarColor}
+                                avatarEmoji={(room as ICloudMessageRoom).user.avatarEmoji as EmojiKey}
+                            />
+                        )}
+                        {roomType === 'group' && (
+                            <PopshareAvatar
+                                size={42}
+                                profilePicture={(room as IGroupMessageRoom).room.detail.roomAvatar}
+                                avatarColor={(room as IGroupMessageRoom).avatarColor}
+                            >
+                                <ThemedText
+                                    style={{
+                                        color: (room as IGroupMessageRoom).suffixNameColor,
+                                        fontSize: 14,
+                                        lineHeight: 16,
+                                    }}
+                                >
+                                    {(room as IGroupMessageRoom).suffixRoomName}
+                                </ThemedText>
+                            </PopshareAvatar>
                         )}
                     </View>
                 </TouchableOpacity>

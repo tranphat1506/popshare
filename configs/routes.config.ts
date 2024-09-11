@@ -15,18 +15,16 @@ export const DEFAULT_LINKING = {
 
 export type RootStackParamList = {
     '/': undefined;
-    friends?: {
+    friends: {
         peerId?: PeerId;
         filterNav?: string;
     };
-    notifications?: undefined;
-    messages?: MessagesStackParamList; // Nest messages stack here
+    notifications: undefined;
+    messages: MessagesStackParamList; // Nest messages stack here
     archive: undefined;
     signIn: undefined;
     signOut: undefined;
     signUp: undefined;
 };
 
-export type MessagesStackParamList = {
-    messages: MessageChatBoxProps | undefined; // This would be the main screen for messages
-};
+export type MessagesStackParamList = MessageChatBoxProps | undefined;

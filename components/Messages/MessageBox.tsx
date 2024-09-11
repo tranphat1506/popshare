@@ -188,7 +188,7 @@ const P2PMessageRoom: React.FC<IP2PMessageRoom> = (props) => {
                     <ThemedView
                         lightColor={'#9e9e9e'}
                         darkColor={'#3e3e3e'}
-                        style={{ paddingHorizontal: MESSAGE_BOX_PADDING, height: 1, width: '100%' }}
+                        style={{ paddingHorizontal: MESSAGE_BOX_PADDING, height: 0.2, width: '100%' }}
                     />
                 </View>
             </View>

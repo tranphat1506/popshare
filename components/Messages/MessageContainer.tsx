@@ -16,7 +16,7 @@ const MessageContainer: React.FC<MessageContainerProps> = ({ chatBox }) => {
             <MessageList handleSetChatBox={handleSetChatBox} />
             {currentChatBox && (
                 <View style={{ position: 'absolute', top: 0, left: 0, zIndex: 10, width: '100%', height: '100%' }}>
-                    <MessageChatBox {...currentChatBox} />
+                    <MessageChatBox {...currentChatBox} handleExit={handleSetChatBox} />
                 </View>
             )}
         </>

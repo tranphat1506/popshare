@@ -32,8 +32,7 @@ function FriendsScreen() {
     }, []);
     const lang = useLanguage();
     const friendTitleText = lang.FRIENDS_TITLE;
-    // Custom title
-    useCustomScreenOptions({
+    const [header, setHeader] = useCustomScreenOptions({
         title: friendTitleText,
         headerTitleStyle: {
             fontSize: 18,

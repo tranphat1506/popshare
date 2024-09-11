@@ -3,10 +3,12 @@ import { ThemedText } from '@/components/ThemedText';
 import DefaultLayout from '@/components/layout/DefaultLayout';
 import useCustomScreenOptions from '@/hooks/useCustomScreenOptions';
 import useLanguage from '@/languages/hooks/useLanguage';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { View } from 'react-native';
 import MessageContainer from '@/components/Messages/MessageContainer';
+import { RouteProp, useRoute } from '@react-navigation/native';
+import { RootStackParamList } from '@/configs/routes.config';
+import { MessageChatBoxProps } from '@/components/Messages/MessageChatBox';
 function MessagesScreen() {
     const lang = useLanguage();
     const textData = useMemo(() => {
@@ -15,6 +17,11 @@ function MessagesScreen() {
             MESSAGES_REQUESTS: lang.MESSAGES_REQUEST,
         };
     }, []);
+    const { params: routeParams } = useRoute<RouteProp<RootStackParamList, 'messages'>>();
+    const [displayChatBox, setChatBox] = useState<MessageChatBoxProps | undefined>();
+    useEffect(() => {
+        setChatBox(routeParams);
+    }, [routeParams]);
     useCustomScreenOptions({
         title: `${textData.HEADER_TITLE}`,
         headerTitleStyle: {
@@ -47,7 +54,7 @@ function MessagesScreen() {
                         </ThemedText>
                     </TouchableOpacity>
                 </ThemedView>
-                <MessageContainer />
+                <MessageContainer chatBox={displayChatBox} />
             </DefaultLayout>
         </>
     );
