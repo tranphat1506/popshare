@@ -1,3 +1,4 @@
+import { MessageChatBoxProps } from '@/components/Messages/MessageChatBox';
 import { PeerId } from '@/redux/peers/reducer';
 
 export const DEFAULT_CONFIG = {
@@ -13,14 +14,19 @@ export const DEFAULT_LINKING = {
 };
 
 export type RootStackParamList = {
-    '/': {};
-    archive: {};
-    friends: {
+    '/': undefined;
+    friends?: {
         peerId?: PeerId;
         filterNav?: string;
     };
-    notifications: {};
-    signIn: {};
-    signOut: {};
-    signUp: {};
+    notifications?: undefined;
+    messages?: MessagesStackParamList; // Nest messages stack here
+    archive: undefined;
+    signIn: undefined;
+    signOut: undefined;
+    signUp: undefined;
+};
+
+export type MessagesStackParamList = {
+    messages: MessageChatBoxProps | undefined; // This would be the main screen for messages
 };

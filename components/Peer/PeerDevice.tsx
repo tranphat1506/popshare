@@ -138,44 +138,9 @@ const PeerDevice: React.FC<PeerDeviceProps> = ({
                                 avatarEmoji={peerProfile.avatarEmoji as EmojiKey}
                                 profilePicture={peerProfile.profilePicture}
                                 size={48}
-                            ></PopshareAvatar>
-                            {peerProfile.onlineState && (
-                                <ThemedView
-                                    style={{
-                                        position: 'absolute',
-                                        bottom: -5,
-                                        right: -5,
-                                        padding: 3,
-                                        borderRadius: 100,
-                                    }}
-                                >
-                                    <View
-                                        style={{
-                                            backgroundColor: peerProfile.onlineState.isOnline ? '#22c55e' : '#737373',
-                                            minWidth: 15,
-                                            height: 15,
-                                            borderRadius: 100,
-                                            display: 'flex',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                        }}
-                                    >
-                                        <Text
-                                            style={{
-                                                fontSize: 12,
-                                                paddingHorizontal: 4,
-                                                fontFamily: 'System-Regular',
-                                                color: '#fff',
-                                            }}
-                                        >
-                                            {peerProfile.onlineState.isOnline ??
-                                                StringOnlineStateHelper.toLastOnlineTime(
-                                                    peerProfile.onlineState.lastTimeActive,
-                                                )}
-                                        </Text>
-                                    </View>
-                                </ThemedView>
-                            )}
+                                displayOnlineState={true}
+                                onlineState={peerProfile.onlineState}
+                            />
                         </Pressable>
                         <Flex direction="column" justifyContent={'center'} alignItems={'center'} paddingTop={1}>
                             <ThemedText

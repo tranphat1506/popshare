@@ -11,8 +11,12 @@ import {
     SkeletonMessageRoom,
 } from './MessageBox';
 import { getAllFirstLetterOfString, reverseUnicodeString, stringToColorCode } from '@/helpers/string';
+import { MessageChatBoxProps } from './MessageChatBox';
 
-const MessageList = () => {
+interface MessageListProps {
+    handleSetChatBox: (chatBox?: MessageChatBoxProps) => void;
+}
+const MessageList: React.FC<MessageListProps> = ({ handleSetChatBox }) => {
     const user = useAppSelector((state) => state.auth.user);
     const peers = useAppSelector((state) => state.peers.peers);
     const roomQueue = useAppSelector((state) => state.chatRoom.roomQueue);
@@ -29,6 +33,7 @@ const MessageList = () => {
                         room: room,
                         user: existPeerData,
                         member: otherUserData,
+                        handleSetChatBox: handleSetChatBox,
                     };
                     return <P2PMessageRoom {...p2pRoomProps} />;
                 }
@@ -38,6 +43,7 @@ const MessageList = () => {
                     avatarColor: stringToColorCode(room.detail._id),
                     suffixNameColor: stringToColorCode(reverseUnicodeString(room.detail._id)),
                     suffixRoomName: getAllFirstLetterOfString(room.detail.roomName!),
+                    handleSetChatBox: handleSetChatBox,
                 };
                 return <GroupMessageRoom {...groupRoomProps} />;
             } else if (room.detail.roomType === 'cloud' && user) {
@@ -45,6 +51,7 @@ const MessageList = () => {
                     room: room,
                     user: user,
                     member: room.detail.roomMembers.list[0],
+                    handleSetChatBox: handleSetChatBox,
                 };
                 return <CloudMessageRoom {...cloudRoomProps} />;
             }

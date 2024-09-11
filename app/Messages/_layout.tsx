@@ -1,7 +1,6 @@
 import React from 'react';
 import MessagesScreen from './';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
 const Stack = createNativeStackNavigator();
 const Layout = () => {
     return (

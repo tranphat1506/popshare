@@ -36,5 +36,5 @@ export interface IRoomDetail {
 type MemberPositionTypes = 'owner' | 'member' | 'other';
 export const MemberPositionEnum: MemberPositionTypes[] = ['member', 'other', 'owner'];
 
-type RoomTypeTypes = 'cloud' | 'group' | 'p2p';
+export type RoomTypeTypes = 'cloud' | 'group' | 'p2p';
 export const RoomTypeEnum: RoomTypeTypes[] = ['cloud', 'group', 'p2p'];

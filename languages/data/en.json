@@ -52,5 +52,6 @@
     "MESSAGE_SIGN_UP_NOW": "Sign up now",
     "LOGIN_SESSION_LIST": "Saved accounts",
     "MESSAGES_TITLE": "Messages",
-    "MESSAGES_REQUEST": "Requests"
+    "MESSAGES_REQUEST": "Requests",
+    "DISPLAY_EMPTY_MESSAGES_DESCRIPTION": "There are no messages yet!"
 }

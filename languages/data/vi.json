@@ -52,5 +52,6 @@
     "MESSAGE_SIGN_UP_NOW": "Đăng ký ngay",
     "LOGIN_SESSION_LIST": "Danh sách tài khoản đã lưu",
     "MESSAGES_TITLE": "Tin nhắn",
-    "MESSAGES_REQUEST": "Tin nhắn đang chờ"
+    "MESSAGES_REQUEST": "Tin nhắn đang chờ",
+    "DISPLAY_EMPTY_MESSAGES_DESCRIPTION": "Chưa có tin nhắn nào để hiển thị cả!"
 }

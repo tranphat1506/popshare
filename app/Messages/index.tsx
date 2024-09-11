@@ -3,10 +3,10 @@ import { ThemedText } from '@/components/ThemedText';
 import DefaultLayout from '@/components/layout/DefaultLayout';
 import useCustomScreenOptions from '@/hooks/useCustomScreenOptions';
 import useLanguage from '@/languages/hooks/useLanguage';
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { View } from 'react-native';
-import MessageList from '@/components/Messages/MessageList';
+import MessageContainer from '@/components/Messages/MessageContainer';
 function MessagesScreen() {
     const lang = useLanguage();
     const textData = useMemo(() => {
@@ -47,9 +47,7 @@ function MessagesScreen() {
                         </ThemedText>
                     </TouchableOpacity>
                 </ThemedView>
-                <View>
-                    <MessageList />
-                </View>
+                <MessageContainer />
             </DefaultLayout>
         </>
     );

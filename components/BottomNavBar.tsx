@@ -9,8 +9,8 @@ import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { Platform } from 'react-native';
 
 const NavigateDetails = {
-    '/': {
-        iconName: 'radar',
+    home: {
+        iconName: 'home',
         as: MaterialCommunityIcons,
         color: BLUE_MAIN_COLOR,
     },
@@ -39,7 +39,8 @@ const BottomNavBar: React.FC<BottomTabBarProps & ThemedViewProps> = ({ state, de
         >
             <Flex direction="row">
                 {state.routes.map((route, index) => {
-                    const navDetail = NavigateDetails[route.name as keyof typeof NavigateDetails];
+                    const navDetail = NavigateDetails[route.name as keyof typeof NavigateDetails] || undefined;
+                    if (!navDetail) return <></>;
                     const { options } = descriptors[route.key];
                     const isFocused = state.index === index;
                     const onPress = () => {
@@ -74,6 +75,9 @@ const BottomNavBar: React.FC<BottomTabBarProps & ThemedViewProps> = ({ state, de
                             }
                             flex={1}
                             flexBasis={'50%'}
+                            _pressed={{
+                                backgroundColor: '#00000000',
+                            }}
                         />
                     );
                 })}
