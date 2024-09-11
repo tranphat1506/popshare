@@ -46,16 +46,16 @@ const SignInWithSavedLogin: React.FC<SignInWithSavedLoginProps> = ({ setOpenSave
                     },
                     true,
                 );
-                dispatch(login({ ...fetch.user, userId: fetch.user.userId, token: fetch.user.token }));
+                dispatch(login());
             }
             setOnLogin(false);
         } catch (error) {
             console.error(error);
         }
     };
-    const handleLoginWithSavedSession = _.debounce(handleRefreshTokenAndFetchingData, 3000, {
+    const handleLoginWithSavedSession = _.debounce(handleRefreshTokenAndFetchingData, 5000, {
         leading: true,
-        trailing: false,
+        trailing: true,
     });
     const renderSessionItem: ListRenderItem<ISessionToken> = useCallback(({ item }) => {
         return <UserSessionItem key={item.userId} handleRefreshToken={handleLoginWithSavedSession} item={item} />;

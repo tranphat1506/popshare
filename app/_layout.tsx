@@ -72,8 +72,8 @@ const AppComponent = () => {
 
     // Fetch session khi component mount và khi authState thay đổi
     useEffect(() => {
-        loadApp(!!authState.isLogging);
-    }, [authState.isLogging]); // Theo dõi authState.isLogging để fetch lại session khi logout
+        loadApp(!!authState.user);
+    }, [authState]); // Theo dõi authState.isLogging để fetch lại session khi logout
     // Hàm xử lý khi layout hoàn tất
     const onLayoutRootView = useCallback(async () => {
         if (appIsReady) {

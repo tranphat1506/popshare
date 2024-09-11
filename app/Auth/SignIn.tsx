@@ -38,7 +38,7 @@ const SignIn = () => {
     const language = useAppSelector((state) => state.setting.language);
     const navigation = useNavigation<NavigationProp<RootStackParamList, 'signIn'>>();
     const handleNavToSignUp = () => {
-        navigation.navigate('signUp', {});
+        navigation.navigate('signUp');
     };
     const [signInData, setSignInData] = useState<ISignInData>({});
     const handleChangeData = (field: keyof ISignInData) => (data: string | boolean) => {
@@ -108,7 +108,7 @@ const SignIn = () => {
                 // Success sign in
                 if (success.rtoken) await LoginSessionManager.setSessionToSessionSaved(session, true);
                 else await LoginSessionManager.setCurrentSession(session);
-                dispatch(login({ ...success.user, userId: success.user._id, token: success.token }));
+                dispatch(login());
             } else {
                 const json = (await response.json()) as IErrorResponse;
                 // Not acceptable (mean user not verify)

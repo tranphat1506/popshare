@@ -54,7 +54,7 @@ const SignUp = () => {
     }, [language]);
     const navigation = useNavigation<NavigationProp<RootStackParamList, 'signIn'>>();
     const handleNavToSignIn = () => {
-        navigation.navigate('signIn', {});
+        navigation.navigate('signIn');
     };
     const [successSignUp, setSuccessSignUp] = useState<boolean>(false);
     const [showAvatarSetting, setShowAvatarSetting] = useState<boolean>(false);

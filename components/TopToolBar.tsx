@@ -52,11 +52,11 @@ const TopToolBar: React.FC<TopToolBarProps> = (props) => {
             >
                 <Pressable onPress={handleLogout}>
                     <PopshareAvatar
-                        key={userData?.authId}
                         size={50}
                         avatarColor={userData?.avatarColor || ''}
                         avatarEmoji={(userData?.avatarEmoji as EmojiKey) || ''}
                         profilePicture={userData?.profilePicture}
+                        skeleton={userData === undefined}
                     />
                 </Pressable>
                 <Flex flexDirection={'row'} justifyContent={'flex-end'} alignItems={'flex-end'}>

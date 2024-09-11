@@ -23,9 +23,9 @@ const PopshareAvatar: React.FC<
                     borderRadius: 9999,
                     justifyContent: 'center',
                     alignItems: 'center',
-                    width: size,
-                    height: size,
                 }}
+                width={size}
+                height={size}
             >
                 {props.children}
             </Skeleton>
