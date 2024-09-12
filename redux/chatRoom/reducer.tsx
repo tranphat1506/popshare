@@ -74,7 +74,7 @@ const chatRoomReducer = {
             return;
         }
         state.roomQueue = [action.payload._id].concat(state.roomQueue);
-        state.rooms[action.payload._id]!.messages = [action.payload].concat(room.messages);
+        state.rooms[action.payload._id]!.messages = room.messages.concat([action.payload]);
         state.rooms[action.payload._id]!.lastMesssage = action.payload;
     },
     updateTheNewestMessages: (state: ChatRoomState, action: PayloadAction<IMessageDetail[]>) => {
@@ -85,7 +85,7 @@ const chatRoomReducer = {
                 return;
             }
             state.roomQueue = [message.roomId].concat(state.roomQueue);
-            state.rooms[message.roomId]!.messages = [message].concat(room.messages);
+            state.rooms[message.roomId]!.messages = room.messages.concat([message]);
             state.rooms[message.roomId]!.lastMesssage = message;
         }
     },

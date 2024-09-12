@@ -13,6 +13,7 @@ const PopshareAvatar: React.FC<
         skeleton?: boolean;
         onlineState?: IOnlineState;
         displayOnlineState?: boolean;
+        hidden?: boolean;
     }
 > = ({ size = 128, ...props }) => {
     if (props.skeleton) {
@@ -29,6 +30,21 @@ const PopshareAvatar: React.FC<
             >
                 {props.children}
             </Skeleton>
+        );
+    }
+    if (props.hidden) {
+        return (
+            <View
+                style={{
+                    borderRadius: 9999,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: size,
+                    height: size,
+                }}
+            >
+                {props.children}
+            </View>
         );
     }
     return (

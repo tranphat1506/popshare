@@ -33,14 +33,15 @@ const isConsecutiveMessageCheck = (
             prev: timeDiffFromPrev <= 2 * 60 * 1000 && previousMessage.senderId === currentMessage.senderId,
         };
     } else if (!previousMessage && nextMessage) {
-        timeDiffFromNext = currentMessage.createdAt - nextMessage!.createdAt;
+        timeDiffFromNext = nextMessage!.createdAt - currentMessage.createdAt;
+
         return {
             prev: false,
             next: timeDiffFromNext <= 2 * 60 * 1000 && nextMessage.senderId === currentMessage.senderId,
         };
     } else {
         timeDiffFromPrev = currentMessage.createdAt - previousMessage!.createdAt;
-        timeDiffFromNext = currentMessage.createdAt - nextMessage!.createdAt;
+        timeDiffFromNext = nextMessage!.createdAt - currentMessage.createdAt;
         return {
             prev: timeDiffFromPrev <= 2 * 60 * 1000 && previousMessage!.senderId === currentMessage.senderId,
             next: timeDiffFromNext <= 2 * 60 * 1000 && nextMessage!.senderId === currentMessage.senderId,
@@ -77,7 +78,8 @@ const borderStyleChatMessage = (isCurrentUser: boolean, state: { prev: boolean; 
             if (state.prev) return 5;
         };
         const bottomLeft = () => {
-            return 5;
+            if (state.next) return 5;
+            return 15;
         };
         const topRight = () => {
             if (state.prev) return 5;
@@ -94,7 +96,28 @@ const borderStyleChatMessage = (isCurrentUser: boolean, state: { prev: boolean; 
             borderBottomRightRadius: bottomRight(),
         };
     } else {
-        return {};
+        const topLeft = () => {
+            if (!state.prev) return 15;
+            if (state.prev) return 5;
+        };
+        const bottomLeft = () => {
+            if (state.next) return 5;
+            return 1;
+        };
+        const topRight = () => {
+            if (state.prev) return 5;
+            return 15;
+        };
+        const bottomRight = () => {
+            if (state.next) return 5;
+            return 15;
+        };
+        return {
+            borderTopLeftRadius: topLeft(),
+            borderBottomLeftRadius: bottomLeft(),
+            borderTopRightRadius: topRight(),
+            borderBottomRightRadius: bottomRight(),
+        };
     }
 };
 
@@ -104,8 +127,6 @@ const MessageChatList: React.FC<MessageChatListProps> = ({ room }) => {
     const RenderMessageItem: ListRenderItem<IMessageDetail> = useCallback(({ item: message, index }) => {
         const userData = message.senderId === currentUser?.userId ? undefined : peers[message.senderId];
         const isConsecutiveMessage = isConsecutiveMessageCheck(message, index, room.messages);
-        console.log(isConsecutiveMessage);
-
         const seenByUsers = getSeenByUsers(message, index, room.messages, peers);
         const borderStyle = borderStyleChatMessage(!userData, isConsecutiveMessage);
         return (
@@ -128,6 +149,7 @@ const MessageChatList: React.FC<MessageChatListProps> = ({ room }) => {
                             avatarEmoji={userData.avatarEmoji as EmojiKey}
                         />
                     )}
+                    {userData && isConsecutiveMessage.next && <View style={{ width: 48, height: 1 }}></View>}
                     <ThemedView
                         lightColor={'#4f4f4f'}
                         darkColor={'#444'}
@@ -163,14 +185,7 @@ const MessageChatList: React.FC<MessageChatListProps> = ({ room }) => {
         );
     }, []);
 
-    return (
-        <FlatList
-            data={room.messages}
-            contentContainerStyle={{ flexDirection: 'column-reverse' }}
-            renderItem={RenderMessageItem}
-            keyExtractor={(item) => item._id}
-        />
-    );
+    return <FlatList data={room.messages} renderItem={RenderMessageItem} keyExtractor={(item) => item._id} />;
 };
 
 export default MessageChatList;
