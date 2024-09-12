@@ -1,5 +1,6 @@
 import { BE_API_URL, BE_URL } from '@/constants/Constants';
 import { ICurrentUserDetail } from '@/redux/auth/reducer';
+import { IMessageDetail } from '@/redux/chatRoom/messages.interface';
 import { IRoomDetail } from '@/redux/chatRoom/room.interface';
 import { IOnlineState, PeerId } from '@/redux/peers/reducer';
 import { LoginSessionManager } from '@/storage/loginSession.storage';
@@ -88,6 +89,43 @@ export const FetchChatRoomCurrentUser = async (auth: IAuthProps): Promise<Fetchi
         return null;
     }
 };
+
+interface FetchChatRoomMessagesPerPage extends IFetchingResponse {
+    messages: IMessageDetail[];
+}
+export const FetchChatRoomMessagesPerPage = async (
+    auth: IAuthProps,
+    roomId: string,
+    page: number,
+): Promise<FetchChatRoomMessagesPerPage | null> => {
+    try {
+        auth = await checkingValidAuthSession(auth);
+        const response = await fetch(BE_API_URL + '/chat/getPerPage', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${auth.token}`,
+            },
+            body: JSON.stringify({
+                roomId: roomId,
+                page: page,
+            }),
+        });
+        if (response.status === 401 && auth.rtoken) {
+            auth.token = await refreshToken(auth.rtoken);
+            return await FetchChatRoomMessagesPerPage(auth, roomId, page);
+        }
+        if (response.ok) {
+            const data = (await response.json()) as FetchChatRoomMessagesPerPage;
+            return data;
+        }
+        return null;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+};
+
 export const FetchUserProfileById = async (id: PeerId, auth: IAuthProps): Promise<FetchingUserData | null> => {
     try {
         auth = await checkingValidAuthSession(auth);

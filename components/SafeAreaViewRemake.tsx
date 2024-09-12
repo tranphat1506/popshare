@@ -1,27 +1,24 @@
 import { useThemeColor } from '@/hooks/useThemeColor';
 import React from 'react';
-import { Platform, SafeAreaView, StatusBar, StyleSheet, ViewProps } from 'react-native';
+import { Platform, SafeAreaView, StatusBar, StyleSheet, View, ViewProps } from 'react-native';
 
-const SafeAreaViewRemake: React.FC<{ preventStatusBar?: boolean } & ViewProps> = ({
-    preventStatusBar = true,
-    ...props
-}) => {
-    const backgroundColor = useThemeColor({}, 'background');
-    const borderColor = useThemeColor({ light: '#ffffff00', dark: '#222' });
-
+const SafeAreaViewRemake: React.FC<
+    { preventStatusBar?: boolean; lightColor?: string; darkColor?: string } & ViewProps
+> = ({ preventStatusBar = true, ...props }) => {
+    const backgroundColor = useThemeColor({ light: props.lightColor, dark: props.darkColor }, 'background');
     return (
-        <SafeAreaView
-            style={[
-                ...[preventStatusBar ? styles.SafeAreaDetect : {}],
-                {
-                    backgroundColor,
-                    borderColor: borderColor,
-                    borderTopWidth: 1,
-                },
-            ]}
-        >
-            {props.children}
-        </SafeAreaView>
+        <>
+            <StatusBar animated={true} backgroundColor={backgroundColor} />
+            <SafeAreaView
+                style={[
+                    ...[preventStatusBar ? styles.SafeAreaDetect : {}],
+                    props.style,
+                    { backgroundColor: backgroundColor },
+                ]}
+            >
+                {props.children}
+            </SafeAreaView>
+        </>
     );
 };
 

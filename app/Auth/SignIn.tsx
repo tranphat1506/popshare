@@ -219,6 +219,7 @@ const SignIn = () => {
                             <View className="flex items-center mt-4 gap-y-4">
                                 <FormControl isInvalid={!!errorMessages.account} w="80%" maxW="350px">
                                     <Input
+                                        value={signInData.account}
                                         onChangeText={handleChangeData('account')}
                                         h={'50px'}
                                         focusOutlineColor={BLUE_MAIN_COLOR}
@@ -237,6 +238,7 @@ const SignIn = () => {
                                 </FormControl>
                                 <FormControl isInvalid={!!errorMessages.password} w="80%" maxW="350px">
                                     <Input
+                                        value={signInData.password}
                                         onChangeText={handleChangeData('password')}
                                         placeholder={textLanguage.PASSWORD_PLACEHOLDER}
                                         h={'50px'}

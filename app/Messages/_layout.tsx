@@ -5,7 +5,7 @@ const Stack = createNativeStackNavigator();
 const Layout = () => {
     return (
         <Stack.Navigator initialRouteName="messages">
-            <Stack.Screen name="messages" component={MessagesScreen} />
+            <Stack.Screen name="messages" component={MessagesScreen} options={{ headerShown: false }} />
         </Stack.Navigator>
     );
 };

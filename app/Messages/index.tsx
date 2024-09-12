@@ -1,15 +1,21 @@
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import DefaultLayout from '@/components/layout/DefaultLayout';
-import useCustomScreenOptions from '@/hooks/useCustomScreenOptions';
 import useLanguage from '@/languages/hooks/useLanguage';
 import React, { useEffect, useMemo, useState } from 'react';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import MessageContainer from '@/components/Messages/MessageContainer';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { NavigationProp, RouteProp, useRoute } from '@react-navigation/native';
 import { RootStackParamList } from '@/configs/routes.config';
 import { MessageChatBoxProps } from '@/components/Messages/MessageChatBox';
+import { View } from 'react-native';
+import { Icon } from 'native-base';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from 'expo-router';
+import { useAppSelector } from '@/redux/hooks/hooks';
+import { BLUE_MAIN_COLOR } from '@/constants/Colors';
 function MessagesScreen() {
+    const navigation = useNavigation<NavigationProp<RootStackParamList, 'messages'>>();
     const lang = useLanguage();
     const textData = useMemo(() => {
         return {
@@ -17,21 +23,59 @@ function MessagesScreen() {
             MESSAGES_REQUESTS: lang.MESSAGES_REQUEST,
         };
     }, []);
+    const chatRoomState = useAppSelector((state) => state.chatRoom);
     const { params: routeParams } = useRoute<RouteProp<RootStackParamList, 'messages'>>();
     const [displayChatBox, setChatBox] = useState<MessageChatBoxProps | undefined>();
+    const messageNotRead = useMemo(() => {
+        return Object.keys(chatRoomState.rooms).filter((r) => !!chatRoomState.rooms[r]?.notRead === true).length;
+    }, [chatRoomState]);
     useEffect(() => {
         setChatBox(routeParams);
     }, [routeParams]);
-    useCustomScreenOptions({
-        title: `${textData.HEADER_TITLE}`,
-        headerTitleStyle: {
-            fontSize: 18,
-            fontFamily: 'System-Medium',
-        },
-    });
+
+    const handleExit = () => {
+        navigation.goBack();
+    };
     return (
         <>
-            <DefaultLayout preventStatusBar={false}>
+            <DefaultLayout preventStatusBar={true}>
+                {/* Header */}
+                <View className="flex flex-row items-center px-4 h-14 justify-between">
+                    <View
+                        className="flex flex-row items-center justify-between"
+                        style={{ columnGap: 20, flexBasis: '20%' }}
+                    >
+                        <TouchableOpacity onPress={handleExit}>
+                            <Icon as={Ionicons} name="arrow-back" size={'lg'} className="text-black dark:text-white" />
+                        </TouchableOpacity>
+                    </View>
+                    <View
+                        style={{
+                            flexBasis: '60%',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            columnGap: 10,
+                        }}
+                    >
+                        <View
+                            style={{
+                                paddingHorizontal: 5,
+                                paddingVertical: 1,
+                                backgroundColor: BLUE_MAIN_COLOR,
+                                borderRadius: 5,
+                            }}
+                        >
+                            <ThemedText lightColor="#fff" darkColor="#fff" style={{ lineHeight: 20, fontSize: 16 }}>
+                                {messageNotRead}
+                            </ThemedText>
+                        </View>
+                        <ThemedText style={{ fontFamily: 'System-Medium', textAlign: 'center' }}>
+                            {textData.HEADER_TITLE}
+                        </ThemedText>
+                    </View>
+                    <View style={{ flexBasis: '20%' }}></View>
+                </View>
                 <ThemedView
                     style={{
                         display: 'flex',

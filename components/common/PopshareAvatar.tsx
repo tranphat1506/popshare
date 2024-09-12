@@ -23,9 +23,9 @@ const PopshareAvatar: React.FC<
                     borderRadius: 9999,
                     justifyContent: 'center',
                     alignItems: 'center',
+                    width: size,
+                    height: size,
                 }}
-                width={size}
-                height={size}
             >
                 {props.children}
             </Skeleton>
@@ -46,8 +46,8 @@ const PopshareAvatar: React.FC<
                 <Image
                     style={{
                         borderRadius: 10,
-                        width: size * 0.7,
-                        height: size * 0.7,
+                        width: Math.round(size * 0.7),
+                        height: Math.round(size * 0.7),
                     }}
                     source={Emoji[props.avatarEmoji]}
                     key={`${props.avatarEmoji}:${props.avatarColor}`}
@@ -77,8 +77,8 @@ const PopshareAvatar: React.FC<
                     <View
                         style={{
                             backgroundColor: props.onlineState?.isOnline ? '#22c55e' : '#737373',
-                            minWidth: size * 0.25,
-                            height: size * 0.25,
+                            minWidth: Math.round(size * 0.25),
+                            height: Math.round(size * 0.25),
                             borderRadius: 100,
                             display: 'flex',
                             justifyContent: 'center',
@@ -88,7 +88,7 @@ const PopshareAvatar: React.FC<
                         {props.onlineState && (
                             <Text
                                 style={{
-                                    fontSize: size * 0.2,
+                                    fontSize: Math.round(size * 0.2),
                                     paddingHorizontal: 4,
                                     fontFamily: 'System-Regular',
                                     color: '#fff',

@@ -51,6 +51,7 @@ const ForgotPassword = () => {
             <View className="flex items-center pt-10 gap-y-4">
                 <FormControl isInvalid={!!inputErrorMessage} w="80%" maxW="350px">
                     <Input
+                        value={inputValue}
                         onChangeText={handleInputText}
                         h={'50px'}
                         focusOutlineColor={BLUE_MAIN_COLOR}

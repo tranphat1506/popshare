@@ -312,6 +312,7 @@ const SignUp = () => {
                         </Pressable>
                         <FormControl isInvalid={!!errorMessages.displayName} w="80%" maxW="350px">
                             <Input
+                                value={signUpData.displayName}
                                 onChangeText={handleChangeData('displayName')}
                                 h={'50px'}
                                 focusOutlineColor={BLUE_MAIN_COLOR}
@@ -330,6 +331,7 @@ const SignUp = () => {
                         </FormControl>
                         <FormControl isInvalid={!!errorMessages.username} w="80%" maxW="350px">
                             <Input
+                                value={signUpData.username}
                                 onChangeText={handleChangeData('username')}
                                 h={'50px'}
                                 focusOutlineColor={BLUE_MAIN_COLOR}
@@ -348,6 +350,7 @@ const SignUp = () => {
                         </FormControl>
                         <FormControl isInvalid={!!errorMessages.email} w="80%" maxW="350px">
                             <Input
+                                value={signUpData.email}
                                 onChangeText={handleChangeData('email')}
                                 h={'50px'}
                                 focusOutlineColor={BLUE_MAIN_COLOR}
@@ -366,6 +369,7 @@ const SignUp = () => {
                         </FormControl>
                         <FormControl isInvalid={!!errorMessages.password} w="80%" maxW="350px">
                             <Input
+                                value={signUpData.password}
                                 onChangeText={handleChangeData('password')}
                                 h={'50px'}
                                 focusOutlineColor={BLUE_MAIN_COLOR}
@@ -398,6 +402,7 @@ const SignUp = () => {
                         </FormControl>
                         <FormControl isInvalid={!!errorMessages.rePassword} w="80%" maxW="350px">
                             <Input
+                                value={signUpData.rePassword}
                                 onChangeText={handleChangeData('rePassword')}
                                 h={'50px'}
                                 focusOutlineColor={BLUE_MAIN_COLOR}
