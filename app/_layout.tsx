@@ -14,7 +14,13 @@ import * as Splash from 'expo-splash-screen';
 import { FetchChatRoomCurrentUser, FetchChatRoomMessagesPerPage, fetchMyData } from '@/helpers/fetching';
 import { addPeers, Peers } from '@/redux/peers/reducer';
 import useInitSocket from '@/hooks/socket.io/useInitSocket';
-import { addRooms, sortTheRoomQueue, updateChatRoomData } from '@/redux/chatRoom/reducer';
+import {
+    addRooms,
+    sortTheRoomQueue,
+    updateChatRoomData,
+    updateTheNewestMessage,
+    updateTheNewestMessages,
+} from '@/redux/chatRoom/reducer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import NotFound from '@/app/+not-found';
 import HomeTabs from '@/app/Home/_layout';
@@ -55,16 +61,7 @@ const AppComponent = () => {
                             0,
                         );
                         if (messages) {
-                            dispatch(
-                                updateChatRoomData({
-                                    roomId: roomId,
-                                    field: 'lastMesssage',
-                                    data: messages.messages[0],
-                                }),
-                            );
-                            dispatch(
-                                updateChatRoomData({ roomId: roomId, field: 'messages', data: messages.messages }),
-                            );
+                            dispatch(updateTheNewestMessages(messages.messages.reverse()));
                         }
                     }),
                 );

@@ -163,7 +163,14 @@ const MessageChatList: React.FC<MessageChatListProps> = ({ room }) => {
         );
     }, []);
 
-    return <FlatList data={room.messages} renderItem={RenderMessageItem} keyExtractor={(item) => item._id} />;
+    return (
+        <FlatList
+            data={room.messages}
+            contentContainerStyle={{ flexDirection: 'column-reverse' }}
+            renderItem={RenderMessageItem}
+            keyExtractor={(item) => item._id}
+        />
+    );
 };
 
 export default MessageChatList;

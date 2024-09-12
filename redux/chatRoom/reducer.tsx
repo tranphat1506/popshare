@@ -77,6 +77,18 @@ const chatRoomReducer = {
         state.rooms[action.payload._id]!.messages = [action.payload].concat(room.messages);
         state.rooms[action.payload._id]!.lastMesssage = action.payload;
     },
+    updateTheNewestMessages: (state: ChatRoomState, action: PayloadAction<IMessageDetail[]>) => {
+        for (const message of action.payload) {
+            const room = state.rooms[message.roomId];
+            if (!room) {
+                console.error('Cannot found room with id', message.roomId);
+                return;
+            }
+            state.roomQueue = [message.roomId].concat(state.roomQueue);
+            state.rooms[message.roomId]!.messages = [message].concat(room.messages);
+            state.rooms[message.roomId]!.lastMesssage = message;
+        }
+    },
 };
 const chatRoomSlice = createSlice({
     name: 'chatRoom',
@@ -84,6 +96,13 @@ const chatRoomSlice = createSlice({
     reducers: chatRoomReducer,
 });
 
-export const { addRoom, addRooms, clearState, updateChatRoomData, sortTheRoomQueue, updateTheNewestMessage } =
-    chatRoomSlice.actions;
+export const {
+    addRoom,
+    addRooms,
+    clearState,
+    updateChatRoomData,
+    sortTheRoomQueue,
+    updateTheNewestMessage,
+    updateTheNewestMessages,
+} = chatRoomSlice.actions;
 export default chatRoomSlice.reducer;
