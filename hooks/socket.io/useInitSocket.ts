@@ -7,11 +7,16 @@ import useOnSocketError from './useOnSocketError';
 import { refreshToken } from '@/helpers/fetching';
 import { LoginSessionManager } from '@/storage/loginSession.storage';
 import { logout } from '@/redux/auth/reducer';
+import { useAppSelector } from '@/redux/hooks/hooks';
+import useOnChatMessage from './useOnChatMessage';
+import { updateTheNewestMessage } from '@/redux/chatRoom/reducer';
 
 const useInitSocket = () => {
     const socket = useSocketIO();
     const dispatch = useDispatch();
+    const [newMessage, setNewMessage] = useOnChatMessage('global');
     const [onError] = useOnSocketError<string>('auth');
+    const rooms = useAppSelector((state) => state.chatRoom.rooms);
     const handleRefreshToken = async () => {
         try {
             const session = await LoginSessionManager.getCurrentSession();
@@ -28,6 +33,7 @@ const useInitSocket = () => {
             // Error when refrsh token
             await LoginSessionManager.logoutSession(false);
             dispatch(logout());
+            dispatch(connectionLost());
         }
     };
     useEffect(() => {
@@ -38,8 +44,8 @@ const useInitSocket = () => {
     const handleConnectSocket = () => {
         socket.on('connect', () => {
             console.info('Connect with socketId =', socket.id);
-            const roomIdList: string[] = [];
-            socket.emit(SocketEvent.SetupChatRoom, roomIdList);
+            const roomIdList: string[] = Object.keys(rooms);
+            socket.emit(SocketEvent.SetupChatRoom, { roomIdList: roomIdList });
             dispatch(connectionEstablished({ socketId: socket.id }));
         });
         socket.on('disconnect', (e) => {
@@ -56,6 +62,9 @@ const useInitSocket = () => {
         socket.disconnect();
         socket.removeAllListeners();
     };
+    useEffect(() => {
+        if (newMessage) dispatch(updateTheNewestMessage(newMessage));
+    }, [newMessage]);
     useEffect(() => {
         handleConnectSocket();
         return () => {

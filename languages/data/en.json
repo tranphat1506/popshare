@@ -53,5 +53,8 @@
     "LOGIN_SESSION_LIST": "Saved accounts",
     "MESSAGES_TITLE": "Messages",
     "MESSAGES_REQUEST": "Requests",
-    "DISPLAY_EMPTY_MESSAGES_DESCRIPTION": "There are no messages yet!"
+    "DISPLAY_EMPTY_MESSAGES_DESCRIPTION": "There are no messages yet!",
+    "TODAY_TEXT": "Today",
+    "JUST_SENT": "Now",
+    "YOU_TEXT": "You"
 }

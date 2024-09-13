@@ -43,6 +43,8 @@ const P2PMessageRoom: React.FC<IP2PMessageRoom> = (props) => {
     const textData = useMemo(() => {
         return {
             DISPLAY_EMPTY_MESSAGES_DESCRIPTION: lang.DISPLAY_EMPTY_MESSAGES_DESCRIPTION,
+            JUST_SENT: lang.JUST_SENT,
+            ME: lang.YOU_TEXT,
         };
     }, [lang]);
     return (
@@ -101,7 +103,7 @@ const P2PMessageRoom: React.FC<IP2PMessageRoom> = (props) => {
                             flexDirection: 'column',
                             maxWidth: MAX_MAIN_MESSAGE_BOX_WIDTH,
                             width: MAIN_MESSAGE_BOX_WIDTH,
-                            rowGap: 10,
+                            rowGap: 5,
                         }}
                     >
                         <View
@@ -125,7 +127,8 @@ const P2PMessageRoom: React.FC<IP2PMessageRoom> = (props) => {
                             {props.room.lastMesssage && (
                                 <View style={{ display: 'flex', flexDirection: 'row', columnGap: 4, flexBasis: '20%' }}>
                                     <ThemedText style={{ fontSize: 15, lineHeight: 20, fontFamily: 'System-Medium' }}>
-                                        {StringOnlineStateHelper.toLastOnlineTime(props.room.lastMesssage.createdAt)}
+                                        {StringOnlineStateHelper.toLastOnlineTime(props.room.lastMesssage.createdAt) ??
+                                            textData.JUST_SENT}
                                     </ThemedText>
                                 </View>
                             )}
@@ -141,16 +144,37 @@ const P2PMessageRoom: React.FC<IP2PMessageRoom> = (props) => {
                             }}
                         >
                             {/* newest message display */}
-                            <View style={{ display: 'flex', flexDirection: 'row', columnGap: 4, width: '80%' }}>
+                            <View
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    columnGap: 4,
+                                    width: '80%',
+                                    alignItems: 'flex-start',
+                                }}
+                            >
                                 {props.room.lastMesssage ? (
-                                    <ThemedText
-                                        lightColor="#7e7e7e"
-                                        darkColor="#7e7e7e"
-                                        numberOfLines={2}
-                                        style={{ fontSize: 14, lineHeight: 14, fontFamily: 'System-Regular' }}
-                                    >
-                                        {props.room.lastMesssage.content}
-                                    </ThemedText>
+                                    <>
+                                        <ThemedText
+                                            lightColor="#7e7e7e"
+                                            darkColor="#7e7e7e"
+                                            numberOfLines={2}
+                                            style={{ fontSize: 16, lineHeight: 20, fontFamily: 'System-Bold' }}
+                                        >
+                                            {props.room.lastMesssage.senderId === props.user.userId
+                                                ? props.member.displayName || props.user.displayName
+                                                : textData.ME}
+                                            {': '}
+                                        </ThemedText>
+                                        <ThemedText
+                                            lightColor="#7e7e7e"
+                                            darkColor="#7e7e7e"
+                                            numberOfLines={2}
+                                            style={{ fontSize: 14, lineHeight: 20, fontFamily: 'System-Regular' }}
+                                        >
+                                            {props.room.lastMesssage.content}
+                                        </ThemedText>
+                                    </>
                                 ) : (
                                     <ThemedText
                                         lightColor="#7e7e7e"

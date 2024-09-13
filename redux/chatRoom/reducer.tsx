@@ -68,14 +68,14 @@ const chatRoomReducer = {
         });
     },
     updateTheNewestMessage: (state: ChatRoomState, action: PayloadAction<IMessageDetail>) => {
-        const room = state.rooms[action.payload._id];
+        const room = state.rooms[action.payload.roomId];
         if (!room) {
-            console.error('Cannot found room with id', action.payload._id);
+            console.error('Cannot found room with id', action.payload.roomId);
             return;
         }
-        state.roomQueue = [action.payload._id].concat(state.roomQueue);
-        state.rooms[action.payload._id]!.messages = room.messages.concat([action.payload]);
-        state.rooms[action.payload._id]!.lastMesssage = action.payload;
+        state.roomQueue = [...new Set([action.payload.roomId].concat(state.roomQueue))];
+        state.rooms[action.payload.roomId]!.messages = room.messages.concat([action.payload]);
+        state.rooms[action.payload.roomId]!.lastMesssage = action.payload;
     },
     updateTheNewestMessages: (state: ChatRoomState, action: PayloadAction<IMessageDetail[]>) => {
         for (const message of action.payload) {
@@ -84,7 +84,7 @@ const chatRoomReducer = {
                 console.error('Cannot found room with id', message.roomId);
                 return;
             }
-            state.roomQueue = [message.roomId].concat(state.roomQueue);
+            state.roomQueue = [...new Set([message.roomId].concat(state.roomQueue))];
             state.rooms[message.roomId]!.messages = room.messages.concat([message]);
             state.rooms[message.roomId]!.lastMesssage = message;
         }

@@ -38,11 +38,40 @@ export class StringOnlineStateHelper {
     }
 
     static toLastOnlineTime(time: number): string | undefined {
-        const btwTime = this.currentTime - time;
-        if (btwTime < this.miliPerSec * 60) return Math.round(btwTime / 1000) + 's';
+        const btwTime = new Date().getTime() - time;
+        if (btwTime < this.miliPerSec * 60) return undefined;
         if (btwTime < this.minToMili(59)) return Math.round(this.miliToMin(btwTime)) + 'm';
         if (btwTime < this.minToMili(60 * 24)) return Math.round(this.miliToMin(btwTime) / 60) + 'h';
         return Math.round(this.miliToMin(btwTime) / 60 / 24) + 'd';
+    }
+
+    static formatDate(createdAt: number): { dateString?: string; timeString: string } {
+        const now = new Date();
+        const messageDate = new Date(createdAt);
+
+        const isSameDay = now.toDateString() === messageDate.toDateString();
+
+        // Format giờ và phút cho trường timeString
+        const timeString = new Intl.DateTimeFormat(undefined, {
+            hour: 'numeric',
+            minute: 'numeric',
+        }).format(messageDate);
+
+        // Nếu cùng ngày thì chỉ trả về trường timeString và để dateString rỗng
+        if (isSameDay) {
+            return { dateString: undefined, timeString };
+        } else {
+            // Format ngày, tháng, năm và giờ cho trường dateString
+            const dateString = new Intl.DateTimeFormat(undefined, {
+                day: '2-digit',
+                month: 'numeric',
+                year: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+            }).format(messageDate);
+
+            return { dateString, timeString };
+        }
     }
 }
 

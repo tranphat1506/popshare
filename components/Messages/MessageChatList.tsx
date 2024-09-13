@@ -1,5 +1,5 @@
-import { IMessageDetail } from '@/redux/chatRoom/messages.interface';
-import React, { useCallback } from 'react';
+import { IMessageDetail, IReaction } from '@/redux/chatRoom/messages.interface';
+import React, { LegacyRef, RefObject, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { Dimensions, FlatList, ListRenderItem, View, ViewProps, ViewStyle } from 'react-native';
 import { ThemedView } from '../ThemedView';
 import { ThemedText } from '../ThemedText';
@@ -9,6 +9,12 @@ import { ChatRoom } from '@/redux/chatRoom/reducer';
 import { IMemberDetail } from '@/redux/chatRoom/room.interface';
 import { EmojiKey } from '../common/EmojiPicker';
 import { Peers } from '@/redux/peers/reducer';
+import { StringOnlineStateHelper } from '@/helpers/string';
+import useLanguage from '@/languages/hooks/useLanguage';
+import MessageChatItem from './MessageChatItem';
+import { ReactionItemProps, ReactionUI } from './ReactionItem';
+import { IAvatarState } from '@/app/Auth/AvatarSettingModal';
+import { ICurrentUserDetail } from '@/redux/auth/reducer';
 const width = Dimensions.get('window').width;
 interface MessageChatListProps {
     room: ChatRoom;
@@ -121,71 +127,84 @@ const borderStyleChatMessage = (isCurrentUser: boolean, state: { prev: boolean; 
     }
 };
 
+const generateReaction = (
+    reactions: IReaction[],
+    peers: Peers,
+    currentUser: ICurrentUserDetail,
+): ReactionItemProps[] => {
+    const reactionsFilter: {
+        [emoji: string]: ReactionItemProps | undefined;
+    } = {};
+    reactions.forEach((reaction) => {
+        const user = peers[reaction.senderId];
+        if (user) {
+            const senderAvatarSate: IAvatarState = {
+                avatarColor: user.avatarColor,
+                avatarEmoji: user.avatarEmoji as EmojiKey,
+                profilePicture: user.profilePicture,
+            };
+            if (!reactionsFilter[reaction.data]) {
+                reactionsFilter[reaction.data] = {
+                    isAlreadyReaction: reaction.senderId === currentUser.userId,
+                    userAvatarState: {
+                        avatarColor: currentUser.avatarColor,
+                        avatarEmoji: currentUser.avatarEmoji as EmojiKey,
+                        profilePicture: currentUser.profilePicture,
+                    },
+                    reactionData: {
+                        emoji: reaction.data as EmojiKey,
+                        list: [{ ...reaction, ...senderAvatarSate }],
+                    },
+                };
+            } else {
+                const data = reactionsFilter[reaction.data]!;
+                reactionsFilter[reaction.data] = {
+                    ...data,
+                    isAlreadyReaction: reaction.senderId === currentUser.userId,
+                    reactionData: {
+                        ...data.reactionData,
+                        list: data?.reactionData.list.concat({ ...reaction, ...senderAvatarSate }),
+                    },
+                };
+            }
+        }
+    });
+
+    return Object.keys(reactionsFilter).map((r) => reactionsFilter[r]!);
+};
+
 const MessageChatList: React.FC<MessageChatListProps> = ({ room }) => {
     const currentUser = useAppSelector((state) => state.auth.user);
     const peers = useAppSelector((state) => state.peers.peers);
+    const rooms = useAppSelector((state) => state.chatRoom.rooms);
+    const roomMessages = rooms[room.detail._id]?.messages ?? room.messages;
+
     const RenderMessageItem: ListRenderItem<IMessageDetail> = useCallback(({ item: message, index }) => {
         const userData = message.senderId === currentUser?.userId ? undefined : peers[message.senderId];
         const isConsecutiveMessage = isConsecutiveMessageCheck(message, index, room.messages);
         const seenByUsers = getSeenByUsers(message, index, room.messages, peers);
         const borderStyle = borderStyleChatMessage(!userData, isConsecutiveMessage);
+        const reactions = generateReaction(message.reactions, peers, currentUser!);
         return (
-            <>
-                <View
-                    style={{
-                        flex: 1,
-                        flexDirection: 'row',
-                        columnGap: 10,
-                        alignItems: 'flex-start',
-                        marginBottom: isConsecutiveMessage.next ? 3 : 15,
-                        justifyContent: userData ? 'flex-start' : 'flex-end',
-                    }}
-                >
-                    {userData && isConsecutiveMessage.next === false && (
-                        <PopshareAvatar
-                            size={48}
-                            profilePicture={userData.profilePicture}
-                            avatarColor={userData.avatarColor}
-                            avatarEmoji={userData.avatarEmoji as EmojiKey}
-                        />
-                    )}
-                    {userData && isConsecutiveMessage.next && <View style={{ width: 48, height: 1 }}></View>}
-                    <ThemedView
-                        lightColor={'#4f4f4f'}
-                        darkColor={'#444'}
-                        style={{
-                            ...borderStyle,
-                            paddingHorizontal: 20,
-                            paddingVertical: 5,
-                            maxWidth: Math.round(width * (5 / 6)),
-                            justifyContent: 'center',
-                            flexWrap: 'wrap',
-                        }}
-                    >
-                        {message.messageType === 'text' && (
-                            <ThemedText style={{ fontSize: 16, lineHeight: 20 }}>{message.content}</ThemedText>
-                        )}
-                    </ThemedView>
-                    {!userData && (
-                        <View className="flex flex-row gap-y-1">
-                            {seenByUsers.map((member) => {
-                                if (!member) return <></>;
-                                return (
-                                    <PopshareAvatar
-                                        profilePicture={member.profilePicture}
-                                        avatarColor={member.avatarColor}
-                                        avatarEmoji={member.avatarEmoji as EmojiKey}
-                                    />
-                                );
-                            })}
-                        </View>
-                    )}
-                </View>
-            </>
+            <MessageChatItem
+                message={message}
+                userData={userData}
+                isConsecutiveMessage={isConsecutiveMessage}
+                seensList={seenByUsers}
+                borderStyle={borderStyle}
+                reactionList={reactions}
+            />
         );
     }, []);
 
-    return <FlatList data={room.messages} renderItem={RenderMessageItem} keyExtractor={(item) => item._id} />;
+    return (
+        <FlatList
+            scrollEnabled={false}
+            data={roomMessages}
+            renderItem={RenderMessageItem}
+            keyExtractor={(item) => item._id}
+        />
+    );
 };
 
 export default MessageChatList;

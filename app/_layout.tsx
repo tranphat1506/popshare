@@ -94,18 +94,18 @@ const AppComponent = () => {
         loadApp(!!authState.user);
     }, [authState]); // Theo dõi authState.isLogging để fetch lại session khi logout
     // Hàm xử lý khi layout hoàn tất
-    const onLayoutRootView = useCallback(async () => {
+    useEffect(() => {
         if (appIsReady) {
-            await Splash.hideAsync();
+            Splash.hideAsync();
         }
     }, [appIsReady]);
     // Nếu ứng dụng chưa sẵn sàng thì không render
     if (!appIsReady) return null;
 
     return (
-        <GestureHandlerRootView onLayout={onLayoutRootView}>
+        <GestureHandlerRootView>
             <NavigationContainer independent={true}>
-                {authState.isLogging ? <MainComponent /> : <AuthLayout />}
+                {authState.user ? <MainComponent /> : <AuthLayout />}
             </NavigationContainer>
         </GestureHandlerRootView>
     );

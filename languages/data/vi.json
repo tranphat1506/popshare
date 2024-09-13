@@ -53,5 +53,8 @@
     "LOGIN_SESSION_LIST": "Danh sách tài khoản đã lưu",
     "MESSAGES_TITLE": "Tin nhắn",
     "MESSAGES_REQUEST": "Tin nhắn đang chờ",
-    "DISPLAY_EMPTY_MESSAGES_DESCRIPTION": "Chưa có tin nhắn nào để hiển thị cả!"
+    "DISPLAY_EMPTY_MESSAGES_DESCRIPTION": "Chưa có tin nhắn nào để hiển thị cả!",
+    "TODAY_TEXT": "Hôm nay",
+    "JUST_SENT": "Vừa gửi",
+    "YOU_TEXT": "Bạn"
 }
