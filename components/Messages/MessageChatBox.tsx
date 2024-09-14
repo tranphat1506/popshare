@@ -53,11 +53,11 @@ const MessageChatBox: React.FC<
     };
     return (
         <>
-            <KeyboardAvoidingView style={{ flex: 1, width: '100%', height: '100%', position: 'relative' }}>
+            <ThemedView style={{ flex: 1, width: '100%', height: '100%', position: 'relative' }}>
                 <ImageBackground
                     style={{
                         width: width,
-                        height: height,
+                        height: '100%',
                         position: 'absolute',
                         zIndex: 1,
                     }}
@@ -85,15 +85,14 @@ const MessageChatBox: React.FC<
                         {/* Middle container */}
                         <View
                             className="flex flex-col items-center justify-center basis-[55%]"
-                            style={{ columnGap: 10, minWidth: 150 }}
+                            style={{ minWidth: 150 }}
                         >
                             {/* Display name container */}
                             <ThemedText
                                 numberOfLines={1}
                                 style={{
                                     fontFamily: 'System-Black',
-                                    fontSize: 17,
-                                    lineHeight: 19,
+                                    fontSize: 14,
                                 }}
                             >
                                 {/* For p2p room. Display nickname of member or realname of user */}
@@ -109,8 +108,8 @@ const MessageChatBox: React.FC<
                                     numberOfLines={1}
                                     style={{
                                         fontFamily: 'System-Medium',
-                                        fontSize: 13,
-                                        lineHeight: 16,
+                                        fontSize: 11,
+                                        lineHeight: 14,
                                     }}
                                 >
                                     {(room as IP2PMessageRoom).user.onlineState
@@ -178,9 +177,14 @@ const MessageChatBox: React.FC<
                         </ScrollView>
                     </ThemedView>
                     {displayScrollToEnd && <ButtonScrollToEnd handleClick={handleScrollToLastMessage} />}
-                    <MessageBottomTab currentUser={room.currentUser} roomId={room.room.detail._id} />
+                    <KeyboardAvoidingView
+                        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                        keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0} // height of bottom tab
+                    >
+                        <MessageBottomTab currentUser={room.currentUser} roomId={room.room.detail._id} />
+                    </KeyboardAvoidingView>
                 </View>
-            </KeyboardAvoidingView>
+            </ThemedView>
         </>
     );
 };

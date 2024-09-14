@@ -132,7 +132,7 @@ const MessageChatItem: React.FC<MessageChatItemProps> = ({
                             <View>
                                 {message.messageType === 'text' && (
                                     <ThemedText
-                                        style={{ fontSize: 17, lineHeight: 20 }}
+                                        style={{ fontSize: 14, lineHeight: 20 }}
                                     >{`${message.content}`}</ThemedText>
                                 )}
                             </View>

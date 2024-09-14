@@ -1,6 +1,5 @@
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
-import DefaultLayout from '@/components/layout/DefaultLayout';
 import useLanguage from '@/languages/hooks/useLanguage';
 import React, { useEffect, useMemo, useState } from 'react';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -14,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from 'expo-router';
 import { useAppSelector } from '@/redux/hooks/hooks';
 import { BLUE_MAIN_COLOR } from '@/constants/Colors';
+import MessageChatBoxLayout from '@/components/layout/MessageLayout';
 function MessagesScreen() {
     const navigation = useNavigation<NavigationProp<RootStackParamList, 'messages'>>();
     const lang = useLanguage();
@@ -38,7 +38,7 @@ function MessagesScreen() {
     };
     return (
         <>
-            <DefaultLayout preventStatusBar={true}>
+            <MessageChatBoxLayout preventStatusBar={true}>
                 {/* Header */}
                 <View className="flex flex-row items-center px-4 h-14 justify-between">
                     <View
@@ -58,6 +58,11 @@ function MessagesScreen() {
                             columnGap: 10,
                         }}
                     >
+                        <ThemedText
+                            style={{ fontFamily: 'System-Medium', textAlign: 'center', lineHeight: 20, fontSize: 16 }}
+                        >
+                            {textData.HEADER_TITLE}
+                        </ThemedText>
                         <View
                             style={{
                                 paddingHorizontal: 5,
@@ -66,13 +71,10 @@ function MessagesScreen() {
                                 borderRadius: 5,
                             }}
                         >
-                            <ThemedText lightColor="#fff" darkColor="#fff" style={{ lineHeight: 20, fontSize: 16 }}>
+                            <ThemedText lightColor="#fff" darkColor="#fff" style={{ lineHeight: 15, fontSize: 12 }}>
                                 {messageNotRead}
                             </ThemedText>
                         </View>
-                        <ThemedText style={{ fontFamily: 'System-Medium', textAlign: 'center' }}>
-                            {textData.HEADER_TITLE}
-                        </ThemedText>
                     </View>
                     <View style={{ flexBasis: '20%' }}></View>
                 </View>
@@ -99,7 +101,7 @@ function MessagesScreen() {
                     </TouchableOpacity>
                 </ThemedView>
                 <MessageContainer chatBox={displayChatBox} />
-            </DefaultLayout>
+            </MessageChatBoxLayout>
         </>
     );
 }

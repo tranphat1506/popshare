@@ -1,5 +1,6 @@
 import React from 'react';
 import SafeAreaViewRemake from '../SafeAreaViewRemake';
+import { View } from 'react-native';
 
 const MessageChatBoxLayout = ({
     preventStatusBar,
@@ -7,18 +8,18 @@ const MessageChatBoxLayout = ({
     ...props
 }: React.ComponentProps<typeof SafeAreaViewRemake>) => {
     return (
-        <SafeAreaViewRemake
-            {...props}
-            preventStatusBar={preventStatusBar}
-            style={[
-                style,
-                {
-                    width: '100%',
-                    height: '100%',
-                },
-            ]}
-        >
-            {props.children}
+        <SafeAreaViewRemake preventStatusBar={preventStatusBar} enableSafeArea={true}>
+            <View
+                {...props}
+                style={[
+                    {
+                        width: '100%',
+                        height: '100%',
+                    },
+                ]}
+            >
+                {props.children}
+            </View>
         </SafeAreaViewRemake>
     );
 };

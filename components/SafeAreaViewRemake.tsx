@@ -3,21 +3,34 @@ import React from 'react';
 import { Platform, SafeAreaView, StatusBar, StyleSheet, View, ViewProps } from 'react-native';
 
 const SafeAreaViewRemake: React.FC<
-    { preventStatusBar?: boolean; lightColor?: string; darkColor?: string } & ViewProps
-> = ({ preventStatusBar = true, ...props }) => {
+    { preventStatusBar?: boolean; lightColor?: string; darkColor?: string; enableSafeArea?: boolean } & ViewProps
+> = ({ preventStatusBar = true, enableSafeArea = true, ...props }) => {
     const backgroundColor = useThemeColor({ light: props.lightColor, dark: props.darkColor }, 'background');
     return (
         <>
             <StatusBar animated={true} backgroundColor={backgroundColor} />
-            <SafeAreaView
-                style={[
-                    ...[preventStatusBar ? styles.SafeAreaDetect : {}],
-                    props.style,
-                    { backgroundColor: backgroundColor },
-                ]}
-            >
-                {props.children}
-            </SafeAreaView>
+            {enableSafeArea && (
+                <SafeAreaView
+                    style={[
+                        ...[preventStatusBar ? styles.SafeAreaDetect : {}],
+                        props.style,
+                        { backgroundColor: backgroundColor },
+                    ]}
+                >
+                    {props.children}
+                </SafeAreaView>
+            )}
+            {!enableSafeArea && (
+                <View
+                    style={[
+                        ...[preventStatusBar ? styles.SafeAreaDetect : {}],
+                        props.style,
+                        { backgroundColor: backgroundColor },
+                    ]}
+                >
+                    {props.children}
+                </View>
+            )}
         </>
     );
 };

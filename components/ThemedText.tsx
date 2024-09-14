@@ -21,7 +21,6 @@ interface CustomTextProps {
 
 const styles: { [key: string]: CustomTextProps } = {
     default: {
-        className: 'text-lg',
         styles: {
             fontFamily: 'System-Regular',
         },

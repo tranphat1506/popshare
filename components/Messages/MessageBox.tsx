@@ -79,7 +79,7 @@ const P2PMessageRoom: React.FC<IP2PMessageRoom> = (props) => {
                     }}
                 >
                     <PopshareAvatar
-                        size={60}
+                        size={50}
                         profilePicture={props.user.profilePicture}
                         avatarColor={props.user.avatarColor}
                         avatarEmoji={props.user.avatarEmoji as EmojiKey}
@@ -103,7 +103,6 @@ const P2PMessageRoom: React.FC<IP2PMessageRoom> = (props) => {
                             flexDirection: 'column',
                             maxWidth: MAX_MAIN_MESSAGE_BOX_WIDTH,
                             width: MAIN_MESSAGE_BOX_WIDTH,
-                            rowGap: 5,
                         }}
                     >
                         <View
@@ -116,17 +115,14 @@ const P2PMessageRoom: React.FC<IP2PMessageRoom> = (props) => {
                         >
                             {/* Title display */}
                             <View style={{ display: 'flex', flexDirection: 'row', columnGap: 4, flexBasis: '80%' }}>
-                                <ThemedText
-                                    numberOfLines={1}
-                                    style={{ fontSize: 17, lineHeight: 20, fontFamily: 'System-Bold' }}
-                                >
+                                <ThemedText numberOfLines={1} style={{ fontSize: 17, fontFamily: 'System-Bold' }}>
                                     {props.user.displayName}
                                 </ThemedText>
                             </View>
                             {/* Time and status display */}
                             {props.room.lastMesssage && (
                                 <View style={{ display: 'flex', flexDirection: 'row', columnGap: 4, flexBasis: '20%' }}>
-                                    <ThemedText style={{ fontSize: 15, lineHeight: 20, fontFamily: 'System-Medium' }}>
+                                    <ThemedText style={{ fontSize: 13, lineHeight: 20, fontFamily: 'System-Regular' }}>
                                         {StringOnlineStateHelper.toLastOnlineTime(props.room.lastMesssage.createdAt) ??
                                             textData.JUST_SENT}
                                     </ThemedText>
@@ -148,7 +144,6 @@ const P2PMessageRoom: React.FC<IP2PMessageRoom> = (props) => {
                                 style={{
                                     display: 'flex',
                                     flexDirection: 'row',
-                                    columnGap: 4,
                                     width: '80%',
                                     alignItems: 'flex-start',
                                 }}
@@ -159,7 +154,7 @@ const P2PMessageRoom: React.FC<IP2PMessageRoom> = (props) => {
                                             lightColor="#7e7e7e"
                                             darkColor="#7e7e7e"
                                             numberOfLines={2}
-                                            style={{ fontSize: 16, lineHeight: 20, fontFamily: 'System-Bold' }}
+                                            style={{ fontSize: 14, lineHeight: 20, fontFamily: 'System-Medium' }}
                                         >
                                             {props.room.lastMesssage.senderId === props.user.userId
                                                 ? props.member.displayName || props.user.displayName
@@ -180,7 +175,7 @@ const P2PMessageRoom: React.FC<IP2PMessageRoom> = (props) => {
                                         lightColor="#7e7e7e"
                                         darkColor="#7e7e7e"
                                         numberOfLines={2}
-                                        style={{ fontSize: 14, lineHeight: 14, fontFamily: 'System-Regular' }}
+                                        style={{ fontSize: 14, lineHeight: 20, fontFamily: 'System-Regular' }}
                                     >
                                         {textData.DISPLAY_EMPTY_MESSAGES_DESCRIPTION}
                                     </ThemedText>
