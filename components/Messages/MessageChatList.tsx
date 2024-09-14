@@ -1,5 +1,5 @@
 import { IMessageDetail, IReaction } from '@/redux/chatRoom/messages.interface';
-import React, { LegacyRef, RefObject, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import React, { LegacyRef, memo, RefObject, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { Dimensions, FlatList, ListRenderItem, View, ViewProps, ViewStyle } from 'react-native';
 import { ThemedView } from '../ThemedView';
 import { ThemedText } from '../ThemedText';
@@ -178,24 +178,26 @@ const MessageChatList: React.FC<MessageChatListProps> = ({ room }) => {
     const peers = useAppSelector((state) => state.peers.peers);
     const rooms = useAppSelector((state) => state.chatRoom.rooms);
     const roomMessages = rooms[room.detail._id]?.messages ?? room.messages;
-
-    const RenderMessageItem: ListRenderItem<IMessageDetail> = useCallback(({ item: message, index }) => {
-        const userData = message.senderId === currentUser?.userId ? undefined : peers[message.senderId];
-        const isConsecutiveMessage = isConsecutiveMessageCheck(message, index, room.messages);
-        const seenByUsers = getSeenByUsers(message, index, room.messages, peers);
-        const borderStyle = borderStyleChatMessage(!userData, isConsecutiveMessage);
-        const reactions = generateReaction(message.reactions, peers, currentUser!);
-        return (
-            <MessageChatItem
-                message={message}
-                userData={userData}
-                isConsecutiveMessage={isConsecutiveMessage}
-                seensList={seenByUsers}
-                borderStyle={borderStyle}
-                reactionList={reactions}
-            />
-        );
-    }, []);
+    const RenderMessageItem: ListRenderItem<IMessageDetail> = useCallback(
+        ({ item: message, index }) => {
+            const userData = message.senderId === currentUser?.userId ? undefined : peers[message.senderId];
+            const isConsecutiveMessage = isConsecutiveMessageCheck(message, index, room.messages);
+            const seenByUsers = getSeenByUsers(message, index, room.messages, peers);
+            const borderStyle = borderStyleChatMessage(!userData, isConsecutiveMessage);
+            const reactions = generateReaction(message.reactions, peers, currentUser!);
+            return (
+                <MessageChatItem
+                    message={message}
+                    userData={userData}
+                    isConsecutiveMessage={isConsecutiveMessage}
+                    seensList={seenByUsers}
+                    borderStyle={borderStyle}
+                    reactionList={reactions}
+                />
+            );
+        },
+        [rooms],
+    );
 
     return (
         <FlatList
@@ -207,4 +209,4 @@ const MessageChatList: React.FC<MessageChatListProps> = ({ room }) => {
     );
 };
 
-export default MessageChatList;
+export default memo(MessageChatList);

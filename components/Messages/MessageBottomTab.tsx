@@ -4,12 +4,87 @@ import { ThemedView } from '../ThemedView';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Icon } from 'native-base';
 import { Feather, Fontisto, MaterialCommunityIcons } from '@expo/vector-icons';
+import { sendTextMessage } from '@/helpers/fetching';
+import { LoginSessionManager } from '@/storage/loginSession.storage';
+import { useAppDispatch } from '@/redux/hooks/hooks';
+import { updateTempMessageWithTempId, updateTheNewestMessage } from '@/redux/chatRoom/reducer';
+import { ICurrentUserDetail } from '@/redux/auth/reducer';
+import _ from 'lodash';
 
 const DEFAULT_INPUT_HEIGHT = 30;
 const DEFAULT_TEXT_HEIGHT = 20;
 const MAX_LINES_INPUT_TEXT = 6;
-const MessageBottomTab = () => {
+interface MessageBottomTabProps {
+    currentUser: ICurrentUserDetail;
+    roomId: string;
+}
+const handleShowTempMessage = (
+    currentUser: ICurrentUserDetail,
+    roomId: string,
+    message: string,
+    repliedTo?: string,
+) => {
+    const tempId = `temp::${Date.now()}::${Math.random()}`;
+    return {
+        action: updateTheNewestMessage({
+            _id: tempId,
+            roomId: roomId,
+            senderId: currentUser.userId,
+            messageType: 'text',
+            content: message,
+            mediaUrl: undefined,
+            reactions: [],
+            seenBy: [],
+            repliedTo: repliedTo,
+            createdAt: Date.now(),
+            isEveryoneRecalled: false,
+            isSelfRecalled: false,
+            isTemp: true,
+        }),
+        tempId: tempId,
+    };
+};
+const handleSendTextMessage = async (roomId: string, message: string, tempId: string) => {
+    const session = await LoginSessionManager.getCurrentSession();
+    if (!session) return;
+    const trimMessage = message.trim();
+    if (trimMessage === '') return;
+    const reponse = await sendTextMessage(
+        { token: session.token, rtoken: session.rtoken },
+        {
+            messageType: 'text',
+            content: trimMessage,
+            roomId: roomId,
+        },
+    );
+    if (!reponse) {
+        // logic when sending message failed
+        return;
+    }
+    return updateTempMessageWithTempId({
+        roomId: roomId,
+        replaceMessage: reponse.newMessage,
+        tempId: tempId,
+    });
+};
+const MessageBottomTab: React.FC<MessageBottomTabProps> = ({ currentUser, roomId }) => {
+    const dispatch = useAppDispatch();
     const [message, setMessage] = useState<string>('');
+
+    const handleClickSendMessage = _.debounce(
+        async () => {
+            setMessage('');
+            const { action, tempId } = handleShowTempMessage(currentUser, roomId, message, undefined);
+            dispatch(action);
+            const sendAction = await handleSendTextMessage(roomId, message, tempId);
+            if (sendAction) dispatch(sendAction);
+        },
+        100,
+        {
+            leading: true,
+            trailing: false,
+        },
+    );
     const [inputHeight, setInputHeight] = useState<{
         height: number;
         isMultiline: boolean;
@@ -93,7 +168,7 @@ const MessageBottomTab = () => {
             </View>
             <View className="flex flex-row gap-x-4">
                 {message && (
-                    <TouchableOpacity activeOpacity={0.6}>
+                    <TouchableOpacity onPress={handleClickSendMessage} activeOpacity={0.6}>
                         <Icon as={Feather} name="send" size={'lg'} />
                     </TouchableOpacity>
                 )}

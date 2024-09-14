@@ -19,10 +19,11 @@ import { EmojiKey } from '../common/EmojiPicker';
 import { StringOnlineStateHelper } from '@/helpers/string';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { Icon } from 'native-base';
-import { BLUE_MAIN_COLOR } from '@/constants/Colors';
+import { BLUE_ICON_COLOR, BLUE_MAIN_COLOR } from '@/constants/Colors';
 import { ThemedView } from '../ThemedView';
 import MessageBottomTab from './MessageBottomTab';
 import MessageChatList from './MessageChatList';
+import ButtonScrollToEnd from './ButtonScrollToEnd';
 const { width, height } = Dimensions.get('window');
 export interface MessageChatBoxProps {
     room: IP2PMessageRoom | ICloudMessageRoom | IGroupMessageRoom;
@@ -44,9 +45,7 @@ const MessageChatBox: React.FC<
         const contentHeight = event.nativeEvent.contentSize.height;
         const layoutHeight = event.nativeEvent.layoutMeasurement.height;
         const distanceToEnd = contentHeight - contentOffsetY - layoutHeight;
-        console.log(distanceToEnd);
-
-        if (distanceToEnd >= 50) {
+        if (distanceToEnd >= 20) {
             setDisplayScrollToEnd(true);
         } else {
             setDisplayScrollToEnd(false);
@@ -54,7 +53,7 @@ const MessageChatBox: React.FC<
     };
     return (
         <>
-            <KeyboardAvoidingView style={{ flex: 1, width: '100%', height: '100%' }}>
+            <KeyboardAvoidingView style={{ flex: 1, width: '100%', height: '100%', position: 'relative' }}>
                 <ImageBackground
                     style={{
                         width: width,
@@ -100,7 +99,7 @@ const MessageChatBox: React.FC<
                                 {/* For p2p room. Display nickname of member or realname of user */}
                                 {(roomType === 'p2p' && (room as IP2PMessageRoom).member.displayName) ||
                                     (room as IP2PMessageRoom).user.displayName}
-                                {roomType === 'cloud' && (room as ICloudMessageRoom).user.displayName}
+                                {roomType === 'cloud' && (room as ICloudMessageRoom).currentUser.displayName}
                                 {roomType === 'group' && (room as IGroupMessageRoom).room.detail.roomName}
                             </ThemedText>
                             {roomType === 'p2p' && (
@@ -138,9 +137,9 @@ const MessageChatBox: React.FC<
                                 {roomType === 'cloud' && (
                                     <PopshareAvatar
                                         size={42}
-                                        profilePicture={(room as ICloudMessageRoom).user.profilePicture}
-                                        avatarColor={(room as ICloudMessageRoom).user.avatarColor}
-                                        avatarEmoji={(room as ICloudMessageRoom).user.avatarEmoji as EmojiKey}
+                                        profilePicture={(room as ICloudMessageRoom).currentUser.profilePicture}
+                                        avatarColor={(room as ICloudMessageRoom).currentUser.avatarColor}
+                                        avatarEmoji={(room as ICloudMessageRoom).currentUser.avatarEmoji as EmojiKey}
                                     />
                                 )}
                                 {roomType === 'group' && (
@@ -178,23 +177,8 @@ const MessageChatBox: React.FC<
                             <MessageChatList room={room.room} />
                         </ScrollView>
                     </ThemedView>
-                    {displayScrollToEnd && (
-                        <View
-                            style={{
-                                justifyContent: 'center',
-                                borderWidth: 1,
-                                borderColor: '#000',
-                                position: 'absolute',
-                            }}
-                        >
-                            <TouchableOpacity onPress={handleScrollToLastMessage}>
-                                <ThemedView style={{ borderRadius: 999, padding: 5, backgroundColor: BLUE_MAIN_COLOR }}>
-                                    <Icon as={AntDesign} name="caretdown" size={'md'} color={'white'} />
-                                </ThemedView>
-                            </TouchableOpacity>
-                        </View>
-                    )}
-                    <MessageBottomTab />
+                    {displayScrollToEnd && <ButtonScrollToEnd handleClick={handleScrollToLastMessage} />}
+                    <MessageBottomTab currentUser={room.currentUser} roomId={room.room.detail._id} />
                 </View>
             </KeyboardAvoidingView>
         </>

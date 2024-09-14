@@ -1,6 +1,6 @@
 import { BE_API_URL, BE_URL } from '@/constants/Constants';
 import { ICurrentUserDetail } from '@/redux/auth/reducer';
-import { IMessageDetail } from '@/redux/chatRoom/messages.interface';
+import { IMessageDetail, IMessageTypeTypes } from '@/redux/chatRoom/messages.interface';
 import { IRoomDetail } from '@/redux/chatRoom/room.interface';
 import { IOnlineState, PeerId } from '@/redux/peers/reducer';
 import { LoginSessionManager } from '@/storage/loginSession.storage';
@@ -188,7 +188,56 @@ export const refreshTokenAndFetchingData = async (auth: IAuthProps) => {
         return null;
     }
 };
+interface SendMessagePayload {
+    roomId: string;
+    messageType: IMessageTypeTypes;
+}
 
+type TextMessagePayload = SendMessagePayload & {
+    messageType: 'text';
+    content: string;
+};
+
+interface SendMessageResponse extends IFetchingResponse {
+    newMessage: IMessageDetail;
+}
+
+export const sendMessage = async (
+    auth: IAuthProps,
+    payload: TextMessagePayload,
+): Promise<SendMessageResponse | null> => {
+    try {
+        auth = await checkingValidAuthSession(auth);
+        const sendReponse = await fetch(BE_API_URL + '/chat/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${auth.token}`,
+            },
+            body: JSON.stringify(payload),
+        });
+        const json = await sendReponse.json();
+        if (sendReponse.ok) return json as SendMessageResponse;
+        // not authorized
+        if (sendReponse.status === 401 && auth.rtoken) {
+            auth.token = await refreshToken(auth.rtoken);
+            return await sendMessage(auth, payload);
+        }
+        return null;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+};
+export const sendTextMessage = async (auth: IAuthProps, payload: TextMessagePayload) => {
+    try {
+        payload.messageType = 'text';
+        return await sendMessage(auth, payload);
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+};
 export const fetchMyData = async (auth: IAuthProps): Promise<FetchingCurrentUserPayload | null> => {
     try {
         auth = await checkingValidAuthSession(auth);

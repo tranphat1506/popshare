@@ -33,23 +33,25 @@ const MessageList: React.FC<MessageListProps> = ({ handleSetChatBox }) => {
                         room: room,
                         user: existPeerData,
                         member: otherUserData,
+                        currentUser: user,
                         handleSetChatBox: handleSetChatBox,
                     };
                     return <P2PMessageRoom {...p2pRoomProps} />;
                 }
-            } else if (room.detail.roomType === 'group') {
+            } else if (room.detail.roomType === 'group' && user) {
                 const groupRoomProps: IGroupMessageRoom = {
                     room: room,
                     avatarColor: stringToColorCode(room.detail._id),
                     suffixNameColor: stringToColorCode(reverseUnicodeString(room.detail._id)),
                     suffixRoomName: getAllFirstLetterOfString(room.detail.roomName!),
                     handleSetChatBox: handleSetChatBox,
+                    currentUser: user,
                 };
                 return <GroupMessageRoom {...groupRoomProps} />;
             } else if (room.detail.roomType === 'cloud' && user) {
                 const cloudRoomProps: ICloudMessageRoom = {
                     room: room,
-                    user: user,
+                    currentUser: user,
                     member: room.detail.roomMembers.list[0],
                     handleSetChatBox: handleSetChatBox,
                 };

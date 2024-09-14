@@ -89,6 +89,18 @@ const chatRoomReducer = {
             state.rooms[message.roomId]!.lastMesssage = message;
         }
     },
+    updateTempMessageWithTempId: (
+        state: ChatRoomState,
+        action: PayloadAction<{ roomId: string; tempId: string; replaceMessage: IMessageDetail }>,
+    ) => {
+        const { roomId, tempId, replaceMessage } = action.payload;
+        const findRoom = state.rooms[roomId];
+        if (!findRoom) return;
+        const messageIndex = state.rooms[roomId]!.messages.findIndex((m) => m._id === tempId);
+        if (messageIndex === -1) return;
+        state.rooms[roomId]!.messages[messageIndex] = replaceMessage;
+        if (state.rooms[roomId]?.lastMesssage?._id === tempId) state.rooms[roomId].lastMesssage = replaceMessage;
+    },
 };
 const chatRoomSlice = createSlice({
     name: 'chatRoom',
@@ -104,5 +116,6 @@ export const {
     sortTheRoomQueue,
     updateTheNewestMessage,
     updateTheNewestMessages,
+    updateTempMessageWithTempId,
 } = chatRoomSlice.actions;
 export default chatRoomSlice.reducer;

@@ -1,4 +1,4 @@
-type IMessageTypeTypes = 'text' | 'image' | 'video' | 'file';
+export type IMessageTypeTypes = 'text' | 'image' | 'video' | 'file';
 export const MessageTypeEnum: IMessageTypeTypes[] = ['file', 'image', 'text', 'video'];
 
 export interface IReaction {
@@ -23,4 +23,7 @@ export interface IMessageDetail {
     createdAt: number; // Thời gian gửi tin nhắn
     isEveryoneRecalled: boolean; // Nếu nguoi gui đã thu hồi tin nhắn voi tất cả người dùng trong phòng
     isSelfRecalled: boolean; // Nếu người gửi đã thu hồi tin nhắn
+
+    // for UI
+    isTemp?: boolean;
 }

@@ -15,6 +15,7 @@ import { MessageChatBoxProps } from './MessageChatBox';
 
 export interface IMessageRoom {
     room: ChatRoom;
+    currentUser: ICurrentUserDetail;
     handleSetChatBox: (chatBox?: MessageChatBoxProps) => void;
 }
 export interface IP2PMessageRoom extends IMessageRoom {
@@ -27,7 +28,6 @@ export interface IGroupMessageRoom extends IMessageRoom {
     avatarColor: string;
 }
 export interface ICloudMessageRoom extends IMessageRoom {
-    user: ICurrentUserDetail;
     member: IMemberDetail;
 }
 const width = Dimensions.get('window').width;
@@ -245,9 +245,9 @@ const CloudMessageRoom: React.FC<ICloudMessageRoom> = (props) => {
             <View style={{ padding: 5 }}>
                 <PopshareAvatar
                     size={60}
-                    profilePicture={props.user.profilePicture}
-                    avatarColor={props.user.avatarColor}
-                    avatarEmoji={props.user.avatarEmoji as EmojiKey}
+                    profilePicture={props.currentUser.profilePicture}
+                    avatarColor={props.currentUser.avatarColor}
+                    avatarEmoji={props.currentUser.avatarEmoji as EmojiKey}
                 />
             </View>
             <View style={{ padding: 5, display: 'flex', flexDirection: 'column' }}>

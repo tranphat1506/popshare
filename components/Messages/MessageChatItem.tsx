@@ -10,6 +10,8 @@ import { ThemedView } from '../ThemedView';
 import { Peer } from '@/redux/peers/reducer';
 import { BLUE_MAIN_COLOR } from '@/constants/Colors';
 import ReactionItem, { ReactionItemProps } from './ReactionItem';
+import { Icon } from 'native-base';
+import { Feather, Ionicons } from '@expo/vector-icons';
 const width = Dimensions.get('window').width;
 
 interface MessageChatItemProps {
@@ -146,18 +148,52 @@ const MessageChatItem: React.FC<MessageChatItemProps> = ({
                                     // borderColor: '#000',
                                 }}
                             >
-                                <ThemedText
-                                    darkColor="#999"
-                                    lightColor="#888"
+                                <View
                                     style={{
-                                        fontSize: 12,
-                                        lineHeight: 14,
-                                        textAlign: 'right',
-                                        marginTop: 5,
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        columnGap: 10,
+                                        alignItems: 'center',
+                                        // borderWidth: 1,
+                                        // borderColor: '#000',
                                     }}
                                 >
-                                    {formatMessageCreatedAt.timeString}
-                                </ThemedText>
+                                    <ThemedText
+                                        darkColor="#999"
+                                        lightColor="#888"
+                                        style={{
+                                            fontSize: 12,
+                                            lineHeight: 14,
+                                            textAlign: 'right',
+                                        }}
+                                    >
+                                        {formatMessageCreatedAt.timeString}
+                                    </ThemedText>
+                                    {message.isTemp && (
+                                        <Icon
+                                            as={Feather}
+                                            name="circle"
+                                            size={'xs'}
+                                            className="text-[#888] dark:text-[#999]"
+                                        />
+                                    )}
+                                    {!message.isTemp && seensList.length > 0 && (
+                                        <Icon
+                                            as={Ionicons}
+                                            name="checkmark-done-circle"
+                                            size={'xs'}
+                                            className="text-[#888] dark:text-[#999]"
+                                        />
+                                    )}
+                                    {!message.isTemp && !seensList.length && (
+                                        <Icon
+                                            as={Ionicons}
+                                            name="checkmark-circle-sharp"
+                                            size={'xs'}
+                                            className="text-[#888] dark:text-[#999]"
+                                        />
+                                    )}
+                                </View>
                                 <View
                                     style={{
                                         flexDirection: 'row',
