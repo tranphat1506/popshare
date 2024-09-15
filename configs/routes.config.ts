@@ -20,11 +20,14 @@ export type RootStackParamList = {
         filterNav?: string;
     };
     notifications: undefined;
-    messages: MessagesStackParamList; // Nest messages stack here
+    messages: MessagesStackParamList;
+    'message-detail': MessageChatBoxProps | undefined;
     archive: undefined;
     signIn: undefined;
     signOut: undefined;
     signUp: undefined;
 };
 
-export type MessagesStackParamList = MessageChatBoxProps | undefined;
+export type MessagesStackParamList = {
+    index?: undefined;
+};

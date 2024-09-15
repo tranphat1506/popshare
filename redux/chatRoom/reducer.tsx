@@ -5,7 +5,7 @@ import { IMessageDetail } from './messages.interface';
 export type ChatRoom = {
     detail: IRoomDetail;
     messages: IMessageDetail[];
-    notRead?: number;
+    notRead: number;
     lastMesssage?: IMessageDetail;
 };
 export interface ChatRoomState {
@@ -67,22 +67,41 @@ const chatRoomReducer = {
             return lastMessageRoom1.createdAt - lastMessageRoom2.createdAt;
         });
     },
-    updateTheNewestMessage: (state: ChatRoomState, action: PayloadAction<IMessageDetail>) => {
-        const room = state.rooms[action.payload.roomId];
+    updateTheNewestMessage: (
+        state: ChatRoomState,
+        action: PayloadAction<{ message: IMessageDetail; currentUserId: string }>,
+    ) => {
+        const { message, currentUserId } = action.payload;
+        const room = state.rooms[message.roomId];
         if (!room) {
-            console.error('Cannot found room with id', action.payload.roomId);
+            console.error('Cannot found room with id', message.roomId);
             return;
         }
-        state.roomQueue = [...new Set([action.payload.roomId].concat(state.roomQueue))];
-        state.rooms[action.payload.roomId]!.messages = room.messages.concat([action.payload]);
-        state.rooms[action.payload.roomId]!.lastMesssage = action.payload;
+        if (!message.seenBy.includes(currentUserId)) {
+            state.rooms[message.roomId]!.notRead += 1;
+        } else {
+            message.isSeen = true;
+        }
+        state.roomQueue = [...new Set([message.roomId].concat(state.roomQueue))];
+        state.rooms[message.roomId]!.messages = room.messages.concat([message]);
+        state.rooms[message.roomId]!.lastMesssage = message;
     },
-    updateTheNewestMessages: (state: ChatRoomState, action: PayloadAction<IMessageDetail[]>) => {
-        for (const message of action.payload) {
+    updateTheNewestMessages: (
+        state: ChatRoomState,
+        action: PayloadAction<{ messages: IMessageDetail[]; currentUserId: string }>,
+    ) => {
+        const { messages, currentUserId } = action.payload;
+        for (const message of messages) {
             const room = state.rooms[message.roomId];
             if (!room) {
                 console.error('Cannot found room with id', message.roomId);
                 return;
+            }
+
+            if (!message.seenBy.includes(currentUserId)) {
+                state.rooms[message.roomId]!.notRead += 1;
+            } else {
+                message.isSeen = true;
             }
             state.roomQueue = [...new Set([message.roomId].concat(state.roomQueue))];
             state.rooms[message.roomId]!.messages = room.messages.concat([message]);

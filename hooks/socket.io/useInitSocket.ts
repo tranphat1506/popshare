@@ -17,6 +17,8 @@ const useInitSocket = () => {
     const [newMessage, setNewMessage] = useOnChatMessage('global');
     const [onError] = useOnSocketError<string>('auth');
     const rooms = useAppSelector((state) => state.chatRoom.rooms);
+    const user = useAppSelector((state) => state.auth.user);
+
     const handleRefreshToken = async () => {
         try {
             const session = await LoginSessionManager.getCurrentSession();
@@ -63,7 +65,7 @@ const useInitSocket = () => {
         socket.removeAllListeners();
     };
     useEffect(() => {
-        if (newMessage) dispatch(updateTheNewestMessage(newMessage));
+        if (newMessage) dispatch(updateTheNewestMessage({ message: newMessage, currentUserId: user!.userId }));
     }, [newMessage]);
     useEffect(() => {
         handleConnectSocket();

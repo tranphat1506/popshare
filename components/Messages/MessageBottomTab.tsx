@@ -27,19 +27,22 @@ const handleShowTempMessage = (
     const tempId = `temp::${Date.now()}::${Math.random()}`;
     return {
         action: updateTheNewestMessage({
-            _id: tempId,
-            roomId: roomId,
-            senderId: currentUser.userId,
-            messageType: 'text',
-            content: message,
-            mediaUrl: undefined,
-            reactions: [],
-            seenBy: [],
-            repliedTo: repliedTo,
-            createdAt: Date.now(),
-            isEveryoneRecalled: false,
-            isSelfRecalled: false,
-            isTemp: true,
+            message: {
+                _id: tempId,
+                roomId: roomId,
+                senderId: currentUser.userId,
+                messageType: 'text',
+                content: message,
+                mediaUrl: undefined,
+                reactions: [],
+                seenBy: [currentUser.userId],
+                repliedTo: repliedTo,
+                createdAt: Date.now(),
+                isEveryoneRecalled: false,
+                isSelfRecalled: false,
+                isTemp: true,
+            },
+            currentUserId: currentUser.userId,
         }),
         tempId: tempId,
     };
@@ -70,21 +73,6 @@ const handleSendTextMessage = async (roomId: string, message: string, tempId: st
 const MessageBottomTab: React.FC<MessageBottomTabProps> = ({ currentUser, roomId }) => {
     const dispatch = useAppDispatch();
     const [message, setMessage] = useState<string>('');
-
-    const handleClickSendMessage = _.debounce(
-        async () => {
-            setMessage('');
-            const { action, tempId } = handleShowTempMessage(currentUser, roomId, message, undefined);
-            dispatch(action);
-            const sendAction = await handleSendTextMessage(roomId, message, tempId);
-            if (sendAction) dispatch(sendAction);
-        },
-        100,
-        {
-            leading: true,
-            trailing: false,
-        },
-    );
     const [inputHeight, setInputHeight] = useState<{
         height: number;
         isMultiline: boolean;
@@ -103,6 +91,22 @@ const MessageBottomTab: React.FC<MessageBottomTabProps> = ({ currentUser, roomId
             setInputHeight({ height: DEFAULT_INPUT_HEIGHT, isMultiline: false });
         }
     };
+    const handleClickSendMessage = _.debounce(
+        async () => {
+            // Reset input
+            setMessage('');
+            setInputHeight({ height: DEFAULT_INPUT_HEIGHT, isMultiline: false });
+            const { action, tempId } = handleShowTempMessage(currentUser, roomId, message, undefined);
+            dispatch(action);
+            const sendAction = await handleSendTextMessage(roomId, message, tempId);
+            if (sendAction) dispatch(sendAction);
+        },
+        100,
+        {
+            leading: true,
+            trailing: false,
+        },
+    );
     return (
         <ThemedView
             style={{

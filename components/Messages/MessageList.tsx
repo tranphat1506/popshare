@@ -1,5 +1,5 @@
 import { useAppSelector } from '@/redux/hooks/hooks';
-import React, { useCallback } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import { FlatList, ListRenderItem } from 'react-native';
 import {
     CloudMessageRoom,
@@ -12,15 +12,23 @@ import {
 } from './MessageBox';
 import { getAllFirstLetterOfString, reverseUnicodeString, stringToColorCode } from '@/helpers/string';
 import { MessageChatBoxProps } from './MessageChatBox';
+import { ICurrentUserDetail } from '@/redux/auth/reducer';
+import { Peers } from '@/redux/peers/reducer';
+import { ChatRoomState } from '@/redux/chatRoom/reducer';
 
 interface MessageListProps {
     handleSetChatBox: (chatBox?: MessageChatBoxProps) => void;
+    user: ICurrentUserDetail | undefined;
+    peers: Peers;
+    chatRoomState: ChatRoomState;
 }
-const MessageList: React.FC<MessageListProps> = ({ handleSetChatBox }) => {
-    const user = useAppSelector((state) => state.auth.user);
-    const peers = useAppSelector((state) => state.peers.peers);
-    const roomQueue = useAppSelector((state) => state.chatRoom.roomQueue);
-    const rooms = useAppSelector((state) => state.chatRoom.rooms);
+const MessageList: React.FC<MessageListProps> = ({ handleSetChatBox, user, peers, chatRoomState }) => {
+    const roomQueue = useMemo(() => {
+        return chatRoomState.roomQueue;
+    }, [chatRoomState.roomQueue]);
+    const rooms = useMemo(() => {
+        return chatRoomState.rooms;
+    }, [chatRoomState.rooms]);
     const FilterMessageItem: ListRenderItem<string> = useCallback(
         ({ item }) => {
             const room = rooms[item]!;
@@ -59,9 +67,9 @@ const MessageList: React.FC<MessageListProps> = ({ handleSetChatBox }) => {
             }
             return <SkeletonMessageRoom />;
         },
-        [user, peers, roomQueue],
+        [roomQueue],
     );
     return <FlatList data={roomQueue} renderItem={FilterMessageItem} keyExtractor={(roomId) => roomId} />;
 };
 
-export default MessageList;
+export default memo(MessageList);

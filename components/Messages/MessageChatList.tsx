@@ -1,21 +1,15 @@
 import { IMessageDetail, IReaction } from '@/redux/chatRoom/messages.interface';
-import React, { LegacyRef, memo, RefObject, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
-import { Dimensions, FlatList, ListRenderItem, View, ViewProps, ViewStyle } from 'react-native';
-import { ThemedView } from '../ThemedView';
-import { ThemedText } from '../ThemedText';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { Dimensions, FlatList, ListRenderItem, ViewStyle } from 'react-native';
 import { useAppSelector } from '@/redux/hooks/hooks';
-import PopshareAvatar from '../common/PopshareAvatar';
 import { ChatRoom } from '@/redux/chatRoom/reducer';
-import { IMemberDetail } from '@/redux/chatRoom/room.interface';
 import { EmojiKey } from '../common/EmojiPicker';
 import { Peers } from '@/redux/peers/reducer';
-import { StringOnlineStateHelper } from '@/helpers/string';
-import useLanguage from '@/languages/hooks/useLanguage';
 import MessageChatItem from './MessageChatItem';
-import { ReactionItemProps, ReactionUI } from './ReactionItem';
+import { ReactionItemProps } from './ReactionItem';
 import { IAvatarState } from '@/app/Auth/AvatarSettingModal';
 import { ICurrentUserDetail } from '@/redux/auth/reducer';
-const width = Dimensions.get('window').width;
+import useOnChatMessage from '@/hooks/socket.io/useOnChatMessage';
 interface MessageChatListProps {
     room: ChatRoom;
 }
@@ -30,6 +24,7 @@ const isConsecutiveMessageCheck = (
     const currentMessage = message;
     const previousMessage = messages[currentIndex - 1];
     const nextMessage = messages[currentIndex + 1];
+
     if (!previousMessage && !nextMessage) return { prev: false, next: false };
     if (previousMessage && !nextMessage) {
         // Current message is last message
@@ -176,13 +171,12 @@ const generateReaction = (
 const MessageChatList: React.FC<MessageChatListProps> = ({ room }) => {
     const currentUser = useAppSelector((state) => state.auth.user);
     const peers = useAppSelector((state) => state.peers.peers);
-    const rooms = useAppSelector((state) => state.chatRoom.rooms);
-    const roomMessages = rooms[room.detail._id]?.messages ?? room.messages;
+    const roomMessages = useAppSelector((state) => state.chatRoom.rooms[room.detail._id]?.messages!);
     const RenderMessageItem: ListRenderItem<IMessageDetail> = useCallback(
         ({ item: message, index }) => {
             const userData = message.senderId === currentUser?.userId ? undefined : peers[message.senderId];
-            const isConsecutiveMessage = isConsecutiveMessageCheck(message, index, room.messages);
-            const seenByUsers = getSeenByUsers(message, index, room.messages, peers);
+            const isConsecutiveMessage = isConsecutiveMessageCheck(message, index, roomMessages);
+            const seenByUsers = getSeenByUsers(message, index, roomMessages, peers);
             const borderStyle = borderStyleChatMessage(!userData, isConsecutiveMessage);
             const reactions = generateReaction(message.reactions, peers, currentUser!);
             return (
@@ -196,15 +190,15 @@ const MessageChatList: React.FC<MessageChatListProps> = ({ room }) => {
                 />
             );
         },
-        [rooms],
+        [roomMessages],
     );
-
     return (
         <FlatList
             scrollEnabled={false}
             data={roomMessages}
             renderItem={RenderMessageItem}
             keyExtractor={(item) => item._id}
+            removeClippedSubviews={true}
         />
     );
 };

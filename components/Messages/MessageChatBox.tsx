@@ -32,7 +32,7 @@ export interface MessageChatBoxProps {
 
 const MessageChatBox: React.FC<
     MessageChatBoxProps & {
-        handleExit?: () => void;
+        handleExit: () => void;
     }
 > = ({ room, roomType, handleExit }) => {
     const messageChatRef = useRef<ScrollView | null>(null);
@@ -76,7 +76,7 @@ const MessageChatBox: React.FC<
                     }}
                 >
                     {/* Header */}
-                    <ThemedView style={{ height: 60 }} className="flex flex-row items-center justify-between px-4">
+                    <ThemedView style={{ height: 50 }} className="flex flex-row items-center justify-between px-4">
                         <View className="flex flex-row items-center justify-between" style={{ columnGap: 20 }}>
                             <TouchableOpacity onPress={handleExit}>
                                 <Icon as={Ionicons} name="arrow-back" size={'lg'} color={BLUE_MAIN_COLOR} />
@@ -91,7 +91,7 @@ const MessageChatBox: React.FC<
                             <ThemedText
                                 numberOfLines={1}
                                 style={{
-                                    fontFamily: 'System-Black',
+                                    fontFamily: 'System-Bold',
                                     fontSize: 14,
                                 }}
                             >
@@ -125,17 +125,15 @@ const MessageChatBox: React.FC<
                             <View>
                                 {roomType === 'p2p' && (
                                     <PopshareAvatar
-                                        size={42}
+                                        size={30}
                                         profilePicture={(room as IP2PMessageRoom).user.profilePicture}
                                         avatarColor={(room as IP2PMessageRoom).user.avatarColor}
                                         avatarEmoji={(room as IP2PMessageRoom).user.avatarEmoji as EmojiKey}
-                                        displayOnlineState={true}
-                                        onlineState={(room as IP2PMessageRoom).user.onlineState}
                                     />
                                 )}
                                 {roomType === 'cloud' && (
                                     <PopshareAvatar
-                                        size={42}
+                                        size={30}
                                         profilePicture={(room as ICloudMessageRoom).currentUser.profilePicture}
                                         avatarColor={(room as ICloudMessageRoom).currentUser.avatarColor}
                                         avatarEmoji={(room as ICloudMessageRoom).currentUser.avatarEmoji as EmojiKey}
@@ -143,7 +141,7 @@ const MessageChatBox: React.FC<
                                 )}
                                 {roomType === 'group' && (
                                     <PopshareAvatar
-                                        size={42}
+                                        size={30}
                                         profilePicture={(room as IGroupMessageRoom).room.detail.roomAvatar}
                                         avatarColor={(room as IGroupMessageRoom).avatarColor}
                                     >

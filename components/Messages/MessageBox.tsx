@@ -121,7 +121,15 @@ const P2PMessageRoom: React.FC<IP2PMessageRoom> = (props) => {
                             </View>
                             {/* Time and status display */}
                             {props.room.lastMesssage && (
-                                <View style={{ display: 'flex', flexDirection: 'row', columnGap: 4, flexBasis: '20%' }}>
+                                <View
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        columnGap: 4,
+                                        flexBasis: '20%',
+                                        justifyContent: 'flex-end',
+                                    }}
+                                >
                                     <ThemedText style={{ fontSize: 13, lineHeight: 20, fontFamily: 'System-Regular' }}>
                                         {StringOnlineStateHelper.toLastOnlineTime(props.room.lastMesssage.createdAt) ??
                                             textData.JUST_SENT}
@@ -144,15 +152,15 @@ const P2PMessageRoom: React.FC<IP2PMessageRoom> = (props) => {
                                 style={{
                                     display: 'flex',
                                     flexDirection: 'row',
-                                    width: '80%',
+                                    width: '60%',
                                     alignItems: 'flex-start',
                                 }}
                             >
                                 {props.room.lastMesssage ? (
                                     <>
                                         <ThemedText
-                                            lightColor="#7e7e7e"
-                                            darkColor="#7e7e7e"
+                                            lightColor={props.room.lastMesssage.isSeen ? '#7e7e7e' : '#000'}
+                                            darkColor={props.room.lastMesssage.isSeen ? '#7e7e7e' : '#fff'}
                                             numberOfLines={2}
                                             style={{ fontSize: 14, lineHeight: 20, fontFamily: 'System-Medium' }}
                                         >
@@ -162,8 +170,8 @@ const P2PMessageRoom: React.FC<IP2PMessageRoom> = (props) => {
                                             {': '}
                                         </ThemedText>
                                         <ThemedText
-                                            lightColor="#7e7e7e"
-                                            darkColor="#7e7e7e"
+                                            lightColor={props.room.lastMesssage.isSeen ? '#7e7e7e' : '#000'}
+                                            darkColor={props.room.lastMesssage.isSeen ? '#7e7e7e' : '#fff'}
                                             numberOfLines={2}
                                             style={{ fontSize: 14, lineHeight: 20, fontFamily: 'System-Regular' }}
                                         >
@@ -182,18 +190,24 @@ const P2PMessageRoom: React.FC<IP2PMessageRoom> = (props) => {
                                 )}
                             </View>
                             {/* Time and status display */}
-                            <View style={{ display: 'flex', flexDirection: 'row', columnGap: 4 }}>
+                            <View
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    columnGap: 4,
+                                }}
+                            >
                                 {!!props.room.notRead && (
                                     <ThemedView
                                         lightColor={BLUE_MAIN_COLOR}
                                         darkColor={BLUE_MAIN_COLOR}
-                                        style={{ paddingHorizontal: 10, paddingVertical: 5, borderRadius: 9999 }}
+                                        style={{ paddingHorizontal: 5, paddingVertical: 2, borderRadius: 9999 }}
                                     >
                                         <ThemedText
                                             style={{
-                                                fontSize: 14,
-                                                lineHeight: 16,
-                                                fontFamily: 'System-Medium',
+                                                fontSize: 12,
+                                                lineHeight: 14,
+                                                fontFamily: 'System-Regular',
                                                 color: '#fff',
                                             }}
                                         >
@@ -207,7 +221,7 @@ const P2PMessageRoom: React.FC<IP2PMessageRoom> = (props) => {
                     <ThemedView
                         lightColor={'#9e9e9e'}
                         darkColor={'#3e3e3e'}
-                        style={{ paddingHorizontal: MESSAGE_BOX_PADDING, height: 0.2, width: '100%' }}
+                        style={{ paddingHorizontal: MESSAGE_BOX_PADDING, height: 1, width: '100%' }}
                     />
                 </View>
             </View>

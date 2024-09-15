@@ -39,7 +39,7 @@ const MessageChatItem: React.FC<MessageChatItemProps> = ({
         };
     }, []);
     const LIGHT_MESSAGE_TEXT_THEMED = '#ffffffa4';
-    const DARK_MESSAGE_TEXT_THEMED = '#1e1e1ea4';
+    const DARK_MESSAGE_TEXT_THEMED = '#1e1e1ec4';
 
     const [seensMessage, setSeens] = useState(seensList);
     const [reactionsMessage, setReactions] = useState(reactionList);
@@ -61,7 +61,7 @@ const MessageChatItem: React.FC<MessageChatItemProps> = ({
                         style={{
                             justifyContent: 'center',
                             alignItems: 'center',
-                            paddingHorizontal: 20,
+                            paddingHorizontal: 15,
                             paddingVertical: 3,
                             borderRadius: 10,
                         }}
@@ -70,8 +70,8 @@ const MessageChatItem: React.FC<MessageChatItemProps> = ({
                             lightColor={BLUE_MAIN_COLOR}
                             darkColor="#fff"
                             style={{
-                                lineHeight: 20,
-                                fontSize: 15,
+                                lineHeight: 16,
+                                fontSize: 13,
                                 fontFamily: 'System-Medium',
                             }}
                         >
@@ -90,30 +90,34 @@ const MessageChatItem: React.FC<MessageChatItemProps> = ({
                     style={{
                         display: 'flex',
                         flexDirection: 'row',
-                        columnGap: 10,
                         alignItems: 'flex-end',
                         paddingBottom: isConsecutiveMessage.next ? 2 : 10,
                         maxWidth: '75%',
+
                         // borderWidth: 1,
                         // borderColor: '#f4f',
                     }}
                 >
-                    <View>
-                        {userData && isConsecutiveMessage.next === false && (
-                            <PopshareAvatar
-                                size={38}
-                                profilePicture={userData.profilePicture}
-                                avatarColor={userData.avatarColor}
-                                avatarEmoji={userData.avatarEmoji as EmojiKey}
-                            />
-                        )}
-                        {userData && isConsecutiveMessage.next && <View style={{ width: 38, height: 1 }}></View>}
-                    </View>
+                    {userData && (
+                        <View>
+                            {isConsecutiveMessage.next === false && (
+                                <PopshareAvatar
+                                    size={38}
+                                    profilePicture={userData.profilePicture}
+                                    avatarColor={userData.avatarColor}
+                                    avatarEmoji={userData.avatarEmoji as EmojiKey}
+                                />
+                            )}
+                            {isConsecutiveMessage.next && <View style={{ width: 38, height: 1 }}></View>}
+                        </View>
+                    )}
                     <View
                         style={{
                             flexDirection: userData ? 'row-reverse' : 'row',
                             alignItems: 'flex-end',
                             justifyContent: 'flex-start',
+                            marginRight: !userData ? 10 : 0,
+                            marginLeft: userData ? 10 : 0,
                             // borderWidth: 1,
                             // borderColor: '#f4f',
                         }}
@@ -132,7 +136,7 @@ const MessageChatItem: React.FC<MessageChatItemProps> = ({
                             <View>
                                 {message.messageType === 'text' && (
                                     <ThemedText
-                                        style={{ fontSize: 14, lineHeight: 20 }}
+                                        style={{ fontSize: 13, lineHeight: 17 }}
                                     >{`${message.content}`}</ThemedText>
                                 )}
                             </View>
