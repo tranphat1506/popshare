@@ -47,15 +47,14 @@ const P2PMessageRoom: React.FC<IP2PMessageRoom> = (props) => {
             ME: lang.YOU_TEXT,
         };
     }, [lang]);
+    const handleOnClickChatBox = async () => {
+        return props.handleSetChatBox({
+            room: props,
+            roomType: props.room.detail.roomType,
+        });
+    };
     return (
-        <TouchableOpacity
-            onPress={() =>
-                props.handleSetChatBox({
-                    room: props,
-                    roomType: props.room.detail.roomType,
-                })
-            }
-        >
+        <TouchableOpacity onPress={handleOnClickChatBox}>
             <View
                 style={{
                     display: 'flex',
@@ -159,8 +158,8 @@ const P2PMessageRoom: React.FC<IP2PMessageRoom> = (props) => {
                                 {props.room.lastMesssage ? (
                                     <>
                                         <ThemedText
-                                            lightColor={props.room.lastMesssage.isSeen ? '#7e7e7e' : '#000'}
-                                            darkColor={props.room.lastMesssage.isSeen ? '#7e7e7e' : '#fff'}
+                                            lightColor={!props.room.notRead ? '#7e7e7e' : '#000'}
+                                            darkColor={!props.room.notRead ? '#7e7e7e' : '#fff'}
                                             numberOfLines={2}
                                             style={{ fontSize: 14, lineHeight: 20, fontFamily: 'System-Medium' }}
                                         >
@@ -170,8 +169,8 @@ const P2PMessageRoom: React.FC<IP2PMessageRoom> = (props) => {
                                             {': '}
                                         </ThemedText>
                                         <ThemedText
-                                            lightColor={props.room.lastMesssage.isSeen ? '#7e7e7e' : '#000'}
-                                            darkColor={props.room.lastMesssage.isSeen ? '#7e7e7e' : '#fff'}
+                                            lightColor={!props.room.notRead ? '#7e7e7e' : '#000'}
+                                            darkColor={!props.room.notRead ? '#7e7e7e' : '#fff'}
                                             numberOfLines={2}
                                             style={{ fontSize: 14, lineHeight: 20, fontFamily: 'System-Regular' }}
                                         >

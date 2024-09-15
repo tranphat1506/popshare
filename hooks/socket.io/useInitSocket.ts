@@ -9,15 +9,21 @@ import { LoginSessionManager } from '@/storage/loginSession.storage';
 import { logout } from '@/redux/auth/reducer';
 import { useAppSelector } from '@/redux/hooks/hooks';
 import useOnChatMessage from './useOnChatMessage';
-import { updateTheNewestMessage } from '@/redux/chatRoom/reducer';
+import { updateChatRoomData, updateTheNewestMessage } from '@/redux/chatRoom/reducer';
+import useOnSeenStatus from './useOnSeenStatus';
+import { IOnlineState, updatePeerById } from '@/redux/peers/reducer';
+import useOnActionOnChatRoom from './useOnActionOnChatRoom';
 
 const useInitSocket = () => {
     const socket = useSocketIO();
     const dispatch = useDispatch();
-    const [newMessage, setNewMessage] = useOnChatMessage('global');
+    const [newMessage] = useOnChatMessage('global');
+    const [onTypingAction] = useOnActionOnChatRoom('global');
     const [onError] = useOnSocketError<string>('auth');
     const rooms = useAppSelector((state) => state.chatRoom.rooms);
+    const peers = useAppSelector((state) => state.peers.peers);
     const user = useAppSelector((state) => state.auth.user);
+    useOnSeenStatus(user!.userId);
 
     const handleRefreshToken = async () => {
         try {
@@ -47,8 +53,17 @@ const useInitSocket = () => {
         socket.on('connect', () => {
             console.info('Connect with socketId =', socket.id);
             const roomIdList: string[] = Object.keys(rooms);
+            const friendIdList: string[] = Object.keys(peers);
             socket.emit(SocketEvent.SetupChatRoom, { roomIdList: roomIdList });
+            socket.emit(SocketEvent.onSetupNotification, { friendIdList: friendIdList });
+            socket.emit(SocketEvent.handleUserConnect);
             dispatch(connectionEstablished({ socketId: socket.id }));
+        });
+        socket.on(SocketEvent.sendOnlineState, (data: IOnlineState) => {
+            if (data.userId !== user?.userId) {
+                console.log(data);
+                dispatch(updatePeerById({ userId: data.userId, field: 'onlineState', data: data }));
+            }
         });
         socket.on('disconnect', (e) => {
             console.info('Disconect');
@@ -64,9 +79,21 @@ const useInitSocket = () => {
         socket.disconnect();
         socket.removeAllListeners();
     };
+    // On new message
     useEffect(() => {
         if (newMessage) dispatch(updateTheNewestMessage({ message: newMessage, currentUserId: user!.userId }));
     }, [newMessage]);
+    // On typing action room
+    useEffect(() => {
+        if (onTypingAction)
+            dispatch(
+                updateChatRoomData({
+                    roomId: onTypingAction.roomId,
+                    field: 'onAction',
+                    data: onTypingAction,
+                }),
+            );
+    }, [onTypingAction]);
     useEffect(() => {
         handleConnectSocket();
         return () => {

@@ -1,12 +1,16 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, current, PayloadAction } from '@reduxjs/toolkit';
 import { IRoomDetail } from './room.interface';
 import { IMessageDetail } from './messages.interface';
+import { IMarkAsSeenPayload } from '@/hooks/socket.io/useOnSeenStatus';
+import { IRequestOnTyping } from '@/hooks/socket.io/useOnActionOnChatRoom';
 
 export type ChatRoom = {
     detail: IRoomDetail;
     messages: IMessageDetail[];
     notRead: number;
     lastMesssage?: IMessageDetail;
+    // for UI
+    onAction?: IRequestOnTyping;
 };
 export interface ChatRoomState {
     rooms: { [roomId: string]: ChatRoom | undefined };
@@ -81,6 +85,7 @@ const chatRoomReducer = {
             state.rooms[message.roomId]!.notRead += 1;
         } else {
             message.isSeen = true;
+            message.isRecived = true;
         }
         state.roomQueue = [...new Set([message.roomId].concat(state.roomQueue))];
         state.rooms[message.roomId]!.messages = room.messages.concat([message]);
@@ -102,6 +107,7 @@ const chatRoomReducer = {
                 state.rooms[message.roomId]!.notRead += 1;
             } else {
                 message.isSeen = true;
+                message.isRecived = true;
             }
             state.roomQueue = [...new Set([message.roomId].concat(state.roomQueue))];
             state.rooms[message.roomId]!.messages = room.messages.concat([message]);
@@ -120,6 +126,23 @@ const chatRoomReducer = {
         state.rooms[roomId]!.messages[messageIndex] = replaceMessage;
         if (state.rooms[roomId]?.lastMesssage?._id === tempId) state.rooms[roomId].lastMesssage = replaceMessage;
     },
+
+    updateSeenMessages: (
+        state: ChatRoomState,
+        action: PayloadAction<IMarkAsSeenPayload & { currentUserId: string }>,
+    ) => {
+        const { roomId, userId, messagesIdList, currentUserId } = action.payload;
+        const room = state.rooms[roomId];
+        if (!room) return;
+        for (const messageId of messagesIdList) {
+            const index = state.rooms[roomId]!.messages.findIndex((m) => m._id === messageId);
+            if (index === -1) continue;
+            state.rooms[roomId]!.messages[index].seenBy = state.rooms[roomId]!.messages[index].seenBy.concat(userId);
+            state.rooms[roomId]!.messages[index].isRecived = true;
+            state.rooms[roomId]!.messages[index].isSeen = true;
+            if (userId === currentUserId) state.rooms[roomId]!.notRead -= 1;
+        }
+    },
 };
 const chatRoomSlice = createSlice({
     name: 'chatRoom',
@@ -136,5 +159,6 @@ export const {
     updateTheNewestMessage,
     updateTheNewestMessages,
     updateTempMessageWithTempId,
+    updateSeenMessages,
 } = chatRoomSlice.actions;
 export default chatRoomSlice.reducer;

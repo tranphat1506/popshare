@@ -27,4 +27,5 @@ export interface IMessageDetail {
     // for UI
     isTemp?: boolean;
     isSeen?: boolean;
+    isRecived?: boolean;
 }

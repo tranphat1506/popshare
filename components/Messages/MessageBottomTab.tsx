@@ -10,13 +10,14 @@ import { useAppDispatch } from '@/redux/hooks/hooks';
 import { updateTempMessageWithTempId, updateTheNewestMessage } from '@/redux/chatRoom/reducer';
 import { ICurrentUserDetail } from '@/redux/auth/reducer';
 import _ from 'lodash';
+import { useEmitOnTyping } from '@/hooks/socket.io/useOnActionOnChatRoom';
 
 const DEFAULT_INPUT_HEIGHT = 30;
 const DEFAULT_TEXT_HEIGHT = 20;
 const MAX_LINES_INPUT_TEXT = 6;
 interface MessageBottomTabProps {
-    currentUser: ICurrentUserDetail;
-    roomId: string;
+    currentUser?: ICurrentUserDetail;
+    roomId?: string;
 }
 const handleShowTempMessage = (
     currentUser: ICurrentUserDetail,
@@ -71,6 +72,13 @@ const handleSendTextMessage = async (roomId: string, message: string, tempId: st
     });
 };
 const MessageBottomTab: React.FC<MessageBottomTabProps> = ({ currentUser, roomId }) => {
+    const [action, setAction] = useEmitOnTyping(roomId);
+    const handleFocusedInput = () => {
+        setAction('text');
+    };
+    const handleClearAllAction = () => {
+        setAction('stop');
+    };
     const dispatch = useAppDispatch();
     const [message, setMessage] = useState<string>('');
     const [inputHeight, setInputHeight] = useState<{
@@ -93,6 +101,7 @@ const MessageBottomTab: React.FC<MessageBottomTabProps> = ({ currentUser, roomId
     };
     const handleClickSendMessage = _.debounce(
         async () => {
+            if (!currentUser || !roomId) return;
             // Reset input
             setMessage('');
             setInputHeight({ height: DEFAULT_INPUT_HEIGHT, isMultiline: false });
@@ -107,6 +116,7 @@ const MessageBottomTab: React.FC<MessageBottomTabProps> = ({ currentUser, roomId
             trailing: false,
         },
     );
+
     return (
         <ThemedView
             style={{
@@ -139,6 +149,8 @@ const MessageBottomTab: React.FC<MessageBottomTabProps> = ({ currentUser, roomId
                 className="py-1 px-4 bg-[#eee] dark:bg-[#111] flex flex-row items-center"
             >
                 <TextInput
+                    onFocus={handleFocusedInput}
+                    onBlur={handleClearAllAction}
                     editable
                     multiline
                     numberOfLines={4}

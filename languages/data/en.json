@@ -56,5 +56,6 @@
     "DISPLAY_EMPTY_MESSAGES_DESCRIPTION": "There are no messages yet!",
     "TODAY_TEXT": "Today",
     "JUST_SENT": "Now",
-    "YOU_TEXT": "You"
+    "YOU_TEXT": "You",
+    "ON_TYPING_ACTION": "On typing"
 }

@@ -40,10 +40,6 @@ const MessageChatItem: React.FC<MessageChatItemProps> = ({
     }, []);
     const LIGHT_MESSAGE_TEXT_THEMED = '#ffffffa4';
     const DARK_MESSAGE_TEXT_THEMED = '#1e1e1ec4';
-
-    const [seensMessage, setSeens] = useState(seensList);
-    const [reactionsMessage, setReactions] = useState(reactionList);
-
     return (
         <>
             {!isConsecutiveMessage.prev && (
@@ -83,7 +79,11 @@ const MessageChatItem: React.FC<MessageChatItemProps> = ({
             <View
                 style={{
                     justifyContent: userData ? 'flex-start' : 'flex-end',
-                    flexDirection: 'row',
+                    flexDirection: 'column',
+                    alignItems: userData ? 'flex-start' : 'flex-end',
+                    flex: 1,
+                    paddingHorizontal: 5,
+                    rowGap: 3,
                 }}
             >
                 <View
@@ -93,7 +93,6 @@ const MessageChatItem: React.FC<MessageChatItemProps> = ({
                         alignItems: 'flex-end',
                         paddingBottom: isConsecutiveMessage.next ? 2 : 10,
                         maxWidth: '75%',
-
                         // borderWidth: 1,
                         // borderColor: '#f4f',
                     }}
@@ -102,6 +101,7 @@ const MessageChatItem: React.FC<MessageChatItemProps> = ({
                         <View>
                             {isConsecutiveMessage.next === false && (
                                 <PopshareAvatar
+                                    key={message._id}
                                     size={38}
                                     profilePicture={userData.profilePicture}
                                     avatarColor={userData.avatarColor}
@@ -177,23 +177,24 @@ const MessageChatItem: React.FC<MessageChatItemProps> = ({
                                         <Icon
                                             as={Feather}
                                             name="circle"
-                                            size={'xs'}
+                                            size={'14px'}
                                             className="text-[#888] dark:text-[#999]"
                                         />
                                     )}
-                                    {!message.isTemp && seensList.length > 0 && (
+                                    {!message.isTemp &&
+                                        (message.seenBy.length > 1 || userData?.onlineState?.isOnline) && (
+                                            <Icon
+                                                as={Ionicons}
+                                                name="checkmark-done"
+                                                size={'14px'}
+                                                className="text-[#888] dark:text-[#999]"
+                                            />
+                                        )}
+                                    {!message.isTemp && message.seenBy.length === 1 && (
                                         <Icon
                                             as={Ionicons}
-                                            name="checkmark-done-circle"
-                                            size={'xs'}
-                                            className="text-[#888] dark:text-[#999]"
-                                        />
-                                    )}
-                                    {!message.isTemp && !seensList.length && (
-                                        <Icon
-                                            as={Ionicons}
-                                            name="checkmark-circle-sharp"
-                                            size={'xs'}
+                                            name="checkmark-sharp"
+                                            size={'14px'}
                                             className="text-[#888] dark:text-[#999]"
                                         />
                                     )}
@@ -209,8 +210,14 @@ const MessageChatItem: React.FC<MessageChatItemProps> = ({
                                         // borderColor: '#fff',
                                     }}
                                 >
-                                    {reactionsMessage.map((reaction) => {
-                                        return <ReactionItem style={{ flex: 1 }} {...reaction} />;
+                                    {reactionList.map((reaction) => {
+                                        return (
+                                            <ReactionItem
+                                                key={reaction.reactionData.emoji}
+                                                style={{ flex: 1 }}
+                                                {...reaction}
+                                            />
+                                        );
                                     })}
                                 </View>
                             </View>
@@ -233,21 +240,30 @@ const MessageChatItem: React.FC<MessageChatItemProps> = ({
                             }}
                         /> */}
                     </View>
-                    {/* Seen list */}
-                    {!userData && (
-                        <View className="flex flex-row gap-y-1">
-                            {seensMessage.map((member) => {
-                                if (!member) return <></>;
-                                return (
-                                    <PopshareAvatar
-                                        profilePicture={member.profilePicture}
-                                        avatarColor={member.avatarColor}
-                                        avatarEmoji={member.avatarEmoji as EmojiKey}
-                                    />
-                                );
-                            })}
-                        </View>
-                    )}
+                </View>
+                {/* Seen list */}
+                <View
+                    style={{
+                        width: '100%',
+                        justifyContent: 'flex-end',
+                        marginBottom: 5,
+                        columnGap: 5,
+                        //  borderColor: '#fff', borderWidth: 1
+                    }}
+                    className="flex flex-row"
+                >
+                    {seensList.map((member) => {
+                        if (!member) return null;
+                        return (
+                            <PopshareAvatar
+                                key={member.userId}
+                                size={18}
+                                profilePicture={member.profilePicture}
+                                avatarColor={member.avatarColor}
+                                avatarEmoji={member.avatarEmoji as EmojiKey}
+                            />
+                        );
+                    })}
                 </View>
             </View>
         </>

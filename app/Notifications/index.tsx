@@ -20,7 +20,7 @@ function NotificationsScreen() {
     });
     return (
         <>
-            <DefaultLayout>
+            <DefaultLayout preventStatusBar={true}>
                 <ThemedView style={{ display: 'flex', alignItems: 'center', flexDirection: 'column', gap: 25 }}>
                     <Image
                         source={require('@/assets/images/bell.png')}

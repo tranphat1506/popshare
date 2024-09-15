@@ -10,6 +10,9 @@ import { ReactionItemProps } from './ReactionItem';
 import { IAvatarState } from '@/app/Auth/AvatarSettingModal';
 import { ICurrentUserDetail } from '@/redux/auth/reducer';
 import useOnChatMessage from '@/hooks/socket.io/useOnChatMessage';
+import _ from 'lodash';
+import { LoginSessionManager } from '@/storage/loginSession.storage';
+import { UpdateSeenMessage } from '@/helpers/fetching';
 interface MessageChatListProps {
     room: ChatRoom;
 }
@@ -50,19 +53,25 @@ const isConsecutiveMessageCheck = (
     }
 };
 
-const getSeenByUsers = (message: IMessageDetail, currentIndex: number, messages: IMessageDetail[], members: Peers) => {
+const getSeenByUsers = (
+    message: IMessageDetail,
+    currentIndex: number,
+    messages: IMessageDetail[],
+    members: Peers,
+    currentUserId: string,
+) => {
     try {
-        const currentSeenList = message.seenBy.filter((userId) => userId !== message.senderId);
+        const currentSeenList = message.seenBy.filter((m) => m !== currentUserId);
         const nextMessage = messages[currentIndex + 1];
         if (!nextMessage)
             return currentSeenList.map((id) => {
                 return members[id];
             });
-        const nextSeenList = nextMessage.seenBy.filter((userId) => userId !== message.senderId);
+        const nextSeenList = nextMessage.seenBy.filter((m) => m !== currentUserId);
         const currentSet = new Set(currentSeenList);
         if (currentSet.size === 0) return [];
         const nextSet = new Set(nextSeenList);
-        const seenList = [...currentSet.difference(nextSet)];
+        const seenList = _.difference([...currentSet], [...nextSet]);
         return seenList.map((id) => {
             return members[id];
         });
@@ -171,16 +180,19 @@ const generateReaction = (
 const MessageChatList: React.FC<MessageChatListProps> = ({ room }) => {
     const currentUser = useAppSelector((state) => state.auth.user);
     const peers = useAppSelector((state) => state.peers.peers);
-    const roomMessages = useAppSelector((state) => state.chatRoom.rooms[room.detail._id]?.messages!);
+    const notRead = useAppSelector((state) => state.chatRoom.rooms[room.detail._id]?.notRead);
+    const roomDetail = useAppSelector((state) => state.chatRoom.rooms[room.detail._id]!);
+
     const RenderMessageItem: ListRenderItem<IMessageDetail> = useCallback(
         ({ item: message, index }) => {
             const userData = message.senderId === currentUser?.userId ? undefined : peers[message.senderId];
-            const isConsecutiveMessage = isConsecutiveMessageCheck(message, index, roomMessages);
-            const seenByUsers = getSeenByUsers(message, index, roomMessages, peers);
+            const isConsecutiveMessage = isConsecutiveMessageCheck(message, index, roomDetail.messages);
+            const seenByUsers = getSeenByUsers(message, index, roomDetail.messages, peers, currentUser!.userId);
             const borderStyle = borderStyleChatMessage(!userData, isConsecutiveMessage);
             const reactions = generateReaction(message.reactions, peers, currentUser!);
             return (
                 <MessageChatItem
+                    key={message._id}
                     message={message}
                     userData={userData}
                     isConsecutiveMessage={isConsecutiveMessage}
@@ -190,12 +202,25 @@ const MessageChatList: React.FC<MessageChatListProps> = ({ room }) => {
                 />
             );
         },
-        [roomMessages],
+        [roomDetail],
     );
+    useEffect(() => {
+        const handleReadMessage = async () => {
+            const session = await LoginSessionManager.getCurrentSession();
+            const success = await UpdateSeenMessage(room.detail._id, {
+                token: session?.token,
+                rtoken: session?.rtoken,
+            });
+            return;
+        };
+        if (notRead && notRead > 0) {
+            handleReadMessage();
+        }
+    }, [notRead]);
     return (
         <FlatList
             scrollEnabled={false}
-            data={roomMessages}
+            data={roomDetail.messages}
             renderItem={RenderMessageItem}
             keyExtractor={(item) => item._id}
             removeClippedSubviews={true}

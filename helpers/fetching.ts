@@ -152,6 +152,34 @@ export const FetchUserProfileById = async (id: PeerId, auth: IAuthProps): Promis
     }
 };
 
+export const UpdateSeenMessage = async (roomId: string, auth: IAuthProps): Promise<IFetchingResponse | null> => {
+    try {
+        auth = await checkingValidAuthSession(auth);
+        const response = await fetch(BE_API_URL + '/chat/markAsSeen', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${auth.token}`,
+            },
+            body: JSON.stringify({
+                roomId: roomId,
+            }),
+        });
+        if (response.status === 401 && auth.rtoken) {
+            auth.token = await refreshToken(auth.rtoken);
+            return await UpdateSeenMessage(roomId, auth);
+        }
+        if (response.ok) {
+            const data = (await response.json()) as IFetchingResponse;
+            return data;
+        }
+        return null;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+};
+
 export const refreshToken = async (rtoken: string) => {
     try {
         const response = await fetch(BE_API_URL + '/refresh', {

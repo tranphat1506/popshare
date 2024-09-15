@@ -45,6 +45,11 @@ export class StringOnlineStateHelper {
         return Math.round(this.miliToMin(btwTime) / 60 / 24) + 'd';
     }
 
+    static maxTimeForOnline(time?: number, maxTime: number = 5 * 60 * 1000): boolean {
+        if (!time) return false;
+        return Date.now() - time <= maxTime;
+    }
+
     static formatDate(createdAt: number): { dateString?: string; timeString: string } {
         const now = new Date();
         const messageDate = new Date(createdAt);

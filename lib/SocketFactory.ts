@@ -6,6 +6,13 @@ export enum SocketEvent {
     broadcastNotification = 'Broadcast',
     SetupChatRoom = 'SetupChatRoom',
     sendSocketRequestError = 'SocketRequestError',
+    onTyping = 'OnTyping',
+    responseTyping = 'ReponseTyping',
+    onSendSeenStatus = 'OnSeenMessage',
+    sendOnlineState = 'SendOnlineState',
+    handleUserLogout = 'handleUserLogout',
+    onSetupNotification = 'SetupNotification',
+    handleUserConnect = 'handleUserConnect',
 }
 export interface SocketInterface {
     socket: Socket;

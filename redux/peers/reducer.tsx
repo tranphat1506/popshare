@@ -67,6 +67,17 @@ const peersReducer = {
         state.peers = {};
         state.recentHistory = [];
     },
+    updatePeerById: <T extends keyof Peer>(
+        state: PeersState,
+        action: PayloadAction<{ userId: string; field: T; data: Peer[T] }>,
+    ) => {
+        const peer = state.peers[action.payload.userId];
+        if (!peer) return;
+        state.peers[action.payload.userId] = {
+            ...peer,
+            [action.payload.field]: action.payload.data,
+        };
+    },
 };
 const peersSlice = createSlice({
     name: 'peers',
@@ -74,5 +85,5 @@ const peersSlice = createSlice({
     reducers: peersReducer,
 });
 
-export const { addPeer, removePeerByPeerId, addPeers, clear } = peersSlice.actions;
+export const { addPeer, removePeerByPeerId, addPeers, clear, updatePeerById } = peersSlice.actions;
 export default peersSlice.reducer;

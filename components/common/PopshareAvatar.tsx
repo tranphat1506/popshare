@@ -16,6 +16,9 @@ const PopshareAvatar: React.FC<
         hidden?: boolean;
     }
 > = ({ size = 128, ...props }) => {
+    const isOnline = !!props.onlineState?.lastTimeActive
+        ? new Date().getTime() - props.onlineState?.lastTimeActive <= 5 * 60 * 1000
+        : false;
     if (props.skeleton) {
         return (
             <Skeleton
@@ -92,7 +95,7 @@ const PopshareAvatar: React.FC<
                 >
                     <View
                         style={{
-                            backgroundColor: props.onlineState?.isOnline ? '#22c55e' : '#737373',
+                            backgroundColor: isOnline ? '#22c55e' : '#737373',
                             minWidth: Math.round(size * 0.25),
                             height: Math.round(size * 0.25),
                             borderRadius: 100,
@@ -110,8 +113,7 @@ const PopshareAvatar: React.FC<
                                     color: '#fff',
                                 }}
                             >
-                                {!props.onlineState?.isOnline ??
-                                    StringOnlineStateHelper.toLastOnlineTime(props.onlineState.lastTimeActive)}
+                                {isOnline ?? StringOnlineStateHelper.toLastOnlineTime(props.onlineState.lastTimeActive)}
                             </Text>
                         )}
                     </View>

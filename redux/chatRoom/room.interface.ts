@@ -1,3 +1,5 @@
+import { IRequestOnTyping } from '@/hooks/socket.io/useOnActionOnChatRoom';
+
 // Interface cho NotificationSettings
 interface INotificationSettings {
     message: boolean;

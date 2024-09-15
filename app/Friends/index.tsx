@@ -32,12 +32,13 @@ function FriendsScreen() {
     }, []);
     const lang = useLanguage();
     const friendTitleText = lang.FRIENDS_TITLE;
-    const [header, setHeader] = useCustomScreenOptions({
+    useCustomScreenOptions({
         title: friendTitleText,
         headerTitleStyle: {
             fontSize: 18,
             fontFamily: 'System-Medium',
         },
+        headerShown: true,
     });
     const navigation = useNavigation<NavigationProp<RootStackParamList, 'friends'>>();
     const { params: routeParams } = useRoute<RouteProp<RootStackParamList, 'friends'>>();
