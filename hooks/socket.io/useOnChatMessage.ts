@@ -9,9 +9,9 @@ const useOnChatMessage = (roomId?: string) => {
     const user = useAppSelector((state) => state.auth.user);
     useEffect(() => {
         // On recived messages
-        socket.on(SocketEvent.sendMessage, (message: IMessageDetail) => {
-            if ((roomId === message.roomId || roomId === 'global') && user && message.senderId !== user.userId)
-                setMessage(message);
+        socket.on(SocketEvent.sendMessage, (data: { message: IMessageDetail; socketId: string }) => {
+            if ((roomId === data.message.roomId || roomId === 'global') && user && data.socketId !== socket.id)
+                setMessage(data.message);
         });
 
         return () => {

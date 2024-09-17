@@ -61,7 +61,6 @@ const useInitSocket = () => {
         });
         socket.on(SocketEvent.sendOnlineState, (data: IOnlineState) => {
             if (data.userId !== user?.userId) {
-                console.log(data);
                 dispatch(updatePeerById({ userId: data.userId, field: 'onlineState', data: data }));
             }
         });
@@ -81,7 +80,8 @@ const useInitSocket = () => {
     };
     // On new message
     useEffect(() => {
-        if (newMessage) dispatch(updateTheNewestMessage({ message: newMessage, currentUserId: user!.userId }));
+        if (!!newMessage && !!user)
+            dispatch(updateTheNewestMessage({ message: newMessage, currentUserId: user.userId }));
     }, [newMessage]);
     // On typing action room
     useEffect(() => {

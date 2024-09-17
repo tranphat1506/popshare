@@ -214,7 +214,6 @@ const MessageChatBox: React.FC<
                                 style={{
                                     fontFamily: 'System-Bold',
                                     fontSize: 14,
-                                    borderWidth: 1,
                                 }}
                             >
                                 {/* For p2p room. Display nickname of member or realname of user */}
@@ -225,7 +224,7 @@ const MessageChatBox: React.FC<
                             </ThemedText>
                             {roomType === 'p2p' && (
                                 <>
-                                    {(!onRoomAction || onRoomAction.typeTyping === 'stop') && (
+                                    {(!onRoomAction?.typeTyping || onRoomAction.typeTyping === 'stop') && (
                                         <ThemedText
                                             lightColor={
                                                 StringOnlineStateHelper.maxTimeForOnline(
@@ -264,7 +263,6 @@ const MessageChatBox: React.FC<
                                                 fontFamily: 'System-Medium',
                                                 fontSize: 11,
                                                 lineHeight: 14,
-                                                borderWidth: 1,
                                             }}
                                         >
                                             {onRoomAction.typeTyping === 'text' && textData.ON_TYPING + '...'}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { NativeSyntheticEvent, TextInput, TextInputContentSizeChangeEventData, View } from 'react-native';
 import { ThemedView } from '../ThemedView';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -6,7 +6,7 @@ import { Icon } from 'native-base';
 import { Feather, Fontisto, MaterialCommunityIcons } from '@expo/vector-icons';
 import { sendTextMessage } from '@/helpers/fetching';
 import { LoginSessionManager } from '@/storage/loginSession.storage';
-import { useAppDispatch } from '@/redux/hooks/hooks';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks/hooks';
 import { updateTempMessageWithTempId, updateTheNewestMessage } from '@/redux/chatRoom/reducer';
 import { ICurrentUserDetail } from '@/redux/auth/reducer';
 import _ from 'lodash';
@@ -48,7 +48,7 @@ const handleShowTempMessage = (
         tempId: tempId,
     };
 };
-const handleSendTextMessage = async (roomId: string, message: string, tempId: string) => {
+const handleSendTextMessage = async (roomId: string, message: string, tempId: string, socketId?: string) => {
     const session = await LoginSessionManager.getCurrentSession();
     if (!session) return;
     const trimMessage = message.trim();
@@ -60,6 +60,7 @@ const handleSendTextMessage = async (roomId: string, message: string, tempId: st
             content: trimMessage,
             roomId: roomId,
         },
+        socketId,
     );
     if (!reponse) {
         // logic when sending message failed
@@ -80,6 +81,7 @@ const MessageBottomTab: React.FC<MessageBottomTabProps> = ({ currentUser, roomId
         setAction('stop');
     };
     const dispatch = useAppDispatch();
+    const socketId = useAppSelector((state) => state.socket.socketId);
     const [message, setMessage] = useState<string>('');
     const [inputHeight, setInputHeight] = useState<{
         height: number;
@@ -107,7 +109,7 @@ const MessageBottomTab: React.FC<MessageBottomTabProps> = ({ currentUser, roomId
             setInputHeight({ height: DEFAULT_INPUT_HEIGHT, isMultiline: false });
             const { action, tempId } = handleShowTempMessage(currentUser, roomId, message, undefined);
             dispatch(action);
-            const sendAction = await handleSendTextMessage(roomId, message, tempId);
+            const sendAction = await handleSendTextMessage(roomId, message, tempId, socketId);
             if (sendAction) dispatch(sendAction);
         },
         100,

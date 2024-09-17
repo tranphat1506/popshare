@@ -179,17 +179,17 @@ const generateReaction = (
 
 const MessageChatList: React.FC<MessageChatListProps> = ({ room }) => {
     const currentUser = useAppSelector((state) => state.auth.user);
-    const peers = useAppSelector((state) => state.peers.peers);
+    const members = useAppSelector((state) => state.peers.peers);
     const notRead = useAppSelector((state) => state.chatRoom.rooms[room.detail._id]?.notRead);
     const roomDetail = useAppSelector((state) => state.chatRoom.rooms[room.detail._id]!);
 
     const RenderMessageItem: ListRenderItem<IMessageDetail> = useCallback(
         ({ item: message, index }) => {
-            const userData = message.senderId === currentUser?.userId ? undefined : peers[message.senderId];
+            const userData = message.senderId === currentUser?.userId ? undefined : members[message.senderId];
             const isConsecutiveMessage = isConsecutiveMessageCheck(message, index, roomDetail.messages);
-            const seenByUsers = getSeenByUsers(message, index, roomDetail.messages, peers, currentUser!.userId);
+            const seenByUsers = getSeenByUsers(message, index, roomDetail.messages, members, currentUser!.userId);
             const borderStyle = borderStyleChatMessage(!userData, isConsecutiveMessage);
-            const reactions = generateReaction(message.reactions, peers, currentUser!);
+            const reactions = generateReaction(message.reactions, members, currentUser!);
             return (
                 <MessageChatItem
                     key={message._id}
@@ -202,7 +202,7 @@ const MessageChatList: React.FC<MessageChatListProps> = ({ room }) => {
                 />
             );
         },
-        [roomDetail],
+        [roomDetail, members],
     );
     useEffect(() => {
         const handleReadMessage = async () => {

@@ -1,4 +1,5 @@
 import { BE_API_URL, BE_URL } from '@/constants/Constants';
+import { socketConnection } from '@/lib/SocketFactory';
 import { ICurrentUserDetail } from '@/redux/auth/reducer';
 import { IMessageDetail, IMessageTypeTypes } from '@/redux/chatRoom/messages.interface';
 import { IRoomDetail } from '@/redux/chatRoom/room.interface';
@@ -53,11 +54,6 @@ export const checkingValidAuthSession = async (auth: IAuthProps) => {
         if (!auth.rtoken && !auth.token) throw Error('Invalid auth.');
         if (!auth.token && auth.rtoken) {
             auth.token = (await refreshToken(auth.rtoken)) as string;
-            const session = await LoginSessionManager.getCurrentSession();
-            if (session) {
-                session.token = auth.token;
-                await LoginSessionManager.setSessionToSessionSaved(session, true);
-            }
             return auth;
         }
         return auth;
@@ -195,6 +191,11 @@ export const refreshToken = async (rtoken: string) => {
             const refreshData = await response.json();
             const token = refreshData.token as string;
             if (!token) throw Error('WHERE ACCESS TOKEN?');
+            const session = await LoginSessionManager.getCurrentSession();
+            if (session) {
+                session.token = token;
+                await LoginSessionManager.setSessionToSessionSaved(session, true);
+            }
             return token;
         } else {
             // Mean this rfresh token is not valid anymore
@@ -233,7 +234,9 @@ interface SendMessageResponse extends IFetchingResponse {
 export const sendMessage = async (
     auth: IAuthProps,
     payload: TextMessagePayload,
+    socketId?: string,
 ): Promise<SendMessageResponse | null> => {
+    if (!socketId) return null;
     try {
         auth = await checkingValidAuthSession(auth);
         const sendReponse = await fetch(BE_API_URL + '/chat/send', {
@@ -242,7 +245,7 @@ export const sendMessage = async (
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${auth.token}`,
             },
-            body: JSON.stringify(payload),
+            body: JSON.stringify({ message: payload, socketId: socketId }),
         });
         const json = await sendReponse.json();
         if (sendReponse.ok) return json as SendMessageResponse;
@@ -257,10 +260,10 @@ export const sendMessage = async (
         return null;
     }
 };
-export const sendTextMessage = async (auth: IAuthProps, payload: TextMessagePayload) => {
+export const sendTextMessage = async (auth: IAuthProps, payload: TextMessagePayload, socketId?: string) => {
     try {
         payload.messageType = 'text';
-        return await sendMessage(auth, payload);
+        return await sendMessage(auth, payload, socketId);
     } catch (error) {
         console.error(error);
         return null;
