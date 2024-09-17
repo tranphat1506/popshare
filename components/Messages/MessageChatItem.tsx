@@ -40,6 +40,7 @@ const MessageChatItem: React.FC<MessageChatItemProps> = ({
     }, []);
     const LIGHT_MESSAGE_TEXT_THEMED = '#ffffffa4';
     const DARK_MESSAGE_TEXT_THEMED = '#1e1e1ec4';
+
     return (
         <>
             {!isConsecutiveMessage.prev && (
@@ -190,14 +191,16 @@ const MessageChatItem: React.FC<MessageChatItemProps> = ({
                                                 className="text-[#888] dark:text-[#999]"
                                             />
                                         )}
-                                    {!message.isTemp && message.seenBy.length === 1 && (
-                                        <Icon
-                                            as={Ionicons}
-                                            name="checkmark-sharp"
-                                            size={'14px'}
-                                            className="text-[#888] dark:text-[#999]"
-                                        />
-                                    )}
+                                    {!message.isTemp &&
+                                        message.seenBy.length === 1 &&
+                                        !userData?.onlineState?.isOnline && (
+                                            <Icon
+                                                as={Ionicons}
+                                                name="checkmark-sharp"
+                                                size={'14px'}
+                                                className="text-[#888] dark:text-[#999]"
+                                            />
+                                        )}
                                 </View>
                                 <View
                                     style={{
@@ -242,29 +245,31 @@ const MessageChatItem: React.FC<MessageChatItemProps> = ({
                     </View>
                 </View>
                 {/* Seen list */}
-                <View
-                    style={{
-                        width: '100%',
-                        justifyContent: 'flex-end',
-                        marginBottom: 5,
-                        columnGap: 5,
-                        //  borderColor: '#fff', borderWidth: 1
-                    }}
-                    className="flex flex-row"
-                >
-                    {seensList.map((member) => {
-                        if (!member) return null;
-                        return (
-                            <PopshareAvatar
-                                key={member.userId}
-                                size={18}
-                                profilePicture={member.profilePicture}
-                                avatarColor={member.avatarColor}
-                                avatarEmoji={member.avatarEmoji as EmojiKey}
-                            />
-                        );
-                    })}
-                </View>
+                {!!seensList.length && (
+                    <View
+                        style={{
+                            width: '100%',
+                            justifyContent: 'flex-end',
+                            marginBottom: 5,
+                            columnGap: 5,
+                            //  borderColor: '#fff', borderWidth: 1
+                        }}
+                        className="flex flex-row"
+                    >
+                        {seensList.map((member) => {
+                            if (!member) return null;
+                            return (
+                                <PopshareAvatar
+                                    key={member.userId}
+                                    size={18}
+                                    profilePicture={member.profilePicture}
+                                    avatarColor={member.avatarColor}
+                                    avatarEmoji={member.avatarEmoji as EmojiKey}
+                                />
+                            );
+                        })}
+                    </View>
+                )}
             </View>
         </>
     );

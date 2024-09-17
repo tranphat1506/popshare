@@ -148,7 +148,11 @@ export const FetchUserProfileById = async (id: PeerId, auth: IAuthProps): Promis
     }
 };
 
-export const UpdateSeenMessage = async (roomId: string, auth: IAuthProps): Promise<IFetchingResponse | null> => {
+export const UpdateSeenMessage = async (
+    roomId: string,
+    auth: IAuthProps,
+    notRead: number,
+): Promise<IFetchingResponse | null> => {
     try {
         auth = await checkingValidAuthSession(auth);
         const response = await fetch(BE_API_URL + '/chat/markAsSeen', {
@@ -159,11 +163,12 @@ export const UpdateSeenMessage = async (roomId: string, auth: IAuthProps): Promi
             },
             body: JSON.stringify({
                 roomId: roomId,
+                notRead: notRead,
             }),
         });
         if (response.status === 401 && auth.rtoken) {
             auth.token = await refreshToken(auth.rtoken);
-            return await UpdateSeenMessage(roomId, auth);
+            return await UpdateSeenMessage(roomId, auth, notRead);
         }
         if (response.ok) {
             const data = (await response.json()) as IFetchingResponse;

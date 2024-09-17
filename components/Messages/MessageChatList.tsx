@@ -182,7 +182,6 @@ const MessageChatList: React.FC<MessageChatListProps> = ({ room }) => {
     const members = useAppSelector((state) => state.peers.peers);
     const notRead = useAppSelector((state) => state.chatRoom.rooms[room.detail._id]?.notRead);
     const roomDetail = useAppSelector((state) => state.chatRoom.rooms[room.detail._id]!);
-
     const RenderMessageItem: ListRenderItem<IMessageDetail> = useCallback(
         ({ item: message, index }) => {
             const userData = message.senderId === currentUser?.userId ? undefined : members[message.senderId];
@@ -205,16 +204,20 @@ const MessageChatList: React.FC<MessageChatListProps> = ({ room }) => {
         [roomDetail, members],
     );
     useEffect(() => {
-        const handleReadMessage = async () => {
+        const handleReadMessage = async (notRead: number) => {
             const session = await LoginSessionManager.getCurrentSession();
-            const success = await UpdateSeenMessage(room.detail._id, {
-                token: session?.token,
-                rtoken: session?.rtoken,
-            });
-            return;
+            const success = await UpdateSeenMessage(
+                room.detail._id,
+                {
+                    token: session?.token,
+                    rtoken: session?.rtoken,
+                },
+                notRead,
+            );
+            return success;
         };
         if (notRead && notRead > 0) {
-            handleReadMessage();
+            handleReadMessage(notRead);
         }
     }, [notRead]);
     return (
