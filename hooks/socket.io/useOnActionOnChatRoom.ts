@@ -32,25 +32,12 @@ const useEmitOnTyping = (roomId?: string) => {
     const socket = socketConnection.socket;
     const [type, setType] = useState<IResponseOnTyping['typeTyping'] | undefined>();
     useEffect(() => {
-        let intervalId: NodeJS.Timeout;
-        if (type && type != 'stop') {
-            intervalId = setInterval(() => {
-                socket.emit(SocketEvent.onTyping, {
-                    roomId: roomId,
-                    typeTyping: type,
-                } as IRequestOnTyping);
-            }, 2000);
-        } else {
+        if (type) {
             socket.emit(SocketEvent.onTyping, {
                 roomId: roomId,
-                typeTyping: 'stop',
+                typeTyping: type,
             } as IRequestOnTyping);
-            setType(undefined);
         }
-
-        return () => {
-            clearInterval(intervalId);
-        };
     }, [type]);
     return [type, setType] as [
         IRequestOnTyping['typeTyping'],

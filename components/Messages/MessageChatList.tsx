@@ -1,8 +1,8 @@
 import { IMessageDetail, IReaction } from '@/redux/chatRoom/messages.interface';
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { Dimensions, FlatList, ListRenderItem, ViewStyle } from 'react-native';
-import { useAppSelector } from '@/redux/hooks/hooks';
-import { ChatRoom } from '@/redux/chatRoom/reducer';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks/hooks';
+import { ChatRoom, updateChatRoomData } from '@/redux/chatRoom/reducer';
 import { EmojiKey } from '../common/EmojiPicker';
 import { Peers } from '@/redux/peers/reducer';
 import MessageChatItem from './MessageChatItem';
@@ -178,6 +178,7 @@ const generateReaction = (
 };
 
 const MessageChatList: React.FC<MessageChatListProps> = ({ room }) => {
+    const dispatch = useAppDispatch();
     const currentUser = useAppSelector((state) => state.auth.user);
     const members = useAppSelector((state) => state.peers.peers);
     const notRead = useAppSelector((state) => state.chatRoom.rooms[room.detail._id]?.notRead);
@@ -218,6 +219,7 @@ const MessageChatList: React.FC<MessageChatListProps> = ({ room }) => {
         };
         if (notRead && notRead > 0) {
             handleReadMessage(notRead);
+            dispatch(updateChatRoomData({ roomId: room.detail._id, field: 'notRead', data: 0 }));
         }
     }, [notRead]);
     return (

@@ -243,6 +243,8 @@ export const sendMessage = async (
 ): Promise<SendMessageResponse | null> => {
     if (!socketId) return null;
     try {
+        console.log(auth);
+
         auth = await checkingValidAuthSession(auth);
         const sendReponse = await fetch(BE_API_URL + '/chat/send', {
             method: 'POST',
@@ -257,7 +259,7 @@ export const sendMessage = async (
         // not authorized
         if (sendReponse.status === 401 && auth.rtoken) {
             auth.token = await refreshToken(auth.rtoken);
-            return await sendMessage(auth, payload);
+            return await sendMessage(auth, payload, socketId);
         }
         return null;
     } catch (error) {

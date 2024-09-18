@@ -1,8 +1,8 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import { NativeSyntheticEvent, TextInput, TextInputContentSizeChangeEventData, View } from 'react-native';
 import { ThemedView } from '../ThemedView';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { Icon } from 'native-base';
+import { ariaAttr, Icon, KeyboardAvoidingView } from 'native-base';
 import { Feather, Fontisto, MaterialCommunityIcons } from '@expo/vector-icons';
 import { sendTextMessage } from '@/helpers/fetching';
 import { LoginSessionManager } from '@/storage/loginSession.storage';
@@ -53,7 +53,7 @@ const handleSendTextMessage = async (roomId: string, message: string, tempId: st
     if (!session) return;
     const trimMessage = message.trim();
     if (trimMessage === '') return;
-    const reponse = await sendTextMessage(
+    const response = await sendTextMessage(
         { token: session.token, rtoken: session.rtoken },
         {
             messageType: 'text',
@@ -62,13 +62,13 @@ const handleSendTextMessage = async (roomId: string, message: string, tempId: st
         },
         socketId,
     );
-    if (!reponse) {
+    if (!response) {
         // logic when sending message failed
         return;
     }
     return updateTempMessageWithTempId({
         roomId: roomId,
-        replaceMessage: reponse.newMessage,
+        replaceMessage: response.newMessage,
         tempId: tempId,
     });
 };
@@ -101,23 +101,13 @@ const MessageBottomTab: React.FC<MessageBottomTabProps> = ({ currentUser, roomId
             setInputHeight({ height: DEFAULT_INPUT_HEIGHT, isMultiline: false });
         }
     };
-    const handleClickSendMessage = _.debounce(
-        async () => {
-            if (!currentUser || !roomId) return;
-            // Reset input
-            setMessage('');
-            setInputHeight({ height: DEFAULT_INPUT_HEIGHT, isMultiline: false });
-            const { action, tempId } = handleShowTempMessage(currentUser, roomId, message, undefined);
-            dispatch(action);
-            const sendAction = await handleSendTextMessage(roomId, message, tempId, socketId);
-            if (sendAction) dispatch(sendAction);
-        },
-        100,
-        {
-            leading: true,
-            trailing: false,
-        },
-    );
+    const handleClickSendMessage = async () => {
+        if (!currentUser || !roomId) return;
+        const { action, tempId } = handleShowTempMessage(currentUser, roomId, message, undefined);
+        dispatch(action);
+        const sendAction = await handleSendTextMessage(roomId, message, tempId, socketId);
+        if (sendAction) dispatch(sendAction);
+    };
 
     return (
         <ThemedView
@@ -186,7 +176,15 @@ const MessageBottomTab: React.FC<MessageBottomTabProps> = ({ currentUser, roomId
             </View>
             <View className="flex flex-row gap-x-4">
                 {message && (
-                    <TouchableOpacity onPress={handleClickSendMessage} activeOpacity={0.6}>
+                    <TouchableOpacity
+                        onPress={async () => {
+                            // Reset input
+                            setMessage('');
+                            setInputHeight({ height: DEFAULT_INPUT_HEIGHT, isMultiline: false });
+                            await handleClickSendMessage();
+                        }}
+                        activeOpacity={0.6}
+                    >
                         <Icon as={Feather} name="send" size={'lg'} />
                     </TouchableOpacity>
                 )}
@@ -200,4 +198,4 @@ const MessageBottomTab: React.FC<MessageBottomTabProps> = ({ currentUser, roomId
     );
 };
 
-export default MessageBottomTab;
+export default memo(MessageBottomTab);
