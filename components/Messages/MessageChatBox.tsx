@@ -82,8 +82,8 @@ const MessageChatBox: React.FC<
         handleLoadingChatRoom();
     }, [room]);
     const messageChatRef = useRef<ScrollView | null>(null);
-    const handleScrollToLastMessage = () => {
-        messageChatRef.current?.scrollToEnd({ animated: true });
+    const handleScrollToLastMessage = (animated: boolean = true) => {
+        messageChatRef.current?.scrollToEnd({ animated: animated });
     };
     const [displayScrollToEnd, setDisplayScrollToEnd] = useState<boolean>(false);
     const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -318,14 +318,14 @@ const MessageChatBox: React.FC<
                     >
                         <ScrollView
                             ref={messageChatRef}
-                            onLayout={handleScrollToLastMessage}
-                            onContentSizeChange={handleScrollToLastMessage}
+                            onLayout={() => handleScrollToLastMessage(false)}
+                            onContentSizeChange={() => handleScrollToLastMessage(true)}
                             onScroll={handleScroll}
                         >
                             <MessageChatList room={room.room} />
                         </ScrollView>
                     </ThemedView>
-                    {displayScrollToEnd && <ButtonScrollToEnd handleClick={handleScrollToLastMessage} />}
+                    {displayScrollToEnd && <ButtonScrollToEnd handleClick={() => handleScrollToLastMessage(false)} />}
                     <KeyboardAvoidingView
                         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                         keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0} // height of bottom tab

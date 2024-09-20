@@ -9,7 +9,7 @@ import { LoginSessionManager } from '@/storage/loginSession.storage';
 import { logout } from '@/redux/auth/reducer';
 import { useAppSelector } from '@/redux/hooks/hooks';
 import useOnChatMessage from './useOnChatMessage';
-import { updateChatRoomData, updateTheNewestMessage } from '@/redux/chatRoom/reducer';
+import { updateChatRoomData, updateTheNewestMessage, updateTheNewestMessages } from '@/redux/chatRoom/reducer';
 import useOnSeenStatus from './useOnSeenStatus';
 import { IOnlineState, updatePeerById } from '@/redux/peers/reducer';
 import useOnActionOnChatRoom from './useOnActionOnChatRoom';
@@ -17,10 +17,9 @@ import useOnActionOnChatRoom from './useOnActionOnChatRoom';
 const useInitSocket = () => {
     const socket = useSocketIO();
     const dispatch = useDispatch();
-    const [newMessage] = useOnChatMessage('global');
+    const [newMessages] = useOnChatMessage();
     const [onTypingAction] = useOnActionOnChatRoom('global');
     const [onError] = useOnSocketError<string>('auth');
-    const [isConnected, setIsConnected] = useState(false);
 
     const rooms = useAppSelector((state) => state.chatRoom.rooms);
     const peers = useAppSelector((state) => state.peers.peers);
@@ -106,9 +105,9 @@ const useInitSocket = () => {
     };
     // On new message
     useEffect(() => {
-        if (!!newMessage && !!user)
-            dispatch(updateTheNewestMessage({ message: newMessage, currentUserId: user.userId }));
-    }, [newMessage]);
+        if (!!newMessages && !!user)
+            dispatch(updateTheNewestMessages({ messages: newMessages, currentUserId: user.userId }));
+    }, [newMessages]);
     // On typing action room
     useEffect(() => {
         if (onTypingAction)

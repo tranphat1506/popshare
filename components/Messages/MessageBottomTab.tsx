@@ -1,16 +1,17 @@
-import React, { memo, useCallback, useMemo, useState } from 'react';
+import React, { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { NativeSyntheticEvent, TextInput, TextInputContentSizeChangeEventData, View } from 'react-native';
 import { ThemedView } from '../ThemedView';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { ariaAttr, Icon, KeyboardAvoidingView } from 'native-base';
+import { Icon, KeyboardAvoidingView } from 'native-base';
 import { Feather, Fontisto, MaterialCommunityIcons } from '@expo/vector-icons';
-import { sendTextMessage } from '@/helpers/fetching';
+import { sendMessage } from '@/helpers/fetching';
 import { LoginSessionManager } from '@/storage/loginSession.storage';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks/hooks';
-import { updateTempMessageWithTempId, updateTheNewestMessage } from '@/redux/chatRoom/reducer';
+import { updateTempMessageWithTempId, updateTheNewestMessage, updateTheNewestMessages } from '@/redux/chatRoom/reducer';
 import { ICurrentUserDetail } from '@/redux/auth/reducer';
 import _ from 'lodash';
 import { useEmitOnTyping } from '@/hooks/socket.io/useOnActionOnChatRoom';
+import { IMessageDetail, IMessageTypeTypes } from '@/redux/chatRoom/messages.interface';
 
 const DEFAULT_INPUT_HEIGHT = 30;
 const DEFAULT_TEXT_HEIGHT = 20;
@@ -19,57 +20,93 @@ interface MessageBottomTabProps {
     currentUser?: ICurrentUserDetail;
     roomId?: string;
 }
-const handleShowTempMessage = (
-    currentUser: ICurrentUserDetail,
-    roomId: string,
-    message: string,
-    repliedTo?: string,
-) => {
-    const tempId = `temp::${Date.now()}::${Math.random()}`;
+const handleShowTempMessage = (currentUser: ICurrentUserDetail, messages: ICreateMessagePayload[]) => {
+    const newMessages: IMessageDetail[] = [];
+    for (const message of messages) {
+        const tempId = `temp::${Date.now()}::${Math.random()}`;
+        // Assign temp id to message
+        message.tempId = tempId;
+        newMessages.push({
+            _id: tempId,
+            roomId: message.roomId,
+            senderId: currentUser.userId,
+            messageType: message.messageType,
+            content: message.content,
+            mediaUrl: message.mediaUrl,
+            reactions: [],
+            seenBy: [currentUser.userId],
+            repliedTo: message.repliedTo,
+            createdAt: Date.now(),
+            isEveryoneRecalled: false,
+            isSelfRecalled: false,
+            tempId: tempId,
+            isTemp: true,
+        });
+    }
+
     return {
-        action: updateTheNewestMessage({
-            message: {
-                _id: tempId,
-                roomId: roomId,
-                senderId: currentUser.userId,
-                messageType: 'text',
-                content: message,
-                mediaUrl: undefined,
-                reactions: [],
-                seenBy: [currentUser.userId],
-                repliedTo: repliedTo,
-                createdAt: Date.now(),
-                isEveryoneRecalled: false,
-                isSelfRecalled: false,
-                isTemp: true,
-            },
-            currentUserId: currentUser.userId,
-        }),
-        tempId: tempId,
+        tempMessages: newMessages,
+        messages: messages,
     };
 };
-const handleSendTextMessage = async (roomId: string, message: string, tempId: string, socketId?: string) => {
+export interface ISendMessagePayload {
+    roomId: string;
+    messages: ICreateMessagePayload[];
+    socketId: string;
+}
+export interface ICreateMessagePayload {
+    roomId: string;
+    messageType: IMessageTypeTypes;
+    senderId: string;
+    content?: string;
+    mediaUrl?: string;
+    repliedTo?: string; // ID của tin nhắn mà tin nhắn này đang trả lời
+    tempId?: string;
+}
+const handleSendMessages = async (messages: ICreateMessagePayload[], roomId?: string, socketId?: string) => {
+    if (messages.length === 0 || !roomId || !socketId) return;
     const session = await LoginSessionManager.getCurrentSession();
     if (!session) return;
-    const trimMessage = message.trim();
-    if (trimMessage === '') return;
-    const response = await sendTextMessage(
-        { token: session.token, rtoken: session.rtoken },
-        {
-            messageType: 'text',
-            content: trimMessage,
-            roomId: roomId,
-        },
+    const newMessages: ICreateMessagePayload[] = [];
+    for (const message of messages) {
+        switch (message.messageType) {
+            case 'text':
+                const trimMessage = message.content?.trim();
+                if (!trimMessage || trimMessage === '') break;
+                const messagePayload: ICreateMessagePayload = {
+                    ...message,
+                    messageType: 'text',
+                    content: trimMessage,
+                    roomId: message.roomId,
+                    senderId: message.senderId,
+                    tempId: message.tempId,
+                };
+                newMessages.push(messagePayload);
+                break;
+            default:
+                console.error(`NOT SUPPORT MESSAGE TYPE ${message.messageType} yet!`);
+                break;
+        }
+    }
+    if (messages.length === 0) return;
+    const sendPayload: ISendMessagePayload = {
+        messages: newMessages,
+        roomId,
         socketId,
+    };
+    const response = await sendMessage(
+        {
+            token: session.token,
+            rtoken: session.rtoken,
+        },
+        sendPayload,
     );
     if (!response) {
         // logic when sending message failed
         return;
     }
     return updateTempMessageWithTempId({
-        roomId: roomId,
-        replaceMessage: response.newMessage,
-        tempId: tempId,
+        replaceMessages: response.messages,
     });
 };
 const MessageBottomTab: React.FC<MessageBottomTabProps> = ({ currentUser, roomId }) => {
@@ -81,15 +118,18 @@ const MessageBottomTab: React.FC<MessageBottomTabProps> = ({ currentUser, roomId
         setAction('stop');
     };
     const dispatch = useAppDispatch();
-    const socketId = useAppSelector((state) => state.socket.socketId);
-    const [message, setMessage] = useState<string>('');
     const [inputHeight, setInputHeight] = useState<{
         height: number;
         isMultiline: boolean;
     }>({ height: DEFAULT_INPUT_HEIGHT, isMultiline: false });
     const handleChangeMessage = (text: string) => {
-        setMessage(text);
+        setTextMessage(text);
     };
+    const socketId = useAppSelector((state) => state.socket.socketId);
+    const [textMessage, setTextMessage] = useState<string>('');
+    const messagesBatch = useRef<ICreateMessagePayload[]>([]);
+    const batchInterval = 100; // Khoảng thời gian batch (500ms)
+    const isBatching = useRef(false);
     // Xử lý thay đổi chiều cao của TextInput
     const handleContentSizeChange = (e: NativeSyntheticEvent<TextInputContentSizeChangeEventData>) => {
         const { height } = e.nativeEvent.contentSize;
@@ -101,13 +141,51 @@ const MessageBottomTab: React.FC<MessageBottomTabProps> = ({ currentUser, roomId
             setInputHeight({ height: DEFAULT_INPUT_HEIGHT, isMultiline: false });
         }
     };
-    const handleClickSendMessage = async () => {
-        if (!currentUser || !roomId) return;
-        const { action, tempId } = handleShowTempMessage(currentUser, roomId, message, undefined);
-        dispatch(action);
-        const sendAction = await handleSendTextMessage(roomId, message, tempId, socketId);
-        if (sendAction) dispatch(sendAction);
-    };
+    const handleClickSendMessage = useCallback(
+        (message: ICreateMessagePayload) => {
+            isBatching.current = false;
+
+            const sendMessages = async () => {
+                isBatching.current = false;
+                console.log(messagesBatch.current.length);
+                if (!currentUser || !roomId || messagesBatch.current.length === 0) return;
+
+                const batchMessages = [...messagesBatch.current];
+                messagesBatch.current = []; // reset queue
+
+                // Handle showing temporary messages
+                const { messages, tempMessages } = handleShowTempMessage(currentUser, batchMessages);
+                dispatch(updateTheNewestMessages({ messages: tempMessages, currentUserId: currentUser.userId }));
+
+                // Send the messages to the server
+                try {
+                    const sendAction = await handleSendMessages(messages, roomId, socketId);
+                    if (sendAction) {
+                        dispatch(sendAction);
+                    }
+                } catch (error) {
+                    // Handle failure by possibly retrying or alerting the user
+                    console.error('Failed to send messages', error);
+                    messagesBatch.current.push(...batchMessages); // re-add unsent messages to queue
+                }
+            };
+
+            messagesBatch.current.push(message);
+
+            if (messagesBatch.current.length >= 10) {
+                // If batch reaches 10, send immediately
+                sendMessages();
+            } else if (!isBatching.current) {
+                // Start batching if not already in progress
+                isBatching.current = true;
+
+                setTimeout(() => {
+                    sendMessages();
+                }, batchInterval);
+            }
+        },
+        [currentUser, roomId, socketId, dispatch],
+    );
 
     return (
         <ThemedView
@@ -147,7 +225,7 @@ const MessageBottomTab: React.FC<MessageBottomTabProps> = ({ currentUser, roomId
                     multiline
                     numberOfLines={4}
                     onChangeText={handleChangeMessage}
-                    value={message}
+                    value={textMessage}
                     placeholder="Aa"
                     placeholderTextColor={'#777'}
                     onContentSizeChange={handleContentSizeChange}
@@ -163,32 +241,37 @@ const MessageBottomTab: React.FC<MessageBottomTabProps> = ({ currentUser, roomId
                         flex: 1,
                     }}
                 />
-                {!message && (
+                {!textMessage && (
                     <TouchableOpacity activeOpacity={0.6} style={{ padding: 2 }}>
                         <Icon as={MaterialCommunityIcons} name="sticker-circle-outline" size={'lg'} />
                     </TouchableOpacity>
                 )}
-                {message && (
+                {textMessage && (
                     <TouchableOpacity activeOpacity={0.6} style={{ padding: 2 }}>
                         <Icon as={MaterialCommunityIcons} name="sticker-emoji" size={'lg'} />
                     </TouchableOpacity>
                 )}
             </View>
             <View className="flex flex-row gap-x-4">
-                {message && (
+                {textMessage && (
                     <TouchableOpacity
-                        onPress={async () => {
+                        onPress={() => {
                             // Reset input
-                            setMessage('');
+                            setTextMessage('');
                             setInputHeight({ height: DEFAULT_INPUT_HEIGHT, isMultiline: false });
-                            await handleClickSendMessage();
+                            handleClickSendMessage({
+                                messageType: 'text',
+                                content: textMessage,
+                                roomId: roomId!,
+                                senderId: currentUser!.userId,
+                            });
                         }}
                         activeOpacity={0.6}
                     >
                         <Icon as={Feather} name="send" size={'lg'} />
                     </TouchableOpacity>
                 )}
-                {!message && (
+                {!textMessage && (
                     <TouchableOpacity activeOpacity={0.6}>
                         <Icon as={Feather} name="mic" size={'lg'} />
                     </TouchableOpacity>

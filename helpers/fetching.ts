@@ -1,3 +1,4 @@
+import { ISendMessagePayload } from '@/components/Messages/MessageBottomTab';
 import { BE_API_URL, BE_URL } from '@/constants/Constants';
 import { socketConnection } from '@/lib/SocketFactory';
 import { ICurrentUserDetail } from '@/redux/auth/reducer';
@@ -227,21 +228,14 @@ interface SendMessagePayload {
     messageType: IMessageTypeTypes;
 }
 
-type TextMessagePayload = SendMessagePayload & {
-    messageType: 'text';
-    content: string;
-};
-
 interface SendMessageResponse extends IFetchingResponse {
-    newMessage: IMessageDetail;
+    messages: IMessageDetail[];
 }
 
 export const sendMessage = async (
     auth: IAuthProps,
-    payload: TextMessagePayload,
-    socketId?: string,
+    payload: ISendMessagePayload,
 ): Promise<SendMessageResponse | null> => {
-    if (!socketId) return null;
     try {
         auth = await checkingValidAuthSession(auth);
         const sendReponse = await fetch(BE_API_URL + '/chat/send', {
@@ -250,25 +244,16 @@ export const sendMessage = async (
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${auth.token}`,
             },
-            body: JSON.stringify({ message: payload, socketId: socketId }),
+            body: JSON.stringify(payload),
         });
         const json = await sendReponse.json();
         if (sendReponse.ok) return json as SendMessageResponse;
         // not authorized
         if (sendReponse.status === 401 && auth.rtoken) {
             auth.token = await refreshToken(auth.rtoken);
-            return await sendMessage(auth, payload, socketId);
+            return await sendMessage(auth, payload);
         }
         return null;
-    } catch (error) {
-        console.error(error);
-        return null;
-    }
-};
-export const sendTextMessage = async (auth: IAuthProps, payload: TextMessagePayload, socketId?: string) => {
-    try {
-        payload.messageType = 'text';
-        return await sendMessage(auth, payload, socketId);
     } catch (error) {
         console.error(error);
         return null;

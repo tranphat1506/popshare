@@ -116,15 +116,18 @@ const chatRoomReducer = {
     },
     updateTempMessageWithTempId: (
         state: ChatRoomState,
-        action: PayloadAction<{ roomId: string; tempId: string; replaceMessage: IMessageDetail }>,
+        action: PayloadAction<{ replaceMessages: IMessageDetail[] }>,
     ) => {
-        const { roomId, tempId, replaceMessage } = action.payload;
-        const findRoom = state.rooms[roomId];
-        if (!findRoom) return;
-        const messageIndex = state.rooms[roomId]!.messages.findIndex((m) => m._id === tempId);
-        if (messageIndex === -1) return;
-        state.rooms[roomId]!.messages[messageIndex] = replaceMessage;
-        if (state.rooms[roomId]?.lastMesssage?._id === tempId) state.rooms[roomId].lastMesssage = replaceMessage;
+        const { replaceMessages } = action.payload;
+        for (const message of replaceMessages) {
+            const findRoom = state.rooms[message.roomId];
+            if (!findRoom) return;
+            const messageIndex = state.rooms[message.roomId]!.messages.findIndex((m) => m._id === message.tempId);
+            if (messageIndex === -1) return;
+            state.rooms[message.roomId]!.messages[messageIndex] = message;
+            if (state.rooms[message.roomId]?.lastMesssage?._id === message.tempId)
+                state.rooms[message.roomId]!.lastMesssage = message;
+        }
     },
 
     updateSeenMessages: (

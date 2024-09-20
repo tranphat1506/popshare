@@ -207,9 +207,9 @@ const MessageChatList: React.FC<MessageChatListProps> = ({ room }) => {
         },
         [roomDetail.messages, currentUser, members],
     );
-    useEffect(() => {
-        console.log('Re render Chat List');
-    }, [roomDetail]);
+    // useEffect(() => {
+    //     console.log('Re render Chat List');
+    // }, [roomDetail]);
     useEffect(() => {
         const handleReadMessage = async (notRead: number) => {
             const session = await LoginSessionManager.getCurrentSession();
@@ -224,7 +224,7 @@ const MessageChatList: React.FC<MessageChatListProps> = ({ room }) => {
             return success;
         };
         if (notRead && notRead > 0) {
-            console.log('Update read message');
+            // console.log('Update read message');
             handleReadMessage(notRead);
         }
         dispatch(updateChatRoomData({ roomId: room.detail._id, field: 'notRead', data: 0 }));
@@ -235,10 +235,6 @@ const MessageChatList: React.FC<MessageChatListProps> = ({ room }) => {
             data={roomDetail.messages}
             renderItem={RenderMessageItem}
             keyExtractor={(item) => item._id}
-            removeClippedSubviews={true}
-            initialNumToRender={10}
-            maxToRenderPerBatch={5}
-            windowSize={7}
         />
     );
 };

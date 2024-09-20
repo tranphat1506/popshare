@@ -23,6 +23,7 @@ export interface IMessageDetail {
     createdAt: number; // Thời gian gửi tin nhắn
     isEveryoneRecalled: boolean; // Nếu nguoi gui đã thu hồi tin nhắn voi tất cả người dùng trong phòng
     isSelfRecalled: boolean; // Nếu người gửi đã thu hồi tin nhắn
+    tempId?: string;
 
     // for UI
     isTemp?: boolean;
