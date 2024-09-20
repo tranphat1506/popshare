@@ -62,13 +62,13 @@ const getSeenByUsers = (
 ) => {
     try {
         const currentSeenList = message.seenBy.filter((m) => m !== currentUserId);
+        const currentSet = new Set(currentSeenList);
         const nextMessage = messages[currentIndex + 1];
         if (!nextMessage)
-            return currentSeenList.map((id) => {
+            return [...currentSet].map((id) => {
                 return members[id];
             });
         const nextSeenList = nextMessage.seenBy.filter((m) => m !== currentUserId);
-        const currentSet = new Set(currentSeenList);
         if (currentSet.size === 0) return [];
         const nextSet = new Set(nextSeenList);
         const seenList = _.difference([...currentSet], [...nextSet]);
@@ -183,6 +183,7 @@ const MessageChatList: React.FC<MessageChatListProps> = ({ room }) => {
     const members = useAppSelector((state) => state.peers.peers);
     const notRead = useAppSelector((state) => state.chatRoom.rooms[room.detail._id]?.notRead);
     const roomDetail = useAppSelector((state) => state.chatRoom.rooms[room.detail._id]!);
+
     const RenderMessageItem: ListRenderItem<IMessageDetail> = useCallback(
         ({ item: message, index }) => {
             const userData = message.senderId === currentUser?.userId ? undefined : members[message.senderId];
@@ -190,6 +191,8 @@ const MessageChatList: React.FC<MessageChatListProps> = ({ room }) => {
             const seenByUsers = getSeenByUsers(message, index, roomDetail.messages, members, currentUser!.userId);
             const borderStyle = borderStyleChatMessage(!userData, isConsecutiveMessage);
             const reactions = generateReaction(message.reactions, members, currentUser!);
+
+            // console.log(message._id, message.seenBy);
             return (
                 <MessageChatItem
                     key={message._id}
@@ -202,8 +205,11 @@ const MessageChatList: React.FC<MessageChatListProps> = ({ room }) => {
                 />
             );
         },
-        [roomDetail, members],
+        [roomDetail.messages, currentUser, members],
     );
+    useEffect(() => {
+        console.log('Re render Chat List');
+    }, [roomDetail]);
     useEffect(() => {
         const handleReadMessage = async (notRead: number) => {
             const session = await LoginSessionManager.getCurrentSession();
@@ -218,10 +224,11 @@ const MessageChatList: React.FC<MessageChatListProps> = ({ room }) => {
             return success;
         };
         if (notRead && notRead > 0) {
+            console.log('Update read message');
             handleReadMessage(notRead);
-            dispatch(updateChatRoomData({ roomId: room.detail._id, field: 'notRead', data: 0 }));
         }
-    }, [notRead]);
+        dispatch(updateChatRoomData({ roomId: room.detail._id, field: 'notRead', data: 0 }));
+    }, [notRead, room.detail._id, dispatch]);
     return (
         <FlatList
             scrollEnabled={false}
@@ -229,6 +236,9 @@ const MessageChatList: React.FC<MessageChatListProps> = ({ room }) => {
             renderItem={RenderMessageItem}
             keyExtractor={(item) => item._id}
             removeClippedSubviews={true}
+            initialNumToRender={10}
+            maxToRenderPerBatch={5}
+            windowSize={7}
         />
     );
 };

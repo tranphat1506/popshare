@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import useSocketIO from './useSocketIO';
 import { useDispatch } from 'react-redux';
 import { connectionEstablished, connectionLost } from '@/redux/socket/reducer';
@@ -20,6 +20,8 @@ const useInitSocket = () => {
     const [newMessage] = useOnChatMessage('global');
     const [onTypingAction] = useOnActionOnChatRoom('global');
     const [onError] = useOnSocketError<string>('auth');
+    const [isConnected, setIsConnected] = useState(false);
+
     const rooms = useAppSelector((state) => state.chatRoom.rooms);
     const peers = useAppSelector((state) => state.peers.peers);
     const user = useAppSelector((state) => state.auth.user);
@@ -50,6 +52,7 @@ const useInitSocket = () => {
         }
     }, [onError]);
     const handleConnectSocket = () => {
+        console.log('Attempting to connect socket...');
         socket.on('connect', () => {
             console.info('Connect with socketId =', socket.id);
             const roomIdList: string[] = Object.keys(rooms);
@@ -64,8 +67,31 @@ const useInitSocket = () => {
                 dispatch(updatePeerById({ userId: data.userId, field: 'onlineState', data: data }));
             }
         });
-        socket.on('disconnect', (e) => {
-            console.info('Disconect');
+
+        // socket.onAnyOutgoing((eventName, ...args) => {
+        //     console.log(eventName, args);
+        // });
+
+        // socket.onAny((eventName, ...args) => {
+        //     console.log(eventName, args);
+        // });
+
+        // socket.on('reconnecting', (attemptNumber) => {
+        //     console.log(`Đang cố gắng kết nối lại... lần thử thứ ${attemptNumber}`);
+        // });
+        // socket.on('reconnect_attempt', (attemptNumber) => {
+        //     console.log(`Bắt đầu thử kết nối lại lần thứ ${attemptNumber}`);
+        // });
+
+        socket.on('disconnect', (reason) => {
+            console.log('Socket disconnected due to:', reason);
+            if (reason === 'io server disconnect') {
+                console.info('Disconnected by server, reconnecting...');
+            } else if (reason === 'ping timeout') {
+                console.info('Disconnected due to ping timeout, attempting to reconnect...');
+            } else {
+                console.info('Other disconnect reason:', reason);
+            }
             dispatch(connectionLost());
         });
         socket.on('connect_error', (e) => {
@@ -94,9 +120,12 @@ const useInitSocket = () => {
                 }),
             );
     }, [onTypingAction]);
+
     useEffect(() => {
+        console.log('Connecting socket for the first time...');
         handleConnectSocket();
         return () => {
+            console.log('Cleaning up socket connection...');
             handleDisconnectSocket();
         };
     }, []);
