@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import useSocketIO from './useSocketIO';
 import { useDispatch } from 'react-redux';
 import { connectionEstablished, connectionLost } from '@/redux/socket/reducer';
@@ -9,7 +9,6 @@ import { LoginSessionManager } from '@/storage/loginSession.storage';
 import { logout } from '@/redux/auth/reducer';
 import { useAppSelector } from '@/redux/hooks/hooks';
 import useOnChatMessage from './useOnChatMessage';
-import { updateChatRoomData, updateTheNewestMessage, updateTheNewestMessages } from '@/redux/chatRoom/reducer';
 import useOnSeenStatus from './useOnSeenStatus';
 import { IOnlineState, updatePeerById } from '@/redux/peers/reducer';
 import useOnActionOnChatRoom from './useOnActionOnChatRoom';
@@ -17,15 +16,13 @@ import useOnActionOnChatRoom from './useOnActionOnChatRoom';
 const useInitSocket = () => {
     const socket = useSocketIO();
     const dispatch = useDispatch();
-    const [newMessages] = useOnChatMessage();
-    const [onTypingAction] = useOnActionOnChatRoom('global');
-    const [onError] = useOnSocketError<string>('auth');
-
+    const [onSocketError] = useOnSocketError<string>();
     const rooms = useAppSelector((state) => state.chatRoom.rooms);
     const peers = useAppSelector((state) => state.peers.peers);
     const user = useAppSelector((state) => state.auth.user);
     useOnSeenStatus(user!.userId);
-
+    useOnChatMessage();
+    useOnActionOnChatRoom('global');
     const handleRefreshToken = async () => {
         try {
             const session = await LoginSessionManager.getCurrentSession();
@@ -45,11 +42,12 @@ const useInitSocket = () => {
             dispatch(connectionLost());
         }
     };
+    // Handle on socket error
     useEffect(() => {
-        if (onError) {
-            handleRefreshToken();
+        if (onSocketError) {
+            if (onSocketError.event === 'auth') handleRefreshToken();
         }
-    }, [onError]);
+    }, [onSocketError]);
     const handleConnectSocket = () => {
         console.log('Attempting to connect socket...');
         socket.on('connect', () => {
@@ -98,28 +96,10 @@ const useInitSocket = () => {
             dispatch(connectionLost());
         });
     };
-
     const handleDisconnectSocket = () => {
         socket.disconnect();
         socket.removeAllListeners();
     };
-    // On new message
-    useEffect(() => {
-        if (!!newMessages && !!user)
-            dispatch(updateTheNewestMessages({ messages: newMessages, currentUserId: user.userId }));
-    }, [newMessages]);
-    // On typing action room
-    useEffect(() => {
-        if (onTypingAction)
-            dispatch(
-                updateChatRoomData({
-                    roomId: onTypingAction.roomId,
-                    field: 'onAction',
-                    data: onTypingAction,
-                }),
-            );
-    }, [onTypingAction]);
-
     useEffect(() => {
         console.log('Connecting socket for the first time...');
         handleConnectSocket();
