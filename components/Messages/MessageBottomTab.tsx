@@ -147,7 +147,6 @@ const MessageBottomTab: React.FC<MessageBottomTabProps> = ({ currentUser, roomId
 
             const sendMessages = async () => {
                 isBatching.current = false;
-                console.log(messagesBatch.current.length);
                 if (!currentUser || !roomId || messagesBatch.current.length === 0) return;
 
                 const batchMessages = [...messagesBatch.current];
