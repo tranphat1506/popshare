@@ -16,7 +16,7 @@ import { MessageChatBoxProps } from './MessageChatBox';
 export interface IMessageRoom {
     room: ChatRoom;
     currentUser: ICurrentUserDetail;
-    handleSetChatBox: (chatBox?: MessageChatBoxProps) => void;
+    handleSetChatBox?: (chatBox?: MessageChatBoxProps) => void;
 }
 export interface IP2PMessageRoom extends IMessageRoom {
     member: IMemberDetail;
@@ -47,9 +47,9 @@ const P2PMessageRoom: React.FC<IP2PMessageRoom> = (props) => {
             ME: lang.YOU_TEXT,
         };
     }, [lang]);
-    const handleOnClickChatBox = async () => {
-        return props.handleSetChatBox({
-            room: props,
+    const handleOnClickChatBox = () => {
+        return props.handleSetChatBox?.({
+            room: { ...props, handleSetChatBox: undefined },
             roomType: props.room.detail.roomType,
         });
     };

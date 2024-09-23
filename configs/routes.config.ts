@@ -23,7 +23,10 @@ export type RootStackParamList = {
     messages: MessagesStackParamList;
     'message-detail': MessageChatBoxProps | undefined;
     archive: undefined;
-    signIn: undefined;
+    signIn?: {
+        account?: string;
+        error?: string;
+    };
     signOut: undefined;
     signUp: undefined;
 };

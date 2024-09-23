@@ -8,12 +8,12 @@ import { TouchableOpacity, View } from 'react-native';
 
 interface UserSessionItemProps {
     item: ISessionToken;
-    handleRefreshToken: (rtoken?: string) => void;
+    handleRefreshToken: (session: ISessionToken) => void;
 }
 const UserSessionItem: React.FC<UserSessionItemProps> = ({ item, handleRefreshToken }) => {
     return (
         <TouchableOpacity
-            onPress={() => handleRefreshToken(item.rtoken)}
+            onPress={() => handleRefreshToken(item)}
             activeOpacity={0.5}
             className="border border-gray-400 rounded-xl dark:bg-black dark:border-white"
             style={{

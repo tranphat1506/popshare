@@ -29,7 +29,9 @@ const MessageList: React.FC<MessageListProps> = ({ handleSetChatBox, user, peers
     const rooms = useMemo(() => {
         return chatRoomState.rooms;
     }, [chatRoomState.rooms]);
-    const peersData = useAppSelector((state) => state.peers.peers);
+    const peersData = useMemo(() => {
+        return peers;
+    }, [peers]);
     const FilterMessageItem: ListRenderItem<string> = useCallback(
         ({ item }) => {
             const room = rooms[item]!;

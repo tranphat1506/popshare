@@ -1,7 +1,7 @@
 import { ThemedText } from '@/components/ThemedText';
 import { RootStackParamList } from '@/configs/routes.config';
 import { BLUE_MAIN_COLOR } from '@/constants/Colors';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { NavigationProp, RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { Button, Checkbox, FormControl, Icon, Input, Pressable, Spinner, Text, WarningOutlineIcon } from 'native-base';
 import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { Dimensions, Image, ScrollView, View } from 'react-native';
@@ -34,6 +34,7 @@ interface ISignInSuccessResponse {
     user: any;
 }
 const SignIn = () => {
+    const { params: routeParams } = useRoute<RouteProp<RootStackParamList, 'signIn'>>();
     const dispatch = useDispatch();
     const language = useAppSelector((state) => state.setting.language);
     const navigation = useNavigation<NavigationProp<RootStackParamList, 'signIn'>>();
@@ -41,6 +42,15 @@ const SignIn = () => {
         navigation.navigate('signUp');
     };
     const [signInData, setSignInData] = useState<ISignInData>({});
+    useEffect(() => {
+        setOpenSavedLogin(false);
+        setSignInData({ account: routeParams?.account });
+        if (routeParams?.error) {
+            setErrorMessages({
+                account: translateErrorMessageWithStructure(routeParams.error, language),
+            });
+        }
+    }, [routeParams]);
     const handleChangeData = (field: keyof ISignInData) => (data: string | boolean) => {
         setSignInData((signInData) => {
             return {
@@ -177,6 +187,7 @@ const SignIn = () => {
     //     });
     // }, []);
     // --------------------------------------------------------------------------
+
     return (
         <DefaultLayout>
             {!userIsNeedVerifyOtp && (

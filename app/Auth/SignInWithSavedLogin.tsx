@@ -10,6 +10,8 @@ import { useDispatch } from 'react-redux';
 import { login } from '@/redux/auth/reducer';
 import { refreshTokenAndFetchingData } from '@/helpers/fetching';
 import _ from 'lodash';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { RootStackParamList } from '@/configs/routes.config';
 
 interface SignInWithSavedLoginProps {
     setOpenSavedLogin: (state: boolean) => void;
@@ -18,6 +20,13 @@ interface SignInWithSavedLoginProps {
 const SignInWithSavedLogin: React.FC<SignInWithSavedLoginProps> = ({ setOpenSavedLogin, savedLoginArray = [] }) => {
     const dispatch = useDispatch();
     const lang = useLanguage();
+    const navigation = useNavigation<NavigationProp<RootStackParamList, '/'>>();
+    const handleNavigateToSignIn = useCallback((account: string, errorMessage?: string) => {
+        navigation.navigate('signIn', {
+            account: account,
+            error: errorMessage,
+        });
+    }, []);
     const textLanguage = useMemo(() => {
         return {
             TITLE_SIGN_IN: lang.SIGN_IN_TITLE,
@@ -27,15 +36,15 @@ const SignInWithSavedLogin: React.FC<SignInWithSavedLoginProps> = ({ setOpenSave
     }, [lang]);
 
     const [onLogin, setOnLogin] = useState<boolean>(false);
-    const handleRefreshTokenAndFetchingData = async (rtoken?: string) => {
+    const handleRefreshTokenAndFetchingData = async (session: ISessionToken) => {
         try {
             if (onLogin) return null;
-            const fetch = await refreshTokenAndFetchingData({ rtoken });
+            const fetch = await refreshTokenAndFetchingData({ rtoken: session.rtoken });
             if (fetch) {
                 await LoginSessionManager.setSessionToSessionSaved(
                     {
                         authId: fetch.user.authId,
-                        rtoken: rtoken,
+                        rtoken: session.rtoken,
                         userId: fetch.user.userId,
                         avatarColor: fetch.user.avatarColor,
                         avatarEmoji: fetch.user.avatarEmoji,
@@ -50,7 +59,8 @@ const SignInWithSavedLogin: React.FC<SignInWithSavedLoginProps> = ({ setOpenSave
             }
             setOnLogin(false);
         } catch (error) {
-            console.error(error);
+            await LoginSessionManager.removeSessionById(session.userId, true);
+            handleNavigateToSignIn(session.username, 'ERROR_REFRESH_TOKEN_OUT_OF_TIME');
         }
     };
     const handleLoginWithSavedSession = _.debounce(handleRefreshTokenAndFetchingData, 5000, {

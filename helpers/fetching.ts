@@ -54,7 +54,9 @@ export const checkingValidAuthSession = async (auth: IAuthProps) => {
     try {
         if (!auth.rtoken && !auth.token) throw Error('Invalid auth.');
         if (!auth.token && auth.rtoken) {
-            auth.token = (await refreshToken(auth.rtoken)) as string;
+            const token = (await refreshToken(auth.rtoken)) as string;
+            if (!token) throw new Error('Token expired.');
+            auth.token = token;
             return auth;
         }
         return auth;
@@ -82,8 +84,7 @@ export const FetchChatRoomCurrentUser = async (auth: IAuthProps): Promise<Fetchi
         }
         return null;
     } catch (error) {
-        console.error(error);
-        return null;
+        throw error;
     }
 };
 
@@ -219,8 +220,7 @@ export const refreshTokenAndFetchingData = async (auth: IAuthProps) => {
         auth = await checkingValidAuthSession(auth);
         return await fetchMyData(auth);
     } catch (error) {
-        console.error(error);
-        return null;
+        throw error;
     }
 };
 interface SendMessagePayload {
@@ -285,7 +285,6 @@ export const fetchMyData = async (auth: IAuthProps): Promise<FetchingCurrentUser
             userData.user.profilePicture == 'undefined' ? undefined : userData.user.profilePicture;
         return userData;
     } catch (error) {
-        console.error(error);
-        return null;
+        throw error;
     }
 };
