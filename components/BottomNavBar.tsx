@@ -1,25 +1,13 @@
 import { BLUE_MAIN_COLOR } from '@/constants/Colors';
-import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
-import { useNavigationState, Link } from '@react-navigation/native';
-import { Flex, Icon, IconButton } from 'native-base';
-import React, { memo } from 'react';
+import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Flex } from 'native-base';
+import React, { memo, useMemo } from 'react';
 import { ThemedView, ThemedViewProps } from './ThemedView';
 import { SIZES } from '@/constants/Sizes';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { Platform } from 'react-native';
-
-const NavigateDetails = {
-    home: {
-        iconName: 'home',
-        as: MaterialCommunityIcons,
-        color: BLUE_MAIN_COLOR,
-    },
-    archive: {
-        iconName: 'archive',
-        as: MaterialIcons,
-        color: BLUE_MAIN_COLOR,
-    },
-};
+import ButtonIconWithBadge, { ButtonIconWithBadgeProps } from './ButtonIconWithBadge';
+import { useThemeColor } from '@/hooks/useThemeColor';
 
 // props for route active
 const ActiveRouteProps = {
@@ -29,6 +17,51 @@ const ActiveRouteProps = {
 };
 
 const BottomNavBar: React.FC<BottomTabBarProps & ThemedViewProps> = ({ state, descriptors, navigation, ...props }) => {
+    const notificationNotRead = useMemo(() => {
+        return 0;
+    }, []);
+    const friendsDisplay = useMemo(() => {
+        return 0;
+    }, []);
+    const defaultIconColor = useThemeColor({ light: '#888', dark: '#999' }, 'text');
+    const NavigateDetails: { [endpoint: string]: ButtonIconWithBadgeProps } = {
+        home: {
+            btnProps: {
+                _icon: {
+                    as: MaterialCommunityIcons,
+                    name: 'home',
+                    color: BLUE_MAIN_COLOR,
+                },
+            },
+        },
+        friends: {
+            badgeProps: {
+                value: friendsDisplay,
+                min: 1,
+            },
+            btnProps: {
+                _icon: {
+                    as: Feather,
+                    name: 'users',
+                    color: BLUE_MAIN_COLOR,
+                },
+            },
+        },
+        notifications: {
+            badgeProps: {
+                value: notificationNotRead,
+                min: 1,
+                max: 99,
+            },
+            btnProps: {
+                _icon: {
+                    as: Ionicons,
+                    name: 'notifications',
+                    color: BLUE_MAIN_COLOR,
+                },
+            },
+        },
+    };
     return (
         <ThemedView
             style={{
@@ -39,8 +72,8 @@ const BottomNavBar: React.FC<BottomTabBarProps & ThemedViewProps> = ({ state, de
         >
             <Flex direction="row">
                 {state.routes.map((route, index) => {
-                    const navDetail = NavigateDetails[route.name as keyof typeof NavigateDetails] || undefined;
-                    if (!navDetail) return <></>;
+                    const NavigateProps = NavigateDetails[route.name as keyof typeof NavigateDetails] || undefined;
+                    if (!NavigateProps) return <></>;
                     const { options } = descriptors[route.key];
                     const isFocused = state.index === index;
                     const onPress = () => {
@@ -61,22 +94,28 @@ const BottomNavBar: React.FC<BottomTabBarProps & ThemedViewProps> = ({ state, de
                         });
                     };
                     return (
-                        <IconButton
+                        <ButtonIconWithBadge
+                            {...NavigateProps}
                             key={index}
                             accessibilityRole="button"
                             accessibilityState={isFocused ? { selected: true } : {}}
                             accessibilityLabel={options.tabBarAccessibilityLabel}
                             testID={options.tabBarTestID}
-                            onPress={onPress}
-                            onLongPress={onLongPress}
                             {...(isFocused ? ActiveRouteProps : {})}
-                            icon={
-                                <Icon size={'lg'} color={navDetail.color} name={navDetail.iconName} as={navDetail.as} />
-                            }
                             flex={1}
-                            flexBasis={'50%'}
-                            _pressed={{
-                                backgroundColor: '#00000000',
+                            flexBasis={`${100 / Object.keys(NavigateDetails).length}%`}
+                            btnProps={{
+                                ...NavigateProps.btnProps,
+                                onPress: onPress,
+                                onLongPress: onLongPress,
+                                borderRadius: 'none',
+                                borderWidth: 0,
+                                height: '100%',
+                                shadow: 'none',
+                                _icon: {
+                                    ...NavigateProps.btnProps?._icon,
+                                    color: isFocused ? BLUE_MAIN_COLOR : defaultIconColor,
+                                },
                             }}
                         />
                     );

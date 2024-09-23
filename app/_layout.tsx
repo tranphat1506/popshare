@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import useGlobalFonts from '@/hooks/useGlobalFonts';
 import { NativeBaseProvider } from 'native-base';
-import { NavigationContainer, NavigationProp, useNavigation } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import 'react-native-gesture-handler';
 import { Provider, useDispatch } from 'react-redux';
 import { store } from '@/redux/store';
@@ -18,10 +18,7 @@ import { addRooms, sortTheRoomQueue, updateTheNewestMessages } from '@/redux/cha
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import NotFound from '@/app/+not-found';
 import HomeTabs from '@/app/Home/_layout';
-import NotificationsStackScreen from '@/app/Notifications/_layout';
-import FriendsStackScreen from '@/app/Friends/_layout';
 import MessagesStackScreen from '@/app/Messages/_layout';
-import { RootStackParamList } from '@/configs/routes.config';
 Splash.preventAutoHideAsync();
 export default function Layout() {
     return (
@@ -117,8 +114,6 @@ const MainComponent = () => {
     return (
         <Stack.Navigator initialRouteName="/">
             <Stack.Screen name="/" component={HomeTabs} options={{ headerShown: false, title: 'Home' }} />
-            <Stack.Screen name="notifications" component={NotificationsStackScreen} options={{ headerShown: false }} />
-            <Stack.Screen name="friends" component={FriendsStackScreen} options={{ headerShown: false }} />
             <Stack.Screen name="messages" component={MessagesStackScreen} options={{ headerShown: false }} />
             <Stack.Screen name="NotFound" component={NotFound} />
         </Stack.Navigator>

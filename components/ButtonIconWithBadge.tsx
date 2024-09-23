@@ -3,7 +3,7 @@ import { useThemeColor } from '@/hooks/useThemeColor';
 import { Badge, IconButton, IIconButtonProps, VStack } from 'native-base';
 import { InterfaceBadgeProps } from 'native-base/lib/typescript/components/composites/Badge/types';
 import React from 'react';
-import { ColorSchemeName, useColorScheme } from 'react-native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 type BadgeProps = InterfaceBadgeProps & {
     value?: number;
@@ -15,7 +15,7 @@ type BadgeProps = InterfaceBadgeProps & {
 type IconBtnProps = IIconButtonProps & {
     show?: boolean;
 };
-type ButtonIconWithBadgeProps = React.ComponentProps<typeof VStack> & {
+export type ButtonIconWithBadgeProps = React.ComponentProps<typeof VStack> & {
     badgeProps?: BadgeProps;
     btnProps?: IconBtnProps;
 };
@@ -44,14 +44,16 @@ const ButtonIconWithBadge: React.FC<ButtonIconWithBadgeProps> = ({ badgeProps = 
                     {badgeValue(badgeProps.value, minV, maxV)}
                 </Badge>
             )}
-            <IconButton
-                {...IconBtnStyleDefault.btn}
-                {...btnProps}
-                _icon={{
-                    ...IconBtnStyleDefault.btn._icon,
-                    ...btnProps._icon,
-                }}
-            />
+            <TouchableOpacity activeOpacity={0.8}>
+                <IconButton
+                    {...IconBtnStyleDefault.btn}
+                    {...btnProps}
+                    _icon={{
+                        ...IconBtnStyleDefault.btn._icon,
+                        ...btnProps._icon,
+                    }}
+                />
+            </TouchableOpacity>
         </VStack>
     );
 };

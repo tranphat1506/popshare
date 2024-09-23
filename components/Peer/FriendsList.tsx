@@ -16,6 +16,7 @@ interface FriendsListProps {
     displayScreen: number;
     maxDisplay?: number;
     showSectionTitle?: boolean;
+    showLinkTitle?: boolean;
     showOnlyPinned?: boolean;
     showOnlyRecent?: boolean;
 }
@@ -74,10 +75,14 @@ const FriendsList: React.FC<FriendsListProps> = ({ ...props }) => {
         <SectionContainer
             showTitle={props.showSectionTitle ?? true}
             sectionTitle="Friends"
-            linkProps={{
-                to: { screen: 'friends', params: {} },
-                title: `See All (${friendData.length})`,
-            }}
+            linkProps={
+                props.showLinkTitle
+                    ? {
+                          to: { screen: 'friends', params: {} },
+                          title: `See All (${friendData.length})`,
+                      }
+                    : undefined
+            }
         >
             <FlatList
                 key={props.peerPeerScreen}

@@ -21,7 +21,7 @@ const useCustomScreenOptions = (props: CustomScreenProps) => {
                 ...options,
             });
         }
-    }, [options]);
+    }, [options, headerColor]);
     return [options, setOptions] as [
         NativeStackNavigationOptions | undefined,
         React.Dispatch<React.SetStateAction<NativeStackNavigationOptions | undefined>>,

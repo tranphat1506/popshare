@@ -9,6 +9,8 @@ import FriendsList from '@/components/Peer/FriendsList';
 import { useEffect, useLayoutEffect, useState } from 'react';
 import { FriendsEmpty } from './FriendsEmpty';
 import FilterNavBar, { FilterNavProps } from './FilterNav';
+import ButtonIconWithBadge from '@/components/ButtonIconWithBadge';
+import { Feather } from '@expo/vector-icons';
 const { width } = Dimensions.get('window');
 const PADDING_DISPLAY_SCREEN = 15;
 const DISPLAY_SCREEN = width - PADDING_DISPLAY_SCREEN * 2;
@@ -25,6 +27,10 @@ const NavArray: FilterNavProps[] = [
         id: 'pinned',
         title: 'Only pinned',
     },
+    {
+        id: 'pending',
+        title: 'Pending',
+    },
 ];
 function FriendsScreen() {
     useEffect(() => {
@@ -35,8 +41,20 @@ function FriendsScreen() {
     useCustomScreenOptions({
         title: friendTitleText,
         headerTitleStyle: {
-            fontSize: 18,
-            fontFamily: 'System-Medium',
+            fontSize: 24,
+            fontFamily: 'System-Bold',
+        },
+        headerRight(props) {
+            return (
+                <ButtonIconWithBadge
+                    btnProps={{
+                        _icon: {
+                            as: Feather,
+                            name: 'search',
+                        },
+                    }}
+                />
+            );
         },
         headerShown: true,
     });
@@ -75,6 +93,7 @@ interface RenderFilterItemsProps {
 }
 const RenderFilterItems: React.FC<RenderFilterItemsProps> = ({ filterId, peerPerScreen, displayScreen }) => {
     if (filterId === undefined) return <></>;
+    if (filterId === 'pending') return <></>;
     return (
         <FriendsList
             showSectionTitle={false}

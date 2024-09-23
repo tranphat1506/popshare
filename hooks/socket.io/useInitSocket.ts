@@ -45,6 +45,8 @@ const useInitSocket = () => {
     // Handle on socket error
     useEffect(() => {
         if (onSocketError) {
+            console.log(onSocketError);
+
             if (onSocketError.event === 'auth') handleRefreshToken();
         }
     }, [onSocketError]);
