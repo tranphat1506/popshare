@@ -15,15 +15,22 @@ export type ChatRoom = {
 export interface ChatRoomState {
     rooms: { [roomId: string]: ChatRoom | undefined };
     roomQueue: string[];
+    isOnChatRoom: boolean;
 }
 export const initState: ChatRoomState = {
     rooms: {},
     roomQueue: [],
+    isOnChatRoom: false,
 };
 type UpdateChatRoomPayload<K extends keyof ChatRoom> = {
     roomId: string;
     field: K;
     data: ChatRoom[K];
+};
+
+type UpdateChatStatePayload<K extends keyof ChatRoomState> = {
+    field: K;
+    data: ChatRoomState[K];
 };
 const chatRoomReducer = {
     addRooms: (state: ChatRoomState, action: PayloadAction<IRoomDetail[]>) => {
@@ -146,6 +153,13 @@ const chatRoomReducer = {
             if (userId === currentUserId) state.rooms[roomId]!.notRead -= 1;
         }
     },
+    updateChatStateData: <K extends keyof ChatRoomState>(
+        state: ChatRoomState,
+        action: PayloadAction<UpdateChatStatePayload<K>>,
+    ) => {
+        const payload = action.payload;
+        state[payload.field] = payload.data;
+    },
 };
 const chatRoomSlice = createSlice({
     name: 'chatRoom',
@@ -163,5 +177,6 @@ export const {
     updateTheNewestMessages,
     updateTempMessageWithTempId,
     updateSeenMessages,
+    updateChatStateData,
 } = chatRoomSlice.actions;
 export default chatRoomSlice.reducer;
