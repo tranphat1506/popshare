@@ -6,9 +6,7 @@ interface ISocketErrorResponse<Payload> {
     payload?: Payload;
     message: string;
 }
-const useOnSocketError = <IPayload>(
-    catchEvent: string,
-): [
+const useOnSocketError = <IPayload>(): [
     ISocketErrorResponse<IPayload> | null,
     React.Dispatch<React.SetStateAction<ISocketErrorResponse<IPayload> | null>>,
 ] => {
@@ -16,9 +14,7 @@ const useOnSocketError = <IPayload>(
     const [error, setError] = useState<ISocketErrorResponse<IPayload> | null>(null);
     useEffect(() => {
         socket.on(SocketEvent.sendSocketRequestError, (error: ISocketErrorResponse<IPayload>) => {
-            if (catchEvent === error.event) {
-                setError(error);
-            }
+            setError(error);
         });
         return () => {
             socket.off(SocketEvent.sendSocketRequestError);
