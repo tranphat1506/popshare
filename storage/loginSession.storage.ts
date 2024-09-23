@@ -137,4 +137,15 @@ export class LoginSessionManager {
             console.error('Error logout current session:', error);
         }
     }
+
+    public static async removeSessionById(id: string, removedCurrent?: boolean) {
+        try {
+            const savedList = await LoginSessionManager.getLoginSessionSaved();
+            if (removedCurrent && savedList.current?.userId === id) savedList.current = undefined;
+            delete savedList.sessions[id];
+            await LoginSessionManager.saveLoginSessionSaved(savedList);
+        } catch (error) {
+            console.error('Error remove session:', error);
+        }
+    }
 }
