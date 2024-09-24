@@ -18,11 +18,14 @@ export interface FilterNavProps {
 }
 const FilterNavBar: React.FC<FilterNavBarProps> = ({ ...props }) => {
     return (
-        <ThemedView style={{ marginTop: 10, marginBottom: 20, marginHorizontal: 10 }}>
+        <ThemedView style={{ marginTop: 10, marginBottom: 20 }}>
             <Flex
                 direction="row"
                 style={{
                     columnGap: 10,
+                    rowGap: 10,
+                    paddingHorizontal: 10,
+                    flexWrap: 'wrap',
                 }}
             >
                 {props.data?.map((nav) => (
@@ -35,11 +38,11 @@ const FilterNavBar: React.FC<FilterNavBarProps> = ({ ...props }) => {
 
 const FilterNav: React.FC<FilterNavProps> = ({ ...props }) => {
     const [isSelected, setIsSelected] = useState<boolean>(false);
-    const navigation = useNavigation<NavigationProp<RootStackParamList, 'friends'>>();
-    const { params: routeParams } = useRoute<RouteProp<RootStackParamList, 'friends'>>();
+    const navigation = useNavigation<NavigationProp<RootStackParamList, 'friends-list'>>();
+    const { params: routeParams } = useRoute<RouteProp<RootStackParamList, 'friends-list'>>();
     const handleChangeFilterNav = (filterNavId: string) => () => {
         if (routeParams.filterNav === filterNavId) return;
-        navigation.navigate('friends', { ...routeParams, filterNav: filterNavId });
+        navigation.navigate('friends-list', { ...routeParams, filterNav: filterNavId });
     };
     useEffect(() => {
         if (routeParams?.filterNav && routeParams.filterNav === props.id) setIsSelected(true);
@@ -56,8 +59,8 @@ const FilterNav: React.FC<FilterNavProps> = ({ ...props }) => {
             onPress={handleChangeFilterNav(props.id)}
             style={({ pressed }) => [
                 {
-                    paddingVertical: 6,
-                    paddingHorizontal: 10,
+                    paddingVertical: 4,
+                    paddingHorizontal: 8,
                     borderRadius: 1000,
                     borderWidth: 1,
                     borderColor: isSelected ? selectedBgColor : borderColor,
@@ -67,8 +70,8 @@ const FilterNav: React.FC<FilterNavProps> = ({ ...props }) => {
         >
             <ThemedText
                 style={{
-                    fontSize: 14,
-                    lineHeight: 16,
+                    fontSize: 12,
+                    lineHeight: 15,
                     textTransform: 'capitalize',
                     color: isSelected ? '#fff' : textColor,
                 }}

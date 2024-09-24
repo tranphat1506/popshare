@@ -32,7 +32,7 @@ const NavArray: FilterNavProps[] = [
         title: 'Pending',
     },
 ];
-function FriendsScreen() {
+const FriendsScreen = () => {
     useEffect(() => {
         console.log('rerender FS');
     }, []);
@@ -44,7 +44,7 @@ function FriendsScreen() {
             fontSize: 24,
             fontFamily: 'System-Bold',
         },
-        headerRight(props) {
+        headerRight() {
             return (
                 <ButtonIconWithBadge
                     btnProps={{
@@ -52,16 +52,17 @@ function FriendsScreen() {
                             as: Feather,
                             name: 'search',
                         },
+                        shadow: '1',
                     }}
                 />
             );
         },
         headerShown: true,
     });
-    const navigation = useNavigation<NavigationProp<RootStackParamList, 'friends'>>();
-    const { params: routeParams } = useRoute<RouteProp<RootStackParamList, 'friends'>>();
+    const navigation = useNavigation<NavigationProp<RootStackParamList, 'friends-list'>>();
+    const { params: routeParams } = useRoute<RouteProp<RootStackParamList, 'friends-list'>>();
     useLayoutEffect(() => {
-        if (!routeParams || !routeParams.filterNav) navigation.navigate('friends', { filterNav: 'all' });
+        if (!routeParams || !routeParams.filterNav) navigation.navigate('friends-list', { filterNav: 'all' });
     }, [routeParams]);
     const friendsCount = useAppSelector((state) => state.peers.count);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -84,7 +85,7 @@ function FriendsScreen() {
             </DefaultLayout>
         </>
     );
-}
+};
 
 interface RenderFilterItemsProps {
     filterId?: string;
