@@ -12,6 +12,7 @@ import { LoginSessionManager } from '@/storage/loginSession.storage';
 import { useDispatch } from 'react-redux';
 import { logout } from '@/redux/auth/reducer';
 import { clear } from '@/redux/peers/reducer';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 // import tw from 'twrnc';
 type TopToolBarProps = ViewProps;
 const TopToolBar: React.FC<TopToolBarProps> = (props) => {
