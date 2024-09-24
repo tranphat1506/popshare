@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { IFriendShip } from './friend.interface';
 
 export type PeerId = string;
 export interface IOnlineState {
@@ -14,11 +15,13 @@ export interface IUserPublicDetail {
     displayName: string;
     profilePicture?: string;
     onlineState?: IOnlineState;
+    friendship?: IFriendShip;
 }
 export type Peer = IUserPublicDetail & {
     uriAvatar?: string;
     pinSlot?: number;
     suffixName?: string;
+    isMyFriend?: boolean;
 };
 // peer structure
 export type Peers = {

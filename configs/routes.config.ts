@@ -15,7 +15,8 @@ export const DEFAULT_LINKING = {
 
 export type RootStackParamList = {
     '/': undefined;
-    friends: {
+    friends: undefined;
+    'friends-list': {
         peerId?: PeerId;
         filterNav?: string;
     };
@@ -29,6 +30,9 @@ export type RootStackParamList = {
     };
     signOut: undefined;
     signUp: undefined;
+    'user-detail': {
+        userId: string;
+    };
 };
 
 export type MessagesStackParamList = {

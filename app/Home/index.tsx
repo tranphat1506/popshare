@@ -1,6 +1,7 @@
 import DefaultLayout from '@/components/layout/DefaultLayout';
-import PeersGroup from '@/components/Peer/PeersGroup';
+import { ThemedText } from '@/components/ThemedText';
 import TopToolBar from '@/components/TopToolBar';
+import { View } from 'react-native';
 
 export default function Home({ ...props }) {
     console.log('render home');
@@ -8,7 +9,9 @@ export default function Home({ ...props }) {
         <>
             <DefaultLayout {...props}>
                 <TopToolBar />
-                <PeersGroup peerPerScreen={4} maxDisplay={40} />
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <ThemedText type="title">Home</ThemedText>
+                </View>
             </DefaultLayout>
         </>
     );

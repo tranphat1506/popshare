@@ -87,9 +87,9 @@ const PopshareAvatar: React.FC<
                 <ThemedView
                     style={{
                         position: 'absolute',
-                        bottom: -5,
-                        right: -5,
-                        padding: 3,
+                        bottom: size * 0.01,
+                        right: size * 0.01,
+                        padding: size * 0.04,
                         borderRadius: 100,
                     }}
                 >
@@ -107,13 +107,15 @@ const PopshareAvatar: React.FC<
                         {props.onlineState && (
                             <Text
                                 style={{
-                                    fontSize: Math.round(size * 0.2),
+                                    fontSize: Math.round(size >= 100 ? size * 0.13 : size * 0.2),
+                                    lineHeight: Math.round(size >= 100 ? size * 0.18 : size * 0.25),
                                     paddingHorizontal: 4,
                                     fontFamily: 'System-Regular',
                                     color: '#fff',
                                 }}
                             >
-                                {isOnline ?? StringOnlineStateHelper.toLastOnlineTime(props.onlineState.lastTimeActive)}
+                                {Date.now() - props.onlineState.lastTimeActive > 5 * 60 * 1000 &&
+                                    StringOnlineStateHelper.toLastOnlineTime(props.onlineState.lastTimeActive)}
                             </Text>
                         )}
                     </View>
