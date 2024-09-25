@@ -4,7 +4,8 @@ import { socketConnection } from '@/lib/SocketFactory';
 import { ICurrentUserDetail } from '@/redux/auth/reducer';
 import { IMessageDetail, IMessageTypeTypes } from '@/redux/chatRoom/messages.interface';
 import { IRoomDetail } from '@/redux/chatRoom/room.interface';
-import { IOnlineState, PeerId } from '@/redux/peers/reducer';
+import { IFriendShip } from '@/redux/peers/friend.interface';
+import { IOnlineState, IUserPublicDetail, PeerId } from '@/redux/peers/reducer';
 import { LoginSessionManager } from '@/storage/loginSession.storage';
 const base64ImageRegx = /^data:image\/(?:gif|png|jpeg|bmp|webp)(?:;charset=utf-8)?;base64,(?:[A-Za-z0-9]|[+/])+={0,2}/g;
 export const FetchUserAvatarByUrl = (url: string): Promise<string | undefined> => {
@@ -36,7 +37,8 @@ interface IFetchingResponse {
     message: string;
 }
 type FetchingUserData = {
-    user: ICurrentUserDetail & { _id: string; onlineState?: IOnlineState };
+    user: IUserPublicDetail & { _id: string; onlineState?: IOnlineState };
+    friendship?: IFriendShip;
 } & IFetchingResponse;
 type FetchingCurrentUserPayload = {
     friends: {

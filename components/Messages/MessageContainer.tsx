@@ -14,11 +14,7 @@ import { useNavigation } from 'expo-router';
 import { NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '@/configs/routes.config';
 
-interface MessageContainerProps {
-    chatBox?: MessageChatBoxProps;
-}
-
-const MessageContainer: React.FC<MessageContainerProps> = ({ chatBox }) => {
+const MessageContainer = () => {
     const lang = useLanguage();
     const textData = useMemo(() => {
         return {

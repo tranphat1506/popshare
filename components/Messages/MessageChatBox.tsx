@@ -42,6 +42,7 @@ const MessageChatBox: React.FC<
 > = ({ room, roomType, handleExit }) => {
     const dispatch = useAppDispatch();
     const [isLoadingSuccess, setLoadingSuccess] = useState<boolean>(false);
+    const peers = useAppSelector((state) => state.peers.peers);
     const handleFetchAgainUserData = useCallback(() => {
         const fetchingRoomMember = async () => {
             try {
@@ -49,6 +50,7 @@ const MessageChatBox: React.FC<
                 await Promise.all(
                     room.room.detail.roomMembers.list.map(async (member) => {
                         if (member.memberId === room.currentUser.userId) return null;
+                        if (peers[member.memberId]) return null;
                         const data = await FetchUserProfileById(member.memberId, {
                             token: session?.token,
                             rtoken: session?.rtoken,
@@ -59,6 +61,7 @@ const MessageChatBox: React.FC<
                             : undefined;
                         const peer: Peer = {
                             ...data.user,
+                            friendship: data.friendship,
                             uriAvatar: uriData,
                             suffixName: getAllFirstLetterOfString(data.user.displayName),
                         };

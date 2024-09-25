@@ -1,6 +1,6 @@
 import { Flex, Icon, Skeleton } from 'native-base';
 import React, { memo, useEffect, useState } from 'react';
-import { Pressable, StyleProp, Text, View, ViewStyle } from 'react-native';
+import { Pressable, StyleProp, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { ThemedText } from '../ThemedText';
 import { SIZES } from '@/constants/Sizes';
 import { MotiView } from 'moti';
@@ -12,6 +12,8 @@ import { useAppDispatch } from '@/redux/hooks/hooks';
 import PopshareAvatar from '../common/PopshareAvatar';
 import { EmojiKey } from '../common/EmojiPicker';
 import { LoginSessionManager } from '@/storage/loginSession.storage';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { RootStackParamList } from '@/configs/routes.config';
 export type PeerDeviceProps = {
     width?: number;
     height?: number;
@@ -33,7 +35,12 @@ const PeerDevice: React.FC<PeerDeviceProps> = ({
 }) => {
     const dispatch = useAppDispatch();
     const [peerProfile, setPeerProfile] = useState<Peer | undefined>(existPeer);
-
+    const navigation = useNavigation<NavigationProp<RootStackParamList, 'user-detail'>>();
+    const handleNavigateToPeerDetail = () => {
+        navigation.navigate('user-detail', {
+            userId: peerId,
+        });
+    };
     const handleFetchingPeer = async () => {
         try {
             const session = await LoginSessionManager.getCurrentSession();
@@ -47,6 +54,8 @@ const PeerDevice: React.FC<PeerDeviceProps> = ({
                     ...data.user,
                     uriAvatar: uriData,
                     suffixName: getAllFirstLetterOfString(data.user.displayName),
+                    friendship: data.friendship,
+                    isMyFriend: data.friendship?.status === 'accepted',
                 };
                 dispatch(addPeer(peer));
                 setPeerProfile(peer);
@@ -67,7 +76,7 @@ const PeerDevice: React.FC<PeerDeviceProps> = ({
         handleFetchingPeer();
     }, [dispatch]);
     return (
-        <View>
+        <TouchableOpacity activeOpacity={0.8}>
             <View
                 style={[style, { flexBasis: width, paddingVertical: 5 }]}
                 className={''.concat('flex justify-center items-center relative', className)}
@@ -127,11 +136,7 @@ const PeerDevice: React.FC<PeerDeviceProps> = ({
                                 />
                             </View>
                         )}
-                        <Pressable
-                            onLongPress={() => {
-                                console.log('Show detail', peerProfile.userId);
-                            }}
-                        >
+                        <Pressable onPress={handleNavigateToPeerDetail}>
                             <PopshareAvatar
                                 avatarColor={peerProfile.avatarColor}
                                 avatarEmoji={peerProfile.avatarEmoji as EmojiKey}
@@ -177,7 +182,7 @@ const PeerDevice: React.FC<PeerDeviceProps> = ({
                     </>
                 )}
             </View>
-        </View>
+        </TouchableOpacity>
     );
 };
 
