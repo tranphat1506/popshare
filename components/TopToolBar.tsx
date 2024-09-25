@@ -64,6 +64,7 @@ const TopToolBar: React.FC<TopToolBarProps> = (props) => {
                                 as: Feather,
                                 name: 'search',
                             },
+                            onPress: navigationToOtherRoute('search'),
                         }}
                     />
                     <ButtonIconWithBadge

@@ -58,5 +58,6 @@
     "JUST_SENT": "Now",
     "YOU_TEXT": "You",
     "ON_TYPING_ACTION": "On typing",
-    "ERROR_REFRESH_TOKEN_OUT_OF_TIME": "Your session was expired. Please login again."
+    "ERROR_REFRESH_TOKEN_OUT_OF_TIME": "Your session was expired. Please login again.",
+    "SEARCH_PLACEHOLDER": "Search on Popshare"
 }

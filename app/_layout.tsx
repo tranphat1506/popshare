@@ -19,8 +19,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import NotFound from '@/app/+not-found';
 import HomeTabs from '@/app/Home/_layout';
 import MessagesStackScreen from '@/app/Messages/_layout';
-import UserDetailScreen from '@/app/Friends/UserDetailScreen';
-import { Platform } from 'react-native';
+import UserDetailScreen from '@/app/User/UserDetailScreen';
+import SearchScreen from './Search';
 
 Splash.preventAutoHideAsync();
 export default function Layout() {
@@ -119,6 +119,7 @@ const MainComponent = () => {
             <Stack.Screen name="/" component={HomeTabs} options={{ headerShown: false, title: 'Home' }} />
             <Stack.Screen name="messages" component={MessagesStackScreen} options={{ headerShown: false }} />
             <Stack.Screen name="user-detail" component={UserDetailScreen} />
+            <Stack.Screen name="search" component={SearchScreen} options={{ headerShown: false }} />
             <Stack.Screen name="NotFound" component={NotFound} />
         </Stack.Navigator>
     );

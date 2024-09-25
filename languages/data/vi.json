@@ -58,5 +58,6 @@
     "JUST_SENT": "Vừa gửi",
     "YOU_TEXT": "Bạn",
     "ON_TYPING_ACTION": "Đang soạn",
-    "ERROR_REFRESH_TOKEN_OUT_OF_TIME": "Phiên đăng nhập hết hạn! Vui lòng đăng nhập lại."
+    "ERROR_REFRESH_TOKEN_OUT_OF_TIME": "Phiên đăng nhập hết hạn! Vui lòng đăng nhập lại.",
+    "SEARCH_PLACEHOLDER": "Tìm kiếm trên Popshare"
 }

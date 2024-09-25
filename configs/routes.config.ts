@@ -33,6 +33,7 @@ export type RootStackParamList = {
     'user-detail': {
         userId: string;
     };
+    search: undefined;
 };
 
 export type MessagesStackParamList = {

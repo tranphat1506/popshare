@@ -13,9 +13,8 @@ import useCustomScreenOptions from '@/hooks/useCustomScreenOptions';
 import { RootStackParamList } from '@/configs/routes.config';
 import { EmojiKey } from '@/components/common/EmojiPicker';
 import { ThemedText } from '@/components/ThemedText';
-import { BLUE_MAIN_COLOR } from '@/constants/Colors';
-import { Icon, Skeleton } from 'native-base';
-import { Feather, FontAwesome5, FontAwesome6, Fontisto, Octicons } from '@expo/vector-icons';
+import { Skeleton } from 'native-base';
+import { Feather, FontAwesome6 } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { BlurView } from 'expo-blur';
@@ -164,7 +163,7 @@ const UserDetailScreen = () => {
                                         avatarColor={userPublicDetail.avatarColor}
                                         avatarEmoji={userPublicDetail.avatarEmoji as EmojiKey}
                                         profilePicture={userPublicDetail.profilePicture}
-                                        displayOnlineState={true}
+                                        displayOnlineState={!!userPublicDetail.onlineState}
                                         onlineState={userPublicDetail.onlineState}
                                     />
                                 </ThemedView>
