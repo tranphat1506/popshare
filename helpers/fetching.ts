@@ -1,3 +1,4 @@
+import { SearchUserResult } from '@/app/Search/search.interface';
 import { ISendMessagePayload } from '@/components/Messages/MessageBottomTab';
 import { BE_API_URL, BE_URL } from '@/constants/Constants';
 import { socketConnection } from '@/lib/SocketFactory';
@@ -40,6 +41,18 @@ type FetchingUserData = {
     user: IUserPublicDetail & { _id: string; onlineState?: IOnlineState };
     friendship?: IFriendShip;
 } & IFetchingResponse;
+export type FetchingSearchByKeywordPayload = {
+    result: {
+        user: SearchUserResult[];
+    };
+} & IFetchingResponse;
+type FetchingFriendshipPayload = {
+    friendship?: IFriendShip;
+} & IFetchingResponse;
+type FetchingAddFriendPayload = {
+    friendRequest: IFriendShip;
+} & IFetchingResponse;
+type FetchingUnFriendPayload = {} & IFetchingResponse;
 type FetchingCurrentUserPayload = {
     friends: {
         count: number;
@@ -66,6 +79,122 @@ export const checkingValidAuthSession = async (auth: IAuthProps) => {
         throw Error(error as string);
     }
 };
+export const FetchSearchByKeyword = async (
+    auth: IAuthProps,
+    keyword: string,
+): Promise<FetchingSearchByKeywordPayload | null> => {
+    try {
+        auth = await checkingValidAuthSession(auth);
+        const response = await fetch(BE_API_URL + '/search/byKeyword', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${auth.token}`,
+            },
+            body: JSON.stringify({
+                keyword: keyword,
+            }),
+        });
+        if (response.status === 401 && auth.rtoken) {
+            auth.token = await refreshToken(auth.rtoken);
+            return await FetchSearchByKeyword(auth, keyword);
+        }
+        if (response.ok) {
+            const data = (await response.json()) as FetchingSearchByKeywordPayload;
+            return data;
+        }
+        return null;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const FetchAddFriendByUserId = async (auth: IAuthProps, userId: string): Promise<FetchingAddFriendPayload> => {
+    try {
+        auth = await checkingValidAuthSession(auth);
+        const response = await fetch(BE_API_URL + '/friend/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${auth.token}`,
+            },
+            body: JSON.stringify({
+                userId: userId,
+            }),
+        });
+        if (response.status === 401 && auth.rtoken) {
+            auth.token = await refreshToken(auth.rtoken);
+            return await FetchAddFriendByUserId(auth, userId);
+        }
+        if (response.ok) {
+            const data = (await response.json()) as FetchingAddFriendPayload;
+            return data;
+        }
+        const messages = ((await response.json()) as IFetchingResponse).message;
+        throw Error(messages);
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const FetchUnFriendByUserId = async (auth: IAuthProps, userId: string): Promise<FetchingUnFriendPayload> => {
+    try {
+        auth = await checkingValidAuthSession(auth);
+        const response = await fetch(BE_API_URL + '/friend/un', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${auth.token}`,
+            },
+            body: JSON.stringify({
+                userId: userId,
+            }),
+        });
+        if (response.status === 401 && auth.rtoken) {
+            auth.token = await refreshToken(auth.rtoken);
+            return await FetchUnFriendByUserId(auth, userId);
+        }
+        if (response.ok) {
+            const data = (await response.json()) as FetchingUnFriendPayload;
+            return data;
+        }
+        const messages = ((await response.json()) as IFetchingResponse).message;
+        throw Error(messages);
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const FetchingFriendshipByUserId = async (
+    auth: IAuthProps,
+    userId: string,
+): Promise<FetchingFriendshipPayload | null> => {
+    try {
+        auth = await checkingValidAuthSession(auth);
+        const response = await fetch(BE_API_URL + '/friend/getByUserId', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${auth.token}`,
+            },
+            body: JSON.stringify({
+                userId: userId,
+            }),
+        });
+        if (response.status === 401 && auth.rtoken) {
+            auth.token = await refreshToken(auth.rtoken);
+            return await FetchingFriendshipByUserId(auth, userId);
+        }
+        if (response.ok) {
+            const data = (await response.json()) as FetchingFriendshipPayload;
+            return data;
+        }
+        return null;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const FetchChatRoomCurrentUser = async (auth: IAuthProps): Promise<FetchingCurrentUserRoomPayload | null> => {
     try {
         auth = await checkingValidAuthSession(auth);

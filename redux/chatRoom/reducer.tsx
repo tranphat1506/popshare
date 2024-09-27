@@ -160,6 +160,11 @@ const chatRoomReducer = {
         const payload = action.payload;
         state[payload.field] = payload.data;
     },
+    clearChatState: (state: ChatRoomState) => {
+        state.isOnChatRoom = initState.isOnChatRoom;
+        state.roomQueue = initState.roomQueue;
+        state.rooms = initState.rooms;
+    },
 };
 const chatRoomSlice = createSlice({
     name: 'chatRoom',
@@ -178,5 +183,6 @@ export const {
     updateTempMessageWithTempId,
     updateSeenMessages,
     updateChatStateData,
+    clearChatState,
 } = chatRoomSlice.actions;
 export default chatRoomSlice.reducer;

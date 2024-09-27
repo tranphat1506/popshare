@@ -1,5 +1,6 @@
 {
     "FRIENDS_TITLE": "Bạn bè",
+    "FRIEND": "Bạn bè",
     "NOTIFICATION_TITLE": "Thông báo",
     "CANNOT_FIND_PAGE": "Không tìm thấy trang",
     "RETURN": "Quay về",
@@ -59,5 +60,12 @@
     "YOU_TEXT": "Bạn",
     "ON_TYPING_ACTION": "Đang soạn",
     "ERROR_REFRESH_TOKEN_OUT_OF_TIME": "Phiên đăng nhập hết hạn! Vui lòng đăng nhập lại.",
-    "SEARCH_PLACEHOLDER": "Tìm kiếm trên Popshare"
+    "SEARCH_PLACEHOLDER": "Tìm kiếm trên Popshare",
+    "EMPTY_SEARCH_RESULT": "Không có tìm kiếm nào gần đây",
+    "ADD_FRIEND": "Kết bạn",
+    "UN_FRIEND": "Hủy kết bạn",
+    "DEACTIVE_ADD_FRIEND": "Hủy thêm kết bạn",
+    "ACTIVE_ADD_FRIEND": "Chấp nhận lời mời",
+    "ACCEPTED_FRIEND_REQUEST": "Đã chấp nhận lời mời kết bạn",
+    "SENT_FRIEND_REQUEST": "Đã gửi lời mời kết bạn"
 }

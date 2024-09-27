@@ -13,6 +13,7 @@ export enum SocketEvent {
     handleUserLogout = 'handleUserLogout',
     onSetupNotification = 'SetupNotification',
     handleUserConnect = 'handleUserConnect',
+    onJoinNewChatRoom = 'OnJoinNewChatRoom',
 }
 export interface SocketInterface {
     socket: Socket;

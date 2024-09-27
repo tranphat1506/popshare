@@ -12,6 +12,7 @@ import useOnChatMessage from './useOnChatMessage';
 import useOnSeenStatus from './useOnSeenStatus';
 import { IOnlineState, updatePeerById } from '@/redux/peers/reducer';
 import useOnActionOnChatRoom from './useOnActionOnChatRoom';
+import useOnNotifications from './useOnNotifications';
 
 const useInitSocket = () => {
     const socket = useSocketIO();
@@ -23,6 +24,7 @@ const useInitSocket = () => {
     useOnSeenStatus(user!.userId);
     useOnChatMessage();
     useOnActionOnChatRoom('global');
+    useOnNotifications();
     const handleRefreshToken = async () => {
         try {
             const session = await LoginSessionManager.getCurrentSession();
@@ -57,7 +59,7 @@ const useInitSocket = () => {
             const roomIdList: string[] = Object.keys(rooms);
             const friendIdList: string[] = Object.keys(peers);
             socket.emit(SocketEvent.SetupChatRoom, { roomIdList: roomIdList });
-            socket.emit(SocketEvent.onSetupNotification, { friendIdList: friendIdList });
+            socket.emit(SocketEvent.onSetupNotification);
             socket.emit(SocketEvent.handleUserConnect);
             dispatch(connectionEstablished({ socketId: socket.id }));
         });

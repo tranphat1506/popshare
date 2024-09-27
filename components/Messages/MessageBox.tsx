@@ -151,7 +151,7 @@ const P2PMessageRoom: React.FC<IP2PMessageRoom> = (props) => {
                                 style={{
                                     display: 'flex',
                                     flexDirection: 'row',
-                                    width: '60%',
+                                    width: '80%',
                                     alignItems: 'flex-start',
                                 }}
                             >
@@ -160,7 +160,7 @@ const P2PMessageRoom: React.FC<IP2PMessageRoom> = (props) => {
                                         <ThemedText
                                             lightColor={!props.room.notRead ? '#7e7e7e' : '#000'}
                                             darkColor={!props.room.notRead ? '#7e7e7e' : '#fff'}
-                                            numberOfLines={2}
+                                            numberOfLines={1}
                                             style={{ fontSize: 14, lineHeight: 20, fontFamily: 'System-Medium' }}
                                         >
                                             {props.room.lastMesssage.senderId === props.user.userId
@@ -181,7 +181,7 @@ const P2PMessageRoom: React.FC<IP2PMessageRoom> = (props) => {
                                     <ThemedText
                                         lightColor="#7e7e7e"
                                         darkColor="#7e7e7e"
-                                        numberOfLines={2}
+                                        numberOfLines={1}
                                         style={{ fontSize: 14, lineHeight: 20, fontFamily: 'System-Regular' }}
                                     >
                                         {textData.DISPLAY_EMPTY_MESSAGES_DESCRIPTION}

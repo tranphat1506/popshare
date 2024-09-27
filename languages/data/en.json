@@ -1,5 +1,6 @@
 {
     "FRIENDS_TITLE": "Friends",
+    "FRIEND": "Friend",
     "NOTIFICATION_TITLE": "Notifications",
     "CANNOT_FIND_PAGE": "Cannot find this page",
     "RETURN": "Return",
@@ -59,5 +60,12 @@
     "YOU_TEXT": "You",
     "ON_TYPING_ACTION": "On typing",
     "ERROR_REFRESH_TOKEN_OUT_OF_TIME": "Your session was expired. Please login again.",
-    "SEARCH_PLACEHOLDER": "Search on Popshare"
+    "SEARCH_PLACEHOLDER": "Search on Popshare",
+    "EMPTY_SEARCH_RESULT": "There are no recent searches",
+    "ADD_FRIEND": "Add friend",
+    "UN_FRIEND": "Unfriend",
+    "DEACTIVE_ADD_FRIEND": "Remove friend request",
+    "ACTIVE_ADD_FRIEND": "Accept request",
+    "ACCEPTED_FRIEND_REQUEST": "Just accepted your friend request",
+    "SENT_FRIEND_REQUEST": "Want to be your friend"
 }

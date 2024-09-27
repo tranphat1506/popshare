@@ -1,9 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, ScrollView, RefreshControl } from 'react-native';
 import { NavigationProp, RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks/hooks';
-import { addPeer, IUserPublicDetail, Peer } from '@/redux/peers/reducer';
-import { FetchUserAvatarByUrl, FetchUserProfileById } from '@/helpers/fetching';
+import { addPeer, IUserPublicDetail, Peer, updatePeerById } from '@/redux/peers/reducer';
+import {
+    FetchAddFriendByUserId,
+    FetchingFriendshipByUserId,
+    FetchUnFriendByUserId,
+    FetchUserAvatarByUrl,
+    FetchUserProfileById,
+} from '@/helpers/fetching';
 import { getAllFirstLetterOfString } from '@/helpers/string';
 import { LoginSessionManager } from '@/storage/loginSession.storage';
 import { ThemedView } from '@/components/ThemedView';
@@ -18,6 +24,8 @@ import { Feather, FontAwesome6 } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { BlurView } from 'expo-blur';
+import useLanguage from '@/languages/hooks/useLanguage';
+import _ from 'lodash';
 
 const DEFAULT_AVATAR_SIZE = 100;
 
@@ -28,7 +36,17 @@ const UserDetailScreen = () => {
     const existUserDetail = useAppSelector((state) => state.peers.peers[routeParams.userId]);
     const [userPublicDetail, setUserPublicDetail] = useState<IUserPublicDetail>();
     const [refreshing, setRefreshing] = useState(false); // State for refresh control
-
+    const lang = useLanguage();
+    const textData = useMemo(() => {
+        return {
+            ADD_FRIEND: lang.ADD_FRIEND,
+            IS_FRIEND: lang.FRIEND,
+            UN_FRIEND: lang.UN_FRIEND,
+            IS_ME: lang.YOU_TEXT,
+            DEACTIVE_ADD_FRIEND: lang.DEACTIVE_ADD_FRIEND,
+            ACTIVE_ADD_FRIEND: lang.ACTIVE_ADD_FRIEND,
+        };
+    }, [lang]);
     const handleFetchingUserData = async (strict?: boolean) => {
         try {
             const session = await LoginSessionManager.getCurrentSession();
@@ -41,6 +59,7 @@ const UserDetailScreen = () => {
                 const uriData = data.user.profilePicture
                     ? await FetchUserAvatarByUrl(data.user.profilePicture)
                     : undefined;
+                // console.log(data.friendship);
                 const peer: Peer = {
                     ...data.user,
                     uriAvatar: uriData,
@@ -57,7 +76,28 @@ const UserDetailScreen = () => {
                 const peer: Peer = { ...existUserDetail, uriAvatar: uriData };
                 dispatch(addPeer(peer));
                 setUserPublicDetail(peer);
-            } else setUserPublicDetail(existUserDetail);
+            } else {
+                const friendship = await FetchingFriendshipByUserId(
+                    {
+                        token: session?.token,
+                        rtoken: session?.rtoken,
+                    },
+                    existUserDetail.userId,
+                );
+                setUserPublicDetail({ ...existUserDetail, friendship: friendship?.friendship });
+                dispatch(
+                    updatePeerById({
+                        userId: existUserDetail.userId,
+                        field: 'friendship',
+                        data: friendship?.friendship,
+                    }),
+                    updatePeerById({
+                        userId: existUserDetail.userId,
+                        field: 'isMyFriend',
+                        data: friendship?.friendship?.status === 'accepted',
+                    }),
+                );
+            }
         } catch (error) {
             console.error(error);
         }
@@ -84,6 +124,85 @@ const UserDetailScreen = () => {
     const handleClickButtonBack = () => {
         navigation.goBack();
     };
+
+    // Handle add and un friend
+    const handleAddFriend = () => {
+        const addFriend = async () => {
+            try {
+                const session = await LoginSessionManager.getCurrentSession();
+                if (!userPublicDetail) return;
+                const data = await FetchAddFriendByUserId(
+                    {
+                        token: session?.token,
+                        rtoken: session?.rtoken,
+                    },
+                    userPublicDetail.userId,
+                );
+                setUserPublicDetail({
+                    ...userPublicDetail,
+                    friendship: data.friendRequest,
+                });
+                dispatch(
+                    updatePeerById({
+                        userId: userPublicDetail.userId,
+                        field: 'friendship',
+                        data: data.friendRequest,
+                    }),
+                    updatePeerById({
+                        userId: userPublicDetail.userId,
+                        field: 'isMyFriend',
+                        data: data.friendRequest.status === 'accepted',
+                    }),
+                );
+            } catch (error) {
+                console.error('ERROR WHILE ADD FRIEND', error);
+            }
+        };
+        addFriend();
+    };
+    const handleUnFriend = () => {
+        const unFriend = async () => {
+            try {
+                const session = await LoginSessionManager.getCurrentSession();
+                if (!userPublicDetail) return;
+                const data = await FetchUnFriendByUserId(
+                    {
+                        token: session?.token,
+                        rtoken: session?.rtoken,
+                    },
+                    userPublicDetail.userId,
+                );
+                setUserPublicDetail({
+                    ...userPublicDetail,
+                    friendship: undefined,
+                });
+                dispatch(
+                    updatePeerById({
+                        userId: userPublicDetail.userId,
+                        field: 'friendship',
+                        data: undefined,
+                    }),
+                    updatePeerById({
+                        userId: userPublicDetail.userId,
+                        field: 'isMyFriend',
+                        data: false,
+                    }),
+                );
+            } catch (error) {
+                console.error('ERROR WHILE UNFRIEND', error);
+            }
+        };
+        unFriend();
+    };
+    // debounce
+    const handleOnPressAddFriend = _.debounce(handleAddFriend, 2000, {
+        leading: true,
+        trailing: false,
+    });
+    const handleOnPressUnFriend = _.debounce(handleUnFriend, 2000, {
+        leading: true,
+        trailing: false,
+    });
     if (!userPublicDetail) return <EmptyProfile refreshing={refreshing} onRefresh={onRefresh} />;
     if (userPublicDetail && currentUser?.userId !== routeParams.userId)
         return (
@@ -177,9 +296,10 @@ const UserDetailScreen = () => {
                                 justifyContent: 'flex-end',
                             }}
                         >
-                            {userPublicDetail.friendship?.status !== 'accepted' && (
+                            {!userPublicDetail.friendship && (
                                 <TouchableOpacity
                                     activeOpacity={0.8}
+                                    onPress={handleOnPressAddFriend}
                                     style={{
                                         paddingHorizontal: 14,
                                         paddingVertical: 7,
@@ -191,11 +311,57 @@ const UserDetailScreen = () => {
                                         justifyContent: 'center',
                                     }}
                                 >
-                                    <ThemedText style={{ fontFamily: 'System-SemiBold' }}>Kết bạn</ThemedText>
+                                    <ThemedText style={{ fontFamily: 'System-SemiBold' }}>
+                                        {textData.ADD_FRIEND}
+                                    </ThemedText>
                                 </TouchableOpacity>
+                            )}
+                            {userPublicDetail.friendship?.status === 'pending' && (
+                                <>
+                                    {userPublicDetail.friendship.senderId === currentUser?.userId ? (
+                                        <TouchableOpacity
+                                            activeOpacity={0.8}
+                                            onPress={handleOnPressUnFriend}
+                                            style={{
+                                                paddingHorizontal: 14,
+                                                paddingVertical: 7,
+                                                borderColor: defaultBorderColor,
+                                                borderWidth: 1,
+                                                borderRadius: 100,
+                                                flex: 1,
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                            }}
+                                        >
+                                            <ThemedText style={{ fontFamily: 'System-SemiBold' }}>
+                                                {textData.DEACTIVE_ADD_FRIEND}
+                                            </ThemedText>
+                                        </TouchableOpacity>
+                                    ) : (
+                                        <TouchableOpacity
+                                            activeOpacity={0.8}
+                                            onPress={handleOnPressAddFriend}
+                                            style={{
+                                                paddingHorizontal: 14,
+                                                paddingVertical: 7,
+                                                borderColor: defaultBorderColor,
+                                                borderWidth: 1,
+                                                borderRadius: 100,
+                                                flex: 1,
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                            }}
+                                        >
+                                            <ThemedText style={{ fontFamily: 'System-SemiBold' }}>
+                                                {textData.ACTIVE_ADD_FRIEND}
+                                            </ThemedText>
+                                        </TouchableOpacity>
+                                    )}
+                                </>
                             )}
                             {userPublicDetail.friendship?.status === 'accepted' && (
                                 <TouchableOpacity
+                                    onPress={handleUnFriend}
                                     activeOpacity={0.8}
                                     style={{
                                         paddingHorizontal: 14,
@@ -211,7 +377,9 @@ const UserDetailScreen = () => {
                                     }}
                                 >
                                     <FontAwesome6 name={'user-check'} size={16} color={defaultBorderColor} />
-                                    <ThemedText style={{ fontFamily: 'System-SemiBold' }}>Bạn bè</ThemedText>
+                                    <ThemedText style={{ fontFamily: 'System-SemiBold' }}>
+                                        {textData.IS_FRIEND}
+                                    </ThemedText>
                                 </TouchableOpacity>
                             )}
                         </View>

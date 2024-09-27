@@ -4,9 +4,10 @@ import peers from './peers/reducer';
 import auth from './auth/reducer';
 import chatRoom from './chatRoom/reducer';
 import socket from './socket/reducer';
+import notifications from './notifications/reducer';
 
 export const store = configureStore({
-    reducer: { setting, peers, auth, chatRoom, socket },
+    reducer: { setting, peers, auth, chatRoom, socket, notifications },
     middleware(getDefaultMiddleware) {
         return getDefaultMiddleware().concat([]);
     },
